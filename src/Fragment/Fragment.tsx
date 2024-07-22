@@ -2,10 +2,12 @@ class Fragment {}
 
 class SpellPart extends Fragment {
     public glyph: Fragment;
+    public subParts: Array<SpellPart>;
 
-    constructor(glyph: Fragment) {
+    constructor(glyph: Fragment, subParts: Array<SpellPart>) {
         super();
         this.glyph = glyph;
+        this.subParts = subParts;
     }
 }
 

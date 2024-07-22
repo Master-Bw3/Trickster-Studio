@@ -15,6 +15,13 @@ async () => {
     await Assets.loadBundle('fonts');
 };
 
+const testSpellPart = new SpellPart(new NumberFragment(0), [
+    new SpellPart(new NumberFragment(1), [
+        new SpellPart(new NumberFragment(3), [new SpellPart(new NumberFragment(4), [])]),
+        new SpellPart(new NumberFragment(2), []),
+    ]),
+]);
+
 function App() {
     const [width, height] = useWindowSize();
 
@@ -22,10 +29,11 @@ function App() {
         <>
             <Stage width={width} height={height} options={{ background: 0x222223 }}>
                 <SpellCircle
-                    scale={Math.min(width, height) / 100}
+                    size={Math.min(width, height) / 5}
                     x={width / 2}
                     y={height / 2}
-                    spellPart={new SpellPart(new NumberFragment(10.0))}
+                    spellPart={testSpellPart}
+                    startingAngle={0}
                 />
             </Stage>
         </>

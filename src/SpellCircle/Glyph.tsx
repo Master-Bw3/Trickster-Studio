@@ -8,6 +8,7 @@ function Glyph(props: { glyph: Fragment; x: number; y: number; scale: number }) 
     if (glyph instanceof NumberFragment) {
         return (
             <Text
+                alpha={0.8}
                 text={glyph.value.toString()}
                 anchor={0.5}
                 x={props.x}
@@ -16,6 +17,7 @@ function Glyph(props: { glyph: Fragment; x: number; y: number; scale: number }) 
                     new TextStyle({
                         fontFamily: 'Monocraft',
                         fontSize: props.scale * 20,
+                        fill: 0xffffff,
                     })
                 }
             />
