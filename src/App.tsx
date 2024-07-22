@@ -5,7 +5,8 @@ import { Assets } from 'pixi.js';
 import { Stage, Container, Sprite, Text } from '@pixi/react';
 import '@pixi/events';
 import { SpellCircle } from './SpellCircle/SpellCircle';
-import { NumberFragment, SpellPart } from './Fragment/Fragment';
+import NumberFragment from './Fragment/NumberFragment';
+import SpellPart from './Fragment/SpellPart';
 
 async () => {
     Assets.addBundle('fonts', [

@@ -2,8 +2,8 @@ import '../App.css';
 import { Container, Sprite } from '@pixi/react';
 import '@pixi/events';
 import { SCALE_MODES, Texture } from 'pixi.js';
-import { SpellPart } from '../Fragment/Fragment';
 import { Glyph } from './Glyph';
+import SpellPart from '../Fragment/SpellPart';
 
 const circle = Texture.from('/circle_48.png');
 circle.baseTexture.scaleMode = SCALE_MODES.NEAREST;
@@ -53,7 +53,7 @@ function SpellCircleComponent(props: {
                 glyph={props.spellPart.glyph}
                 x={props.x}
                 y={props.y}
-                scale={props.size * scale}
+                size={props.size * scale}
             />
             {subCircles}
         </Container>
