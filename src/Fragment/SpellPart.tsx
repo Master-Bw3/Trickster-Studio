@@ -16,7 +16,7 @@ class SpellPart implements Fragment {
                 spellPart={this}
                 x={props.x}
                 y={props.y}
-                size={props.size}
+                size={props.size / 3}
                 startingAngle={0}
             ></SpellCircle>
         );

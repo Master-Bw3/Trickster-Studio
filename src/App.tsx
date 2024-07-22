@@ -16,7 +16,7 @@ async () => {
     await Assets.loadBundle('fonts');
 };
 
-const testSpellPart = new SpellPart(new NumberFragment(0), [
+const testSpellPart = new SpellPart(new SpellPart(new NumberFragment(0), []), [
     new SpellPart(new NumberFragment(1), [
         new SpellPart(new NumberFragment(3), [new SpellPart(new NumberFragment(4), [])]),
         new SpellPart(new NumberFragment(2), []),

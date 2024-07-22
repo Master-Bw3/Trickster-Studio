@@ -11,6 +11,8 @@ class NumberFragment implements Fragment {
     }
 
     renderAsGlyph(props: { x: number; y: number; size: number }): ReactElement {
+        const color = 0xdaa800;
+        const scale = 0.5;
         return (
             <Text
                 alpha={0.8}
@@ -23,8 +25,8 @@ class NumberFragment implements Fragment {
                 style={
                     new TextStyle({
                         fontFamily: 'Monocraft',
-                        fontSize: props.size * 20,
-                        fill: 0xffffff,
+                        fontSize: props.size * scale,
+                        fill: color,
                     })
                 }
             />

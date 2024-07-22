@@ -16,7 +16,7 @@ function SpellCircleComponent(props: {
     startingAngle: number;
     zIndex: number;
 }) {
-    const scale = 0.045;
+    const scale = 0.04;
     const partCount = props.spellPart.subParts.length;
 
     const subCircles = props.spellPart.subParts.map((spellPart, index) => {
@@ -35,7 +35,7 @@ function SpellCircleComponent(props: {
                 y={y}
                 size={size}
                 startingAngle={angle}
-                zIndex={props.zIndex - 1}
+                zIndex={props.zIndex + 1}
             />
         );
     });
@@ -49,12 +49,7 @@ function SpellCircleComponent(props: {
                 y={props.y}
                 scale={props.size * scale}
             />
-            <Glyph
-                glyph={props.spellPart.glyph}
-                x={props.x}
-                y={props.y}
-                size={props.size * scale}
-            />
+            <Glyph glyph={props.spellPart.glyph} x={props.x} y={props.y} size={props.size} />
             {subCircles}
         </Container>
     );
