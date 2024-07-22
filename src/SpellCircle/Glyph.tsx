@@ -13,6 +13,8 @@ function Glyph(props: { glyph: Fragment; x: number; y: number; scale: number }) 
                 anchor={0.5}
                 x={props.x}
                 y={props.y}
+                roundPixels={false}
+                resolution={10}
                 style={
                     new TextStyle({
                         fontFamily: 'Monocraft',
