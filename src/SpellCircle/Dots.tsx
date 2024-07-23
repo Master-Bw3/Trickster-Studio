@@ -29,7 +29,7 @@ export default function Dots(props: { glyph: Fragment; x: number; y: number; siz
                 var dotScale = 1;
 
                 if (
-                    isInsideHitbox(new Point(x, y), pixelSize, mousePos.x, mousePos.y) &&
+                    isInsideHitbox(pos, pixelSize, mousePos.x, mousePos.y) &&
                     isCircleClickable(size)
                 ) {
                     dotScale = 1.6;
