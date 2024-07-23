@@ -6,6 +6,7 @@ import SpellPart from '../Fragment/SpellPart';
 import Fragment from '../Fragment/Fragment';
 import '@pixi/events';
 import Dots from './Dots';
+import { useState } from 'react';
 
 const circle = Texture.from('/circle_48.png');
 circle.baseTexture.scaleMode = SCALE_MODES.NEAREST;
@@ -42,6 +43,8 @@ export function SpellCircle(props: {
         );
     });
 
+    const [isDrawing, setDrawing] = useState(false);
+
     return (
         <Container sortableChildren={true} zIndex={props.zIndex}>
             <Sprite
@@ -52,7 +55,14 @@ export function SpellCircle(props: {
                 scale={props.size * scale}
             />
             <Glyph glyph={props.spellPart.glyph} x={props.x} y={props.y} size={props.size} />
-            <Dots glyph={props.spellPart.glyph} x={props.x} y={props.y} size={props.size} />
+            <Dots
+                glyph={props.spellPart.glyph}
+                x={props.x}
+                y={props.y}
+                size={props.size}
+                isDrawing={isDrawing}
+                setDrawing={setDrawing}
+            />
             {subCircles}
         </Container>
     );

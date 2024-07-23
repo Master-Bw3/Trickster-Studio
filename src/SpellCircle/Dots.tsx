@@ -1,20 +1,23 @@
 import { Vector2 } from '@amandaghassaei/vector-math';
 import { Point, Graphics as PixiGraphics } from 'pixi.js';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, Dispatch } from 'react';
 import Fragment from '../Fragment/Fragment';
 import { Graphics, Container } from '@pixi/react';
 import PatternGlyph from '../Fragment/Pattern';
 
-export default function Dots(props: { glyph: Fragment; x: number; y: number; size: number }) {
-    const x = props.x;
-    const y = props.y;
-    const size = props.size;
+type DotsPropsType = {
+    glyph: Fragment;
+    x: number;
+    y: number;
+    size: number;
+    isDrawing: boolean;
+    setDrawing: Dispatch<React.SetStateAction<boolean>>;
+};
+
+export default function Dots({ glyph, x, y, size, isDrawing, setDrawing }: DotsPropsType) {
     const patternSize = size / 2.5;
     const pixelSize = patternSize / 24;
-    const alpha = props.glyph instanceof PatternGlyph ? 1 : 0.5;
-
-    //temporary
-    const isDrawing = false;
+    const alpha = glyph instanceof PatternGlyph ? 1 : 0.5;
 
     const [globalMousePos, setMousePos] = useState(new Point(0, 0));
     const mousePos = new Point(globalMousePos.x - x, globalMousePos.y - y);
@@ -61,19 +64,28 @@ export default function Dots(props: { glyph: Fragment; x: number; y: number; siz
                     new Point(pos.x + dotSize, pos.y - dotSize),
                 ]);
                 g.endFill();
+
+                if (i == 5) {
+                    console.log(mousePos, pos);
+                }
             }
         },
-        [props, globalMousePos]
+        [glyph, x, y, size, isDrawing, mousePos]
     );
 
     return (
         <Container
+            x={x}
+            y={y}
             eventMode={'static'}
             onglobalmousemove={(e) => {
                 setMousePos(new Point(e.x, e.y));
             }}
+            mousedown={(e) => {
+                setMousePos(new Point(e.x, e.y));
+            }}
         >
-            <Graphics x={x} y={y} width={size} height={size} scale={1.2} draw={draw} />
+            <Graphics width={size} height={size} scale={1} draw={draw} />
         </Container>
     );
 }
