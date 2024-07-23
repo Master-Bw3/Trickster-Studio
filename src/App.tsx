@@ -1,12 +1,13 @@
 import './App.css';
 import { useEffect, useLayoutEffect, useState } from 'react';
 
-import { Assets } from 'pixi.js';
+import { Assets, SCALE_MODES, Texture } from 'pixi.js';
 import { Stage, Container, Sprite, Text } from '@pixi/react';
 import '@pixi/events';
 import { SpellCircle } from './SpellCircle/SpellCircle';
 import NumberFragment from './Fragment/NumberFragment';
 import SpellPart from './Fragment/SpellPart';
+import PatternGlyph from './Fragment/Pattern';
 
 async () => {
     Assets.addBundle('fonts', [
@@ -16,15 +17,19 @@ async () => {
     await Assets.loadBundle('fonts');
 };
 
-const testSpellPart = new SpellPart(new SpellPart(new NumberFragment(0), []), [
-    new SpellPart(new NumberFragment(1), [
-        new SpellPart(new NumberFragment(3), [new SpellPart(new NumberFragment(4), [])]),
-        new SpellPart(new NumberFragment(2), []),
-    ]),
-]);
+const testSpellPart = new SpellPart(new PatternGlyph([]), []);
+
+// const testSpellPart = new SpellPart(new PatternGlyph([]), [
+//     new SpellPart(new NumberFragment(1), [
+//         new SpellPart(new NumberFragment(3), [new SpellPart(new NumberFragment(4), [])]),
+//         new SpellPart(new NumberFragment(2), []),
+//     ]),
+// ]);
 
 function App() {
     const [width, height] = useWindowSize();
+    const circle = Texture.from('/circle_48.png');
+    circle.baseTexture.scaleMode = SCALE_MODES.NEAREST;
 
     return (
         <>

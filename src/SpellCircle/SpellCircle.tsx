@@ -1,9 +1,14 @@
 import '../App.css';
-import { Container, Sprite } from '@pixi/react';
+import { Container, Graphics, Sprite, useTick } from '@pixi/react';
 import '@pixi/events';
-import { SCALE_MODES, Texture } from 'pixi.js';
-import { Glyph } from './Glyph';
+import { Geometry, Graphics as PixiGraphics, Point, Polygon, SCALE_MODES, Texture } from 'pixi.js';
 import SpellPart from '../Fragment/SpellPart';
+import Fragment from '../Fragment/Fragment';
+import PatternGlyph, { DotIndex } from '../Fragment/Pattern';
+import { useCallback, useEffect, useState } from 'react';
+import '@pixi/events';
+import { Vector2 } from '@amandaghassaei/vector-math';
+import Dots from './Dots';
 
 const circle = Texture.from('/circle_48.png');
 circle.baseTexture.scaleMode = SCALE_MODES.NEAREST;
@@ -50,6 +55,7 @@ function SpellCircleComponent(props: {
                 scale={props.size * scale}
             />
             <Glyph glyph={props.spellPart.glyph} x={props.x} y={props.y} size={props.size} />
+            <Dots glyph={props.spellPart.glyph} x={props.x} y={props.y} size={props.size} />
             {subCircles}
         </Container>
     );
@@ -58,5 +64,9 @@ function SpellCircleComponent(props: {
 SpellCircleComponent.defaultProps = {
     zIndex: 0,
 };
+
+function Glyph(props: { glyph: Fragment; x: number; y: number; size: number }) {
+    return props.glyph.renderAsGlyph(props);
+}
 
 export { SpellCircleComponent as SpellCircle };
