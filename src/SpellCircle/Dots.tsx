@@ -3,6 +3,7 @@ import { Point, Graphics as PixiGraphics } from 'pixi.js';
 import { useState, useCallback } from 'react';
 import Fragment from '../Fragment/Fragment';
 import { Graphics, Container } from '@pixi/react';
+import PatternGlyph from '../Fragment/Pattern';
 
 export default function Dots(props: { glyph: Fragment; x: number; y: number; size: number }) {
     const x = props.x;
@@ -10,6 +11,7 @@ export default function Dots(props: { glyph: Fragment; x: number; y: number; siz
     const size = props.size;
     const patternSize = size / 2.5;
     const pixelSize = patternSize / 24;
+    const alpha = props.glyph instanceof PatternGlyph ? 1 : 0.5;
 
     //temporary
     const isDrawing = false;
@@ -50,7 +52,7 @@ export default function Dots(props: { glyph: Fragment; x: number; y: number; siz
                     r: (isDrawing && isLinked ? 0.5 : 1) * 255,
                     g: (isDrawing && isLinked ? 0.5 : 1) * 255,
                     b: 255,
-                    a: 0.5,
+                    a: 0.5 * alpha,
                 });
                 g.drawPolygon([
                     new Point(pos.x - dotSize, pos.y - dotSize),

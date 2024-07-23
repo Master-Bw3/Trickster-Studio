@@ -17,14 +17,14 @@ async () => {
     await Assets.loadBundle('fonts');
 };
 
-const testSpellPart = new SpellPart(new PatternGlyph([]), []);
+// const testSpellPart = new SpellPart(new PatternGlyph([]), []);
 
-// const testSpellPart = new SpellPart(new PatternGlyph([]), [
-//     new SpellPart(new NumberFragment(1), [
-//         new SpellPart(new NumberFragment(3), [new SpellPart(new NumberFragment(4), [])]),
-//         new SpellPart(new NumberFragment(2), []),
-//     ]),
-// ]);
+const testSpellPart = new SpellPart(new PatternGlyph([]), [
+    new SpellPart(new NumberFragment(1), [
+        new SpellPart(new NumberFragment(3), [new SpellPart(new NumberFragment(4), [])]),
+        new SpellPart(new NumberFragment(2), []),
+    ]),
+]);
 
 function App() {
     const [width, height] = useWindowSize();
