@@ -1,9 +1,10 @@
 import { Vector2 } from '@amandaghassaei/vector-math';
-import { Point, Graphics as PixiGraphics } from 'pixi.js';
+import { Point, Graphics as PixiGraphics, Rectangle, Polygon } from 'pixi.js';
 import { useState, useCallback, Dispatch } from 'react';
 import Fragment from '../Fragment/Fragment';
 import { Graphics, Container } from '@pixi/react';
 import PatternGlyph from '../Fragment/Pattern';
+import { SpellCircle } from './SpellCircle';
 
 type DotsPropsType = {
     glyph: Fragment;
@@ -11,28 +12,29 @@ type DotsPropsType = {
     y: number;
     size: number;
     isDrawing: boolean;
-    setDrawing: Dispatch<React.SetStateAction<boolean>>;
+    startDrawing: (p: number) => void;
 };
 
-export default function Dots({ glyph, x, y, size, isDrawing, setDrawing }: DotsPropsType) {
+export default function Dots({ glyph, x, y, size, isDrawing, startDrawing }: DotsPropsType) {
     const patternSize = size / 2.5;
     const pixelSize = patternSize / 24;
     const alpha = glyph instanceof PatternGlyph ? 1 : 0.5;
 
-    const [globalMousePos, setMousePos] = useState(new Point(0, 0));
+    const [globalMousePos, setGlobalMousePos] = useState(new Point(0, 0));
     const mousePos = new Point(globalMousePos.x - x, globalMousePos.y - y);
 
-    const draw = useCallback(
-        (g: PixiGraphics) => {
-            g.clear();
-            for (let i = 0; i < 9; i++) {
-                var pos = getPatternDotPosition(0, 0, i, patternSize);
+    let dots = [];
+
+    const draw = (pos: Point, hitboxSize: number) =>
+        useCallback(
+            (g: PixiGraphics) => {
+                g.clear();
 
                 var isLinked = false; //isDrawing ? drawingPattern.contains((byte) i) : patternList.contains(i);
                 var dotScale = 1;
 
                 if (
-                    isInsideHitbox(pos, pixelSize, mousePos.x, mousePos.y) &&
+                    isInsideHitbox(pos, hitboxSize, mousePos.x, mousePos.y) &&
                     isCircleClickable(size)
                 ) {
                     dotScale = 1.6;
@@ -45,7 +47,7 @@ export default function Dots({ glyph, x, y, size, isDrawing, setDrawing }: DotsP
                         dotScale = Math.min(Math.max(patternSize / mouseDistance - 0.2, 0), 1);
                     } else {
                         // Skip the dot if its too small to click
-                        continue;
+                        return;
                     }
                 }
 
@@ -64,14 +66,35 @@ export default function Dots({ glyph, x, y, size, isDrawing, setDrawing }: DotsP
                     new Point(pos.x + dotSize, pos.y - dotSize),
                 ]);
                 g.endFill();
+            },
+            [glyph, x, y, size, isDrawing, mousePos]
+        );
 
-                if (i == 5) {
-                    console.log(mousePos, pos);
-                }
-            }
-        },
-        [glyph, x, y, size, isDrawing, mousePos]
-    );
+    for (let i = 0; i < 9; i++) {
+        const pos = getPatternDotPosition(0, 0, i, patternSize);
+        const hitboxSize = 6 * pixelSize;
+        const hitArea = new Polygon([
+            new Point(pos.x - hitboxSize, pos.y - hitboxSize),
+            new Point(pos.x - hitboxSize, pos.y + hitboxSize),
+            new Point(pos.x + hitboxSize, pos.y + hitboxSize),
+            new Point(pos.x + hitboxSize, pos.y - hitboxSize),
+        ]);
+
+        dots.push(
+            <Graphics
+                key={i}
+                width={size}
+                height={size}
+                scale={1}
+                draw={draw(pos, hitboxSize)}
+                hitArea={hitArea}
+                eventMode={'static'}
+                mousedown={(_) => {
+                    startDrawing(i);
+                }}
+            />
+        );
+    }
 
     return (
         <Container
@@ -79,18 +102,15 @@ export default function Dots({ glyph, x, y, size, isDrawing, setDrawing }: DotsP
             y={y}
             eventMode={'static'}
             onglobalmousemove={(e) => {
-                setMousePos(new Point(e.x, e.y));
-            }}
-            mousedown={(e) => {
-                setMousePos(new Point(e.x, e.y));
+                setGlobalMousePos(new Point(e.x, e.y));
             }}
         >
-            <Graphics width={size} height={size} scale={1} draw={draw} />
+            {dots}
         </Container>
     );
 }
 
-function getPatternDotPosition(x: number, y: number, i: number, size: number): Point {
+export function getPatternDotPosition(x: number, y: number, i: number, size: number): Point {
     let xSign = (i % 3) - 1;
     let ySign = Math.floor(i / 3) - 1;
 
@@ -102,8 +122,7 @@ function getPatternDotPosition(x: number, y: number, i: number, size: number): P
     return new Point(x + xSign * size, y + ySign * size);
 }
 
-function isInsideHitbox(pos: Point, pixelSize: number, mouseX: number, mouseY: number): boolean {
-    var hitboxSize = 6 * pixelSize;
+function isInsideHitbox(pos: Point, hitboxSize: number, mouseX: number, mouseY: number): boolean {
     return (
         mouseX >= pos.x - hitboxSize &&
         mouseX <= pos.x + hitboxSize &&
