@@ -1,5 +1,13 @@
 import './App.css';
-import { Dispatch, SetStateAction, useEffect, useLayoutEffect, useState } from 'react';
+import {
+    createContext,
+    Dispatch,
+    SetStateAction,
+    useContext,
+    useEffect,
+    useLayoutEffect,
+    useState,
+} from 'react';
 
 import { Assets, Point, SCALE_MODES, Texture, Graphics as PixiGraphics } from 'pixi.js';
 import { Stage, Container, Sprite, Text, Graphics } from '@pixi/react';
@@ -45,28 +53,19 @@ export type Drawing = null | {
 
 function SpellCircleEditor(props: { width: number; height: number }) {
     const [drawing, setDrawing]: [Drawing, any] = useState(null);
-    const [mousePos, setMousePos] = useState(new Point(0, 0));
 
     return (
         <Stage width={props.width} height={props.height} options={{ background: 0x222223 }}>
-            <Container
-                eventMode={'static'}
-                onglobalmousemove={(e) => {
-                    setMousePos(new Point(e.x, e.y));
-                }}
-            >
-                <SpellCircle
-                    size={Math.min(props.width, props.height) / 5}
-                    x={props.width / 2}
-                    y={props.height / 2}
-                    spellPart={testSpellPart}
-                    startingAngle={0}
-                    zIndex={0}
-                    drawing={drawing}
-                    setDrawing={setDrawing}
-                    mousePos={mousePos}
-                />
-            </Container>
+            <SpellCircle
+                size={Math.min(props.width, props.height) / 5}
+                x={props.width / 2}
+                y={props.height / 2}
+                spellPart={testSpellPart}
+                startingAngle={0}
+                zIndex={0}
+                drawing={drawing}
+                setDrawing={setDrawing}
+            />
         </Stage>
     );
 }

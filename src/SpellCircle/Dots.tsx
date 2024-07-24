@@ -13,6 +13,8 @@ type DotsPropsType = {
     size: number;
     isDrawing: boolean;
     startDrawing: (p: number) => void;
+    stopDrawing: () => void;
+    addPoint: (p: number) => void;
     mousePos: Point;
     patternSize: number;
     pixelSize: number;
@@ -26,6 +28,8 @@ export default function Dots({
     size,
     isDrawing,
     startDrawing,
+    stopDrawing,
+    addPoint,
     mousePos,
     patternSize,
     pixelSize,
@@ -99,7 +103,10 @@ export default function Dots({
                 hitArea={hitArea}
                 eventMode={'static'}
                 mousedown={(_) => {
-                    startDrawing(i);
+                    isDrawing ? stopDrawing() : startDrawing(i);
+                }}
+                mouseover={() => {
+                    if (isDrawing) addPoint(i);
                 }}
             />
         );

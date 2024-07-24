@@ -1,6 +1,7 @@
 import { ReactElement } from 'react';
 import Fragment from './Fragment';
 import { SpellCircle } from '../SpellCircle/SpellCircle';
+import { Point } from 'pixi.js';
 
 class SpellPart implements Fragment {
     public glyph: Fragment;
@@ -18,6 +19,9 @@ class SpellPart implements Fragment {
                 y={props.y}
                 size={props.size / 3}
                 startingAngle={0}
+                zIndex={0}
+                drawing={null}
+                setDrawing={undefined}
             ></SpellCircle>
         );
     }
