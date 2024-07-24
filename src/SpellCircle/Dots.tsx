@@ -14,6 +14,9 @@ type DotsPropsType = {
     isDrawing: boolean;
     startDrawing: (p: number) => void;
     mousePos: Point;
+    patternSize: number;
+    pixelSize: number;
+    dotPositions: Array<Point>;
 };
 
 export default function Dots({
@@ -24,14 +27,13 @@ export default function Dots({
     isDrawing,
     startDrawing,
     mousePos,
+    patternSize,
+    pixelSize,
+    dotPositions,
 }: DotsPropsType) {
-    const patternSize = size / 2.5;
-    const pixelSize = patternSize / 24;
     const alpha = glyph instanceof PatternGlyph ? 1 : 0.5;
 
     const localMousePos = new Point(mousePos.x - x, mousePos.y - y);
-
-    let dots = [];
 
     const draw = (pos: Point, hitboxSize: number) =>
         useCallback(
@@ -78,8 +80,7 @@ export default function Dots({
             [glyph, x, y, size, isDrawing, mousePos]
         );
 
-    for (let i = 0; i < 9; i++) {
-        const pos = getPatternDotPosition(0, 0, i, patternSize);
+    const dots = dotPositions.map((pos, i) => {
         const hitboxSize = 6 * pixelSize;
         const hitArea = new Polygon([
             new Point(pos.x - hitboxSize, pos.y - hitboxSize),
@@ -88,7 +89,7 @@ export default function Dots({
             new Point(pos.x + hitboxSize, pos.y - hitboxSize),
         ]);
 
-        dots.push(
+        return (
             <Graphics
                 key={i}
                 width={size}
@@ -102,13 +103,9 @@ export default function Dots({
                 }}
             />
         );
-    }
+    });
 
-    return (
-        <Container x={x} y={y} eventMode={'static'}>
-            {dots}
-        </Container>
-    );
+    return <Container eventMode={'static'}>{dots}</Container>;
 }
 
 export function getPatternDotPosition(x: number, y: number, i: number, size: number): Point {

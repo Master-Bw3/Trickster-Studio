@@ -31,6 +31,7 @@ export class SpellCircle extends React.Component<SpellCirclePros> {
         const props = this.props;
         const scale = 0.04;
         const partCount = props.spellPart.subParts.length;
+        const localMousePos = new Point(props.mousePos.x - props.x, props.mousePos.y - props.y);
 
         const subCircles = props.spellPart.subParts.map((spellPart, index) => {
             const angle = props.startingAngle + ((2 * Math.PI) / partCount) * index - Math.PI / 2;
@@ -56,15 +57,17 @@ export class SpellCircle extends React.Component<SpellCirclePros> {
             );
         });
 
+        const patternSize = props.size / 2.5;
+        const pixelSize = patternSize / 24;
+        const dotPositions = new Array(9);
+        for (let i = 0; i < 9; i++) {
+            const pos = getPatternDotPosition(0, 0, i, patternSize);
+            dotPositions[i] = pos;
+        }
+
         return (
-            <Container sortableChildren={true} zIndex={props.zIndex}>
-                <Sprite
-                    texture={circle}
-                    anchor={0.5}
-                    x={props.x}
-                    y={props.y}
-                    scale={props.size * scale}
-                />
+            <Container x={props.x} y={props.y} sortableChildren={true} zIndex={props.zIndex}>
+                <Sprite texture={circle} anchor={0.5} scale={props.size * scale} />
                 <Glyph glyph={props.spellPart.glyph} x={props.x} y={props.y} size={props.size} />
                 <Dots
                     glyph={props.spellPart.glyph}
@@ -76,16 +79,16 @@ export class SpellCircle extends React.Component<SpellCirclePros> {
                     startDrawing={(point: number) => {
                         props.setDrawing({ circle: props.spellPart, pattern: [point] });
                     }}
+                    patternSize={patternSize}
+                    pixelSize={pixelSize}
+                    dotPositions={dotPositions}
                 />
                 {props.drawing != null ? (
                     <DrawingLine
-                        startPos={getPatternDotPosition(
-                            props.x,
-                            props.y,
-                            props.drawing.pattern[props.drawing.pattern.length - 1],
-                            props.size
-                        )}
-                        mousePos={props.mousePos}
+                        startPos={
+                            dotPositions[props.drawing.pattern[props.drawing.pattern.length - 1]]
+                        }
+                        mousePos={localMousePos}
                     />
                 ) : null}
                 {subCircles}
