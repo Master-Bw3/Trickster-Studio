@@ -1,5 +1,5 @@
 import './App.css';
-import { useEffect, useLayoutEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useLayoutEffect, useState } from 'react';
 
 import { Assets, Point, SCALE_MODES, Texture, Graphics as PixiGraphics } from 'pixi.js';
 import { Stage, Container, Sprite, Text, Graphics } from '@pixi/react';
@@ -33,32 +33,41 @@ function App() {
 
     return (
         <>
-            <Stage width={width} height={height} options={{ background: 0x222223 }}>
-                <SpellCircleEditor width={width} height={height} />
-            </Stage>
+            <SpellCircleEditor width={width} height={height} />
         </>
     );
 }
 
+export type Drawing = null | {
+    circle: SpellPart;
+    pattern: Pattern;
+};
+
 function SpellCircleEditor(props: { width: number; height: number }) {
-    const [drawingCircle, setDrawingCircle]: [null | SpellCircle, any] = useState(null);
-    const [drawing, setDrawing]: [null | Pattern, any] = useState(null);
+    const [drawing, setDrawing]: [Drawing, any] = useState(null);
+    const [mousePos, setMousePos] = useState(new Point(0, 0));
 
     return (
-        <>
-            <SpellCircle
-                size={Math.min(props.width, props.height) / 5}
-                x={props.width / 2}
-                y={props.height / 2}
-                spellPart={testSpellPart}
-                startingAngle={0}
-                zIndex={0}
-                drawingCircle={drawingCircle}
-                setDrawingCircle={setDrawingCircle}
-                drawing={drawing}
-                setDrawing={setDrawing}
-            />
-        </>
+        <Stage width={props.width} height={props.height} options={{ background: 0x222223 }}>
+            <Container
+                eventMode={'static'}
+                onglobalmousemove={(e) => {
+                    setMousePos(new Point(e.x, e.y));
+                }}
+            >
+                <SpellCircle
+                    size={Math.min(props.width, props.height) / 5}
+                    x={props.width / 2}
+                    y={props.height / 2}
+                    spellPart={testSpellPart}
+                    startingAngle={0}
+                    zIndex={0}
+                    drawing={drawing}
+                    setDrawing={setDrawing}
+                    mousePos={mousePos}
+                />
+            </Container>
+        </Stage>
     );
 }
 

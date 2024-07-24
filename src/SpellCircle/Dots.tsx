@@ -13,15 +13,23 @@ type DotsPropsType = {
     size: number;
     isDrawing: boolean;
     startDrawing: (p: number) => void;
+    mousePos: Point;
 };
 
-export default function Dots({ glyph, x, y, size, isDrawing, startDrawing }: DotsPropsType) {
+export default function Dots({
+    glyph,
+    x,
+    y,
+    size,
+    isDrawing,
+    startDrawing,
+    mousePos,
+}: DotsPropsType) {
     const patternSize = size / 2.5;
     const pixelSize = patternSize / 24;
     const alpha = glyph instanceof PatternGlyph ? 1 : 0.5;
 
-    const [globalMousePos, setGlobalMousePos] = useState(new Point(0, 0));
-    const mousePos = new Point(globalMousePos.x - x, globalMousePos.y - y);
+    const localMousePos = new Point(mousePos.x - x, mousePos.y - y);
 
     let dots = [];
 
@@ -34,15 +42,15 @@ export default function Dots({ glyph, x, y, size, isDrawing, startDrawing }: Dot
                 var dotScale = 1;
 
                 if (
-                    isInsideHitbox(pos, hitboxSize, mousePos.x, mousePos.y) &&
+                    isInsideHitbox(pos, hitboxSize, localMousePos.x, localMousePos.y) &&
                     isCircleClickable(size)
                 ) {
                     dotScale = 1.6;
                 } else if (!isLinked) {
                     if (isCircleClickable(size)) {
                         var mouseDistance = new Vector2(
-                            mousePos.x - pos.x,
-                            mousePos.y - pos.y
+                            localMousePos.x - pos.x,
+                            localMousePos.y - pos.y
                         ).length();
                         dotScale = Math.min(Math.max(patternSize / mouseDistance - 0.2, 0), 1);
                     } else {
@@ -97,14 +105,7 @@ export default function Dots({ glyph, x, y, size, isDrawing, startDrawing }: Dot
     }
 
     return (
-        <Container
-            x={x}
-            y={y}
-            eventMode={'static'}
-            onglobalmousemove={(e) => {
-                setGlobalMousePos(new Point(e.x, e.y));
-            }}
-        >
+        <Container x={x} y={y} eventMode={'static'}>
             {dots}
         </Container>
     );
