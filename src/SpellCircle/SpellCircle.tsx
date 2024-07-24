@@ -6,10 +6,11 @@ import SpellPart from '../Fragment/SpellPart';
 import Fragment from '../Fragment/Fragment';
 import '@pixi/events';
 import Dots, { getPatternDotPosition } from './Dots';
-import { ReactNode, useState } from 'react';
+import { ReactNode, useCallback, useState } from 'react';
 import React from 'react';
 import { Pattern } from '../Fragment/Pattern';
 import { Drawing } from '../App';
+import { Vector2 } from '@amandaghassaei/vector-math';
 
 const circle = Texture.from('/circle_48.png');
 circle.baseTexture.scaleMode = SCALE_MODES.NEAREST;
@@ -65,6 +66,8 @@ export class SpellCircle extends React.Component<SpellCirclePros> {
             dotPositions[i] = pos;
         }
 
+        const isDrawing = props.drawing != null && props.drawing.circle == props.spellPart;
+
         return (
             <Container x={props.x} y={props.y} sortableChildren={true} zIndex={props.zIndex}>
                 <Sprite texture={circle} anchor={0.5} scale={props.size * scale} />
@@ -75,7 +78,7 @@ export class SpellCircle extends React.Component<SpellCirclePros> {
                     y={props.y}
                     size={props.size}
                     mousePos={props.mousePos}
-                    isDrawing={props.drawing != null && props.drawing.circle == props.spellPart}
+                    isDrawing={isDrawing}
                     startDrawing={(point: number) => {
                         props.setDrawing({ circle: props.spellPart, pattern: [point] });
                     }}
@@ -83,12 +86,13 @@ export class SpellCircle extends React.Component<SpellCirclePros> {
                     pixelSize={pixelSize}
                     dotPositions={dotPositions}
                 />
-                {props.drawing != null ? (
-                    <DrawingLine
+                {isDrawing ? (
+                    <GlyphLine
                         startPos={
                             dotPositions[props.drawing.pattern[props.drawing.pattern.length - 1]]
                         }
-                        mousePos={localMousePos}
+                        endPos={localMousePos}
+                        size={pixelSize}
                     />
                 ) : null}
                 {subCircles}
@@ -97,13 +101,42 @@ export class SpellCircle extends React.Component<SpellCirclePros> {
     }
 }
 
-function DrawingLine({ startPos, mousePos }: { startPos: Point; mousePos: Point }) {
-    const draw = (g: PixiGraphics) => {
-        g.clear()
-            .lineStyle({ width: 2, color: 0xffffff })
-            .moveTo(startPos.x, startPos.y)
-            .lineTo(mousePos.x, mousePos.y);
-    };
+function GlyphLine({ startPos, endPos, size }: { startPos: Point; endPos: Point; size: number }) {
+    const draw = useCallback(
+        (g: PixiGraphics) => {
+            console.log(startPos, endPos);
+
+            var parallelVec = new Vector2(startPos.y - endPos.y, endPos.x - startPos.x)
+                .normalize()
+                .multiplyScalar(Math.floor(size / 2));
+            var directionVec = new Vector2(startPos.x - endPos.x, startPos.y - endPos.y)
+                .normalize()
+                .multiplyScalar(size * 3);
+
+            g.clear();
+            g.beginFill(0xffffff, 0.5);
+            g.drawPolygon([
+                new Point(
+                    startPos.x - parallelVec.x - directionVec.x,
+                    startPos.y - parallelVec.y - directionVec.y
+                ),
+                new Point(
+                    startPos.x + parallelVec.x - directionVec.x,
+                    startPos.y + parallelVec.y - directionVec.y
+                ),
+                new Point(
+                    endPos.x + parallelVec.x + directionVec.x,
+                    endPos.y + parallelVec.y + directionVec.y
+                ),
+                new Point(
+                    endPos.x - parallelVec.x + directionVec.x,
+                    endPos.y - parallelVec.y + directionVec.y
+                ),
+            ]);
+            g.endFill();
+        },
+        [startPos, endPos, size]
+    );
 
     return <Graphics draw={draw} />;
 }
