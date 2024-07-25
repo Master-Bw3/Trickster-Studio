@@ -1,7 +1,6 @@
 import { ReactElement } from 'react';
-import Fragment from './Fragment';
+import Fragment from './Glyph';
 import { SpellCircle } from '../SpellCircle/SpellCircle';
-import { Point } from 'pixi.js';
 
 class SpellPart implements Fragment {
     public glyph: Fragment;

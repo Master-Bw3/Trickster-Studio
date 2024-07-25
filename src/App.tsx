@@ -1,21 +1,12 @@
 import './App.css';
-import {
-    createContext,
-    Dispatch,
-    SetStateAction,
-    useContext,
-    useEffect,
-    useLayoutEffect,
-    useState,
-} from 'react';
+import { useLayoutEffect, useState } from 'react';
 
-import { Assets, Point, SCALE_MODES, Texture, Graphics as PixiGraphics } from 'pixi.js';
-import { Stage, Container, Sprite, Text, Graphics } from '@pixi/react';
+import { Assets, SCALE_MODES, Texture } from 'pixi.js';
+import { Stage } from '@pixi/react';
 import '@pixi/events';
-import { SpellCircle } from './SpellCircle/SpellCircle';
-import NumberFragment from './Fragment/NumberFragment';
-import SpellPart from './Fragment/SpellPart';
-import PatternGlyph, { Pattern } from './Fragment/Pattern';
+import { SpellCircle } from './UI/SpellCircle/SpellCircle';
+import SpellPart from './UI/Glyph/SpellPart';
+import PatternGlyph, { Pattern } from './UI/Glyph/Pattern';
 
 async () => {
     Assets.addBundle('fonts', [

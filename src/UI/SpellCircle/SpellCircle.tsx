@@ -1,15 +1,15 @@
-import '../App.css';
+import '../../App.css';
 import { Container, Sprite } from '@pixi/react';
 import '@pixi/events';
 import { Point, SCALE_MODES, Texture } from 'pixi.js';
-import SpellPart from '../Fragment/SpellPart';
-import Fragment from '../Fragment/Fragment';
+import SpellPart from '../Glyph/SpellPart';
+import Fragment from '../Glyph/Glyph';
 import '@pixi/events';
 import Dots, { getPatternDotPosition } from './Dots';
 import { useState } from 'react';
-import { Drawing } from '../App';
+import { Drawing } from '../../App';
 import { GlyphLine, GlyphLines } from './Lines';
-import PatternGlyph, { Pattern } from '../Fragment/Pattern';
+import PatternGlyph, { Pattern } from '../Glyph/Pattern';
 
 const circle = Texture.from('/circle_48.png');
 circle.baseTexture.scaleMode = SCALE_MODES.NEAREST;

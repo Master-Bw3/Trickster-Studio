@@ -1,9 +1,9 @@
 import { Vector2 } from '@amandaghassaei/vector-math';
 import { Point, Graphics as PixiGraphics, Rectangle, Polygon } from 'pixi.js';
 import { useState, useCallback, Dispatch } from 'react';
-import Fragment from '../Fragment/Fragment';
+import Fragment from '../Glyph/Glyph';
 import { Graphics, Container } from '@pixi/react';
-import PatternGlyph from '../Fragment/Pattern';
+import PatternGlyph from '../Glyph/Pattern';
 import { SpellCircle } from './SpellCircle';
 
 type DotsPropsType = {

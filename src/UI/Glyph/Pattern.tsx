@@ -1,5 +1,5 @@
 import { ReactElement } from 'react';
-import Fragment from './Fragment';
+import Fragment from './Glyph';
 import { GlyphLines } from '../SpellCircle/Lines';
 import { Point } from 'pixi.js';
 import { getPatternDotPosition } from '../SpellCircle/Dots';

@@ -1,5 +1,5 @@
 import { ReactElement } from 'react';
-import Fragment from './Fragment';
+import Fragment from './Glyph';
 import { Text } from '@pixi/react';
 import { TextStyle } from 'pixi.js';
 
