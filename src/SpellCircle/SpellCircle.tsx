@@ -9,7 +9,7 @@ import Dots, { getPatternDotPosition } from './Dots';
 import { useState } from 'react';
 import { Drawing } from '../App';
 import { GlyphLine, GlyphLines } from './Lines';
-import { Pattern } from '../Fragment/Pattern';
+import PatternGlyph, { Pattern } from '../Fragment/Pattern';
 
 const circle = Texture.from('/circle_48.png');
 circle.baseTexture.scaleMode = SCALE_MODES.NEAREST;
@@ -55,8 +55,8 @@ export function SpellCircle(props: SpellCirclePros) {
         );
     });
 
-    const patternSize = props.size / 2.5;
-    const pixelSize = patternSize / 24;
+    const patternSize = getPatternSize(props.size);
+    const pixelSize = getPixelSize(props.size);
     const dotPositions = new Array(9);
     for (let i = 0; i < 9; i++) {
         const pos = getPatternDotPosition(0, 0, i, patternSize);
@@ -90,7 +90,8 @@ export function SpellCircle(props: SpellCirclePros) {
                 pixelSize={pixelSize}
                 dotPositions={dotPositions}
                 stopDrawing={function (): void {
-                    throw new Error('Function not implemented.');
+                    if (drawing != null) props.spellPart.glyph = new PatternGlyph(drawing.pattern);
+                    props.setDrawing(null);
                 }}
                 addPoint={function (p: number): void {
                     if (
@@ -140,4 +141,11 @@ function hasOverlappingLines(pattern: Pattern, p1: number, p2: number): boolean 
     }
 
     return false;
+}
+
+export function getPatternSize(size: number) {
+    return size / 2.5;
+}
+export function getPixelSize(size: number) {
+    return getPatternSize(size) / 24;
 }

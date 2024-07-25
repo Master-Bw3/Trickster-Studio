@@ -12,6 +12,8 @@ export function GlyphLines({
     pattern: Array<number>;
     pixelSize: number;
 }) {
+    if (pattern.length < 2) return;
+
     var lines = new Array(pattern.length - 1);
 
     for (let i = 1; i < pattern.length; i++) {
