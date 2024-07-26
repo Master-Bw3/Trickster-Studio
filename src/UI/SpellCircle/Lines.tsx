@@ -47,7 +47,7 @@ export function GlyphLine({
             parallelVec =
                 parallelVec.length() == 0
                     ? parallelVec
-                    : parallelVec.normalize().multiplyScalar(Math.floor(pixelSize / 2));
+                    : parallelVec.normalize().multiplyScalar(pixelSize / 2);
 
             var directionVec = new Vector2(startPos.x - endPos.x, startPos.y - endPos.y);
 

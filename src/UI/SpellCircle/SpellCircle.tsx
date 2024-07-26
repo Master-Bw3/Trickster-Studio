@@ -52,7 +52,7 @@ export function SpellCircle(props: SpellCirclePros) {
                 startingAngle={angle}
                 zIndex={props.zIndex + 1}
                 drawing={drawing}
-                setDrawing={drawing}
+                setDrawing={props.setDrawing}
             />
         );
     });
