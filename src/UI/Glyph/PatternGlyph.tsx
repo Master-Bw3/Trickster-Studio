@@ -14,6 +14,7 @@ export default function PatternGlyph(props: GlyphProps<PatternFragment>) {
             dotPositions={globalDotPositions}
             pattern={props.fragment.pattern}
             pixelSize={getPixelSize(props.size)}
+            color={0xffffff}
         />
     );
 }

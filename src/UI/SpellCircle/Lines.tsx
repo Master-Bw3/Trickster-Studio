@@ -7,10 +7,12 @@ export function GlyphLines({
     dotPositions,
     pattern,
     pixelSize,
+    color,
 }: {
     dotPositions: Array<Point>;
     pattern: Array<number>;
     pixelSize: number;
+    color: number;
 }) {
     if (pattern.length < 2) return;
 
@@ -26,6 +28,7 @@ export function GlyphLines({
                 startPos={dotPositions[start]}
                 endPos={dotPositions[end]}
                 pixelSize={pixelSize}
+                color={color}
             />
         );
     }
@@ -36,10 +39,12 @@ export function GlyphLine({
     startPos,
     endPos,
     pixelSize,
+    color,
 }: {
     startPos: Point;
     endPos: Point;
     pixelSize: number;
+    color: number;
 }) {
     const draw = useCallback(
         (g: PixiGraphics) => {
@@ -57,7 +62,7 @@ export function GlyphLine({
                     : directionVec.normalize().multiplyScalar(pixelSize * 3);
 
             g.clear();
-            g.beginFill(0xffffff, 0.5);
+            g.beginFill(color, 0.5);
             g.drawPolygon([
                 new Point(
                     startPos.x - parallelVec.x - directionVec.x,

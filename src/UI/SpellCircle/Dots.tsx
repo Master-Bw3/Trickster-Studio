@@ -4,6 +4,7 @@ import { useCallback, useEffect } from 'react';
 import { Graphics, Container } from '@pixi/react';
 import PatternGlyph from '../Glyph/PatternGlyph';
 import Fragment from '../../Interpreter/Fragment';
+import PatternFragment, { Pattern } from '../../Interpreter/PatternFragment';
 
 type DotsPropsType = {
     glyph: Fragment;
@@ -11,6 +12,7 @@ type DotsPropsType = {
     y: number;
     size: number;
     isDrawing: boolean;
+    drawingPattern: Pattern | undefined;
     startDrawing: (p: number) => void;
     stopDrawing: () => void;
     addPoint: (p: number) => void;
@@ -25,9 +27,10 @@ export default function Dots({
     x,
     y,
     size,
-    isDrawing,
     startDrawing,
     stopDrawing,
+    isDrawing,
+    drawingPattern,
     addPoint,
     mousePos,
     patternSize,
@@ -38,12 +41,15 @@ export default function Dots({
     const hitboxSize = 6 * pixelSize;
     const localMousePos = new Point(mousePos.x - x, mousePos.y - y);
 
-    const draw = (pos: Point, hitboxSize: number) =>
+    const draw = (pos: Point, dotIndex: number) =>
         useCallback(
             (g: PixiGraphics) => {
                 g.clear();
 
-                var isLinked = false; //isDrawing ? drawingPattern.contains((byte) i) : patternList.contains(i);
+                var isLinked =
+                    (isDrawing && drawingPattern?.includes(dotIndex)) ||
+                    (glyph instanceof PatternFragment && glyph.pattern.includes(dotIndex));
+
                 var dotScale = 1;
 
                 if (
@@ -119,7 +125,7 @@ export default function Dots({
                 x={x}
                 y={y}
                 scale={1}
-                draw={draw(pos, hitboxSize)}
+                draw={draw(pos, i)}
                 hitArea={hitArea}
                 eventMode={'static'}
                 mouseover={() => {

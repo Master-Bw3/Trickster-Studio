@@ -105,6 +105,7 @@ export function SpellCircle(props: SpellCirclePros) {
                 size={props.size}
                 mousePos={mousePos}
                 isDrawing={drawing != null && drawing.circle == props.spellPart}
+                drawingPattern={drawing?.pattern}
                 startDrawing={(point: number) => {
                     props.setDrawing({ circle: props.spellPart, pattern: [point] });
                 }}
@@ -135,11 +136,13 @@ export function SpellCircle(props: SpellCirclePros) {
                         dotPositions={globalDotPositions}
                         pattern={drawing.pattern}
                         pixelSize={pixelSize}
+                        color={0x7f7fff}
                     />
                     <GlyphLine
                         startPos={globalDotPositions[drawing.pattern[drawing.pattern.length - 1]]}
                         endPos={mousePos}
                         pixelSize={pixelSize}
+                        color={0x7f7fff}
                     />
                 </>
             ) : null}
