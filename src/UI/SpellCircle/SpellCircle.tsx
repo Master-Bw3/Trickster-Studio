@@ -2,16 +2,14 @@ import '../../App.css';
 import { Container, Sprite } from '@pixi/react';
 import '@pixi/events';
 import { Point, SCALE_MODES, Texture } from 'pixi.js';
-import Fragment from '../Glyph/Glyph';
 import '@pixi/events';
 import Dots, { getPatternDotPosition } from './Dots';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Drawing } from '../../App';
 import { GlyphLine, GlyphLines } from './Lines';
 import PatternGlyph from '../Glyph/PatternGlyph';
 import SpellPart from '../../Interpreter/SpellPart';
-import Glyph from '../Glyph/Glyph';
-import { Pattern } from '../../Interpreter/PatternFragment';
+import PatternFragment, { Pattern } from '../../Interpreter/PatternFragment';
 import GlyphRegistry from '../Glyph/GlyphRegistry';
 
 const circle = Texture.from('/circle_48.png');
@@ -66,7 +64,7 @@ export function SpellCircle(props: SpellCirclePros) {
         dotPositions[i] = pos;
     }
 
-    const glyphComponent = GlyphRegistry.find(props.spellPart.glyph.type);
+    const GlyphComponent = GlyphRegistry.find(props.spellPart.glyph.type)!;
 
     return (
         <Container
@@ -80,7 +78,18 @@ export function SpellCircle(props: SpellCirclePros) {
             }}
         >
             <Sprite texture={circle} anchor={0.5} scale={props.size * scale} />
-            <Glyph glyph={props.spellPart.glyph} x={props.x} y={props.y} size={props.size} />
+            {drawing == null ? (
+                <GlyphComponent
+                    fragment={props.spellPart.glyph}
+                    x={props.x}
+                    y={props.y}
+                    size={props.size}
+                    zIndex={props.zIndex}
+                    drawing={props.drawing}
+                    setDrawing={props.setDrawing}
+                    dotPositions={dotPositions}
+                />
+            ) : null}
             <Dots
                 glyph={props.spellPart.glyph}
                 x={props.x}
@@ -95,7 +104,8 @@ export function SpellCircle(props: SpellCirclePros) {
                 pixelSize={pixelSize}
                 dotPositions={dotPositions}
                 stopDrawing={function (): void {
-                    if (drawing != null) props.spellPart.glyph = new PatternGlyph(drawing.pattern);
+                    if (drawing != null)
+                        props.spellPart.glyph = new PatternFragment(drawing.pattern);
                     props.setDrawing(null);
                 }}
                 addPoint={function (p: number): void {

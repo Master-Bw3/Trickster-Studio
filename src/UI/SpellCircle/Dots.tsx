@@ -1,10 +1,9 @@
 import { Vector2 } from '@amandaghassaei/vector-math';
-import { Point, Graphics as PixiGraphics, Rectangle, Polygon } from 'pixi.js';
-import { useState, useCallback, Dispatch } from 'react';
-import Fragment from '../Glyph/Glyph';
+import { Point, Graphics as PixiGraphics, Polygon } from 'pixi.js';
+import { useCallback, useEffect } from 'react';
 import { Graphics, Container } from '@pixi/react';
 import PatternGlyph from '../Glyph/PatternGlyph';
-import { SpellCircle } from './SpellCircle';
+import Fragment from '../../Interpreter/Fragment';
 
 type DotsPropsType = {
     glyph: Fragment;
@@ -36,7 +35,7 @@ export default function Dots({
     dotPositions,
 }: DotsPropsType) {
     const alpha = glyph instanceof PatternGlyph ? 1 : 0.5;
-
+    const hitboxSize = 6 * pixelSize;
     const localMousePos = new Point(mousePos.x - x, mousePos.y - y);
 
     const draw = (pos: Point, hitboxSize: number) =>
@@ -84,8 +83,27 @@ export default function Dots({
             [glyph, x, y, size, isDrawing, mousePos]
         );
 
+    useEffect(() => {
+        const onMouseDown = (_: Event) => {
+            if (isDrawing) {
+                stopDrawing();
+            } else {
+                dotPositions.forEach((dot, index) => {
+                    if (isInsideHitbox(dot, hitboxSize, localMousePos.x, localMousePos.y)) {
+                        startDrawing(index);
+                    }
+                });
+            }
+        };
+
+        window.addEventListener('mousedown', onMouseDown);
+
+        return () => {
+            window.removeEventListener('mousedown', onMouseDown);
+        };
+    });
+
     const dots = dotPositions.map((pos, i) => {
-        const hitboxSize = 6 * pixelSize;
         const hitArea = new Polygon([
             new Point(pos.x - hitboxSize, pos.y - hitboxSize),
             new Point(pos.x - hitboxSize, pos.y + hitboxSize),
@@ -102,9 +120,6 @@ export default function Dots({
                 draw={draw(pos, hitboxSize)}
                 hitArea={hitArea}
                 eventMode={'static'}
-                mousedown={(_) => {
-                    isDrawing ? stopDrawing() : startDrawing(i);
-                }}
                 mouseover={() => {
                     if (isDrawing) addPoint(i);
                 }}

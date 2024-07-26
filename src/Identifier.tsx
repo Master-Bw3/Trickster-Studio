@@ -6,4 +6,8 @@ export class Identifier {
         this.namespace = namespace;
         this.path = path;
     }
+
+    public toString() {
+        return this.namespace + ':' + this.path;
+    }
 }

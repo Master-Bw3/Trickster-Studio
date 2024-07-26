@@ -3,7 +3,7 @@ import { getPixelSize } from '../SpellCircle/SpellCircle';
 import PatternFragment from '../../Interpreter/PatternFragment';
 import { GlyphProps } from './Glyph';
 
-export default function NumberGlyph(props: GlyphProps<PatternFragment>) {
+export default function PatternGlyph(props: GlyphProps<PatternFragment>) {
     return (
         <GlyphLines
             dotPositions={props.dotPositions}
