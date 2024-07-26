@@ -8,6 +8,7 @@ import { SpellCircle } from './UI/SpellCircle/SpellCircle';
 import PatternGlyph from './UI/Glyph/PatternGlyph';
 import SpellPart from './Interpreter/SpellPart';
 import PatternFragment, { Pattern } from './Interpreter/PatternFragment';
+import NumberFragment from './Interpreter/NumberFragment';
 
 async () => {
     Assets.addBundle('fonts', [
@@ -17,14 +18,14 @@ async () => {
     await Assets.loadBundle('fonts');
 };
 
-const testSpellPart = new SpellPart(new PatternFragment([0, 1, 2, 3]), []);
+// const testSpellPart = new SpellPart(new PatternFragment([0, 1, 2, 3]), []);
 
-// const testSpellPart = new SpellPart(new PatternGlyph([]), [
-//     new SpellPart(new NumberFragment(1), [
-//         new SpellPart(new NumberFragment(3), [new SpellPart(new NumberFragment(4), [])]),
-//         new SpellPart(new NumberFragment(2), []),
-//     ]),
-// ]);
+const testSpellPart = new SpellPart(new NumberFragment(0), [
+    new SpellPart(new NumberFragment(1), [
+        new SpellPart(new NumberFragment(3), [new SpellPart(new NumberFragment(4), [])]),
+        new SpellPart(new NumberFragment(2), []),
+    ]),
+]);
 
 function App() {
     const [width, height] = useWindowSize();

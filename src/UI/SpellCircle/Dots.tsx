@@ -116,6 +116,8 @@ export default function Dots({
                 key={i}
                 width={size}
                 height={size}
+                x={x}
+                y={y}
                 scale={1}
                 draw={draw(pos, hitboxSize)}
                 hitArea={hitArea}

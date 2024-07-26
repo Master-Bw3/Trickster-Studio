@@ -29,6 +29,7 @@ type SpellCirclePros = {
 export function SpellCircle(props: SpellCirclePros) {
     const scale = 0.04;
     const partCount = props.spellPart.subParts.length;
+    const [globalPos, setGlobalPos] = useState(new Point());
     const [mousePos, setMousePos] = useState(new Point());
     const localMousePos = new Point(mousePos.x - props.x, mousePos.y - props.y);
     const drawing = props.drawing;
@@ -63,13 +64,14 @@ export function SpellCircle(props: SpellCirclePros) {
         const pos = getPatternDotPosition(0, 0, i, patternSize);
         dotPositions[i] = pos;
     }
+    const globalDotPositions = dotPositions.map((pos) => {
+        return new Point(props.x + pos.x, props.y + pos.y);
+    });
 
     const GlyphComponent = GlyphRegistry.find(props.spellPart.glyph.type)!;
 
     return (
         <Container
-            x={props.x}
-            y={props.y}
             sortableChildren={true}
             zIndex={props.zIndex}
             eventMode={'static'}
@@ -77,8 +79,14 @@ export function SpellCircle(props: SpellCirclePros) {
                 setMousePos(new Point(e.x, e.y));
             }}
         >
-            <Sprite texture={circle} anchor={0.5} scale={props.size * scale} />
-            {drawing == null ? (
+            <Sprite
+                texture={circle}
+                anchor={0.5}
+                scale={props.size * scale}
+                x={props.x}
+                y={props.y}
+            />
+            {drawing?.circle != props.spellPart ? (
                 <GlyphComponent
                     fragment={props.spellPart.glyph}
                     x={props.x}
@@ -124,13 +132,13 @@ export function SpellCircle(props: SpellCirclePros) {
             {drawing != null && drawing.circle == props.spellPart ? (
                 <>
                     <GlyphLines
-                        dotPositions={dotPositions}
+                        dotPositions={globalDotPositions}
                         pattern={drawing.pattern}
                         pixelSize={pixelSize}
                     />
                     <GlyphLine
-                        startPos={dotPositions[drawing.pattern[drawing.pattern.length - 1]]}
-                        endPos={localMousePos}
+                        startPos={globalDotPositions[drawing.pattern[drawing.pattern.length - 1]]}
+                        endPos={mousePos}
                         pixelSize={pixelSize}
                     />
                 </>

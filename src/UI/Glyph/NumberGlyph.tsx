@@ -4,8 +4,6 @@ import { TextStyle } from 'pixi.js';
 import NumberFragment from '../../Interpreter/NumberFragment';
 
 export default function NumberGlyph(props: GlyphProps<NumberFragment>) {
-    const x = props.x;
-    const y = props.y;
     const size = props.size;
     const number = props.fragment;
 
@@ -13,11 +11,11 @@ export default function NumberGlyph(props: GlyphProps<NumberFragment>) {
     const scale = 0.5;
     return (
         <Text
+            x={props.x}
+            y={props.y}
             alpha={0.8}
             text={number.toString()}
             anchor={0.5}
-            x={x}
-            y={y}
             roundPixels={false}
             resolution={10}
             style={
