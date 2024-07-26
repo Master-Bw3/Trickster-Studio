@@ -6,6 +6,10 @@ export default class NumberFragment extends Fragment {
         return new Identifier('trickster', 'number');
     }
 
+    get type(): Identifier {
+        return NumberFragment.type;
+    }
+
     public value: number;
 
     constructor(value: number) {

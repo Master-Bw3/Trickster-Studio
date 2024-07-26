@@ -8,6 +8,6 @@ export default abstract class Fragment {
     }
 
     get type(): Identifier {
-        return this.type;
+        return Fragment.type;
     }
 }

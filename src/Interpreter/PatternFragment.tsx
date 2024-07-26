@@ -8,6 +8,10 @@ export default class PatternFragment extends Fragment {
         return new Identifier('trickster', 'pattern');
     }
 
+    get type(): Identifier {
+        return PatternFragment.type;
+    }
+
     public pattern: Pattern;
 
     constructor(value: Pattern) {

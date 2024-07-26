@@ -14,4 +14,4 @@ export type GlyphProps<T extends Fragment> = {
     dotPositions: Array<Point>;
 };
 
-export default abstract class Glyph<T extends Fragment> extends React.Component<GlyphProps<T>> {}
+export type Glyph<T extends Fragment> = React.FunctionComponent<GlyphProps<T>>;

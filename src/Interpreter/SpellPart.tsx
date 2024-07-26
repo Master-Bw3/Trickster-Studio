@@ -6,6 +6,10 @@ export default class SpellPart extends Fragment {
         return new Identifier('trickster', 'spellpart');
     }
 
+    get type(): Identifier {
+        return SpellPart.type;
+    }
+
     public glyph: Fragment;
     public subParts: Array<SpellPart>;
 
