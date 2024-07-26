@@ -2,14 +2,17 @@ import '../../App.css';
 import { Container, Sprite } from '@pixi/react';
 import '@pixi/events';
 import { Point, SCALE_MODES, Texture } from 'pixi.js';
-import SpellPart from '../Glyph/SpellPart';
 import Fragment from '../Glyph/Glyph';
 import '@pixi/events';
 import Dots, { getPatternDotPosition } from './Dots';
 import { useState } from 'react';
 import { Drawing } from '../../App';
 import { GlyphLine, GlyphLines } from './Lines';
-import PatternGlyph, { Pattern } from '../Glyph/Pattern';
+import PatternGlyph from '../Glyph/PatternGlyph';
+import SpellPart from '../../Interpreter/SpellPart';
+import Glyph from '../Glyph/Glyph';
+import { Pattern } from '../../Interpreter/PatternFragment';
+import GlyphRegistry from '../Glyph/GlyphRegistry';
 
 const circle = Texture.from('/circle_48.png');
 circle.baseTexture.scaleMode = SCALE_MODES.NEAREST;
@@ -62,6 +65,8 @@ export function SpellCircle(props: SpellCirclePros) {
         const pos = getPatternDotPosition(0, 0, i, patternSize);
         dotPositions[i] = pos;
     }
+
+    const glyphComponent = GlyphRegistry.find(props.spellPart.glyph.type);
 
     return (
         <Container
@@ -123,10 +128,6 @@ export function SpellCircle(props: SpellCirclePros) {
             {subCircles}
         </Container>
     );
-}
-
-function Glyph(props: { glyph: Fragment; x: number; y: number; size: number }) {
-    return props.glyph.renderAsGlyph(props);
 }
 
 function hasOverlappingLines(pattern: Pattern, p1: number, p2: number): boolean {

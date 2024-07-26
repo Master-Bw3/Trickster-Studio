@@ -2,30 +2,31 @@ import { ReactElement } from 'react';
 import Fragment from './Glyph';
 import { Text } from '@pixi/react';
 import { TextStyle } from 'pixi.js';
+import Glyph from './Glyph';
+import NumberFragment from '../../Interpreter/NumberFragment';
 
-class NumberFragment implements Fragment {
-    public value: number;
+export default class NumberGlyph extends Glyph<NumberFragment> {
+    render(): ReactElement {
+        const x = this.props.x;
+        const y = this.props.y;
+        const size = this.props.size;
+        const number = this.props.fragment;
 
-    constructor(value: number) {
-        this.value = value;
-    }
-
-    renderAsGlyph(props: { x: number; y: number; size: number }): ReactElement {
         const color = 0xdaa800;
         const scale = 0.5;
         return (
             <Text
                 alpha={0.8}
-                text={this.value.toString()}
+                text={number.toString()}
                 anchor={0.5}
-                x={props.x}
-                y={props.y}
+                x={x}
+                y={y}
                 roundPixels={false}
                 resolution={10}
                 style={
                     new TextStyle({
                         fontFamily: 'Monocraft',
-                        fontSize: props.size * scale,
+                        fontSize: size * scale,
                         fill: color,
                     })
                 }
@@ -33,5 +34,3 @@ class NumberFragment implements Fragment {
         );
     }
 }
-
-export default NumberFragment;

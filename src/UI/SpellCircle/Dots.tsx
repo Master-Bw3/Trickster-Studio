@@ -3,7 +3,7 @@ import { Point, Graphics as PixiGraphics, Rectangle, Polygon } from 'pixi.js';
 import { useState, useCallback, Dispatch } from 'react';
 import Fragment from '../Glyph/Glyph';
 import { Graphics, Container } from '@pixi/react';
-import PatternGlyph from '../Glyph/Pattern';
+import PatternGlyph from '../Glyph/PatternGlyph';
 import { SpellCircle } from './SpellCircle';
 
 type DotsPropsType = {

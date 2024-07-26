@@ -5,8 +5,8 @@ import { Assets, SCALE_MODES, Texture } from 'pixi.js';
 import { Stage } from '@pixi/react';
 import '@pixi/events';
 import { SpellCircle } from './UI/SpellCircle/SpellCircle';
-import SpellPart from './UI/Glyph/SpellPart';
-import PatternGlyph, { Pattern } from './UI/Glyph/Pattern';
+import SpellPart from './UI/Glyph/CircleGlyph';
+import PatternGlyph, { Pattern } from './UI/Glyph/PatternGlyph';
 
 async () => {
     Assets.addBundle('fonts', [
