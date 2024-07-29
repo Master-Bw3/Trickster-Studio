@@ -1,14 +1,16 @@
 import './App.css';
-import { useLayoutEffect, useState } from 'react';
+import { Children, PropsWithChildren, useCallback, useLayoutEffect, useRef, useState } from 'react';
 
-import { Assets, SCALE_MODES, Texture } from 'pixi.js';
-import { Stage } from '@pixi/react';
+import { Application, Assets, SCALE_MODES, Texture } from 'pixi.js';
+import { PixiComponent, Stage } from '@pixi/react';
 import '@pixi/events';
 import { SpellCircle } from './UI/SpellCircle/SpellCircle';
 import PatternGlyph from './UI/Glyph/PatternGlyph';
 import SpellPart from './Interpreter/SpellPart';
 import PatternFragment, { Pattern } from './Interpreter/PatternFragment';
 import NumberFragment from './Interpreter/NumberFragment';
+import { Viewport } from 'pixi-viewport';
+import { PixiViewport } from './UI/Viewport';
 
 async () => {
     Assets.addBundle('fonts', [
@@ -47,18 +49,52 @@ export type Drawing = null | {
 function SpellCircleEditor(props: { width: number; height: number }) {
     const [drawing, setDrawing]: [Drawing, any] = useState(null);
 
+    const size = Math.floor(Math.min(props.width, props.height) / 5);
+    const [app, setApp]: [null | Application, any] = useState(null);
+    const viewportRef = useRef<Viewport>(null);
+
+    viewportRef.current?.on('wheel', (event) => {
+        const { client, deltaY } = event;
+        const direction = -Math.sign(deltaY);
+        // Calculate new scale factor
+        let scaleFactor = viewportRef.current!.scale._x + 10 * direction;
+        // Clamp scale factor between min and max scale values
+        scaleFactor = Math.max(scaleFactor, -1000);
+        scaleFactor = Math.min(scaleFactor, 1000);
+        const before = viewportRef.current!.width;
+        viewportRef.current!.setZoom(scaleFactor);
+        const after = viewportRef.current!.width;
+        const factor = after / before;
+        viewportRef.current!.x -= (client.x - viewportRef.current!.x) * (factor - 1);
+        viewportRef.current!.y -= (client.y - viewportRef.current!.y) * (factor - 1);
+    });
+
     return (
-        <Stage width={props.width} height={props.height} options={{ background: 0x222223 }}>
-            <SpellCircle
-                size={Math.min(props.width, props.height) / 5}
-                x={props.width / 2}
-                y={props.height / 2}
-                spellPart={testSpellPart}
-                startingAngle={0}
-                zIndex={0}
-                drawing={drawing}
-                setDrawing={setDrawing}
-            />
+        <Stage
+            width={props.width}
+            height={props.height}
+            options={{ background: 0x222223 }}
+            onMount={setApp}
+        >
+            <PixiViewport
+                ref={viewportRef}
+                screenWidth={props.width}
+                screenHeight={props.height}
+                worldWidth={2000}
+                worldHeight={2000}
+                viewportPlugins={['drag', 'wheel']}
+            >
+                <SpellCircle
+                    size={size}
+                    x={props.width / 2}
+                    y={props.height / 2}
+                    spellPart={testSpellPart}
+                    startingAngle={0}
+                    zIndex={0}
+                    drawing={drawing}
+                    setDrawing={setDrawing}
+                />
+            </PixiViewport>
         </Stage>
     );
 }

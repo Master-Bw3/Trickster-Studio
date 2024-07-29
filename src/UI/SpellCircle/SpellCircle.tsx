@@ -79,74 +79,79 @@ export function SpellCircle(props: SpellCirclePros) {
                 setMousePos(new Point(e.x, e.y));
             }}
         >
-            <Sprite
-                texture={circle}
-                anchor={0.5}
-                scale={props.size * scale}
-                x={props.x}
-                y={props.y}
-            />
-            {drawing?.circle != props.spellPart ? (
-                <GlyphComponent
-                    fragment={props.spellPart.glyph}
-                    x={props.x}
-                    y={props.y}
-                    size={props.size}
-                    zIndex={props.zIndex}
-                    drawing={props.drawing}
-                    setDrawing={props.setDrawing}
-                    dotPositions={dotPositions}
-                />
-            ) : null}
-            <Dots
-                glyph={props.spellPart.glyph}
-                x={props.x}
-                y={props.y}
-                size={props.size}
-                mousePos={mousePos}
-                isDrawing={drawing != null && drawing.circle == props.spellPart}
-                drawingPattern={drawing?.pattern}
-                startDrawing={(point: number) => {
-                    props.setDrawing({ circle: props.spellPart, pattern: [point] });
-                }}
-                patternSize={patternSize}
-                pixelSize={pixelSize}
-                dotPositions={dotPositions}
-                stopDrawing={function (): void {
-                    if (drawing != null)
-                        props.spellPart.glyph = new PatternFragment(drawing.pattern);
-                    props.setDrawing(null);
-                }}
-                addPoint={function (p: number): void {
-                    if (
-                        drawing != null &&
-                        !hasOverlappingLines(
-                            drawing.pattern,
-                            drawing.pattern[drawing.pattern.length - 1],
-                            p
-                        )
-                    )
-                        drawing?.pattern.push(p);
-                }}
-            />
-
-            {drawing != null && drawing.circle == props.spellPart ? (
+            {subCircles}
+            {props.size < 800 ? (
                 <>
-                    <GlyphLines
-                        dotPositions={globalDotPositions}
-                        pattern={drawing.pattern}
-                        pixelSize={pixelSize}
-                        color={0x7f7fff}
+                    <Sprite
+                        texture={circle}
+                        anchor={0.5}
+                        scale={props.size * scale}
+                        x={props.x}
+                        y={props.y}
                     />
-                    <GlyphLine
-                        startPos={globalDotPositions[drawing.pattern[drawing.pattern.length - 1]]}
-                        endPos={mousePos}
+                    {drawing?.circle != props.spellPart ? (
+                        <GlyphComponent
+                            fragment={props.spellPart.glyph}
+                            x={props.x}
+                            y={props.y}
+                            size={props.size}
+                            zIndex={props.zIndex}
+                            drawing={props.drawing}
+                            setDrawing={props.setDrawing}
+                            dotPositions={dotPositions}
+                        />
+                    ) : null}
+                    <Dots
+                        glyph={props.spellPart.glyph}
+                        x={props.x}
+                        y={props.y}
+                        size={props.size}
+                        mousePos={mousePos}
+                        isDrawing={drawing != null && drawing.circle == props.spellPart}
+                        drawingPattern={drawing?.pattern}
+                        startDrawing={(point: number) => {
+                            props.setDrawing({ circle: props.spellPart, pattern: [point] });
+                        }}
+                        patternSize={patternSize}
                         pixelSize={pixelSize}
-                        color={0x7f7fff}
+                        dotPositions={dotPositions}
+                        stopDrawing={function (): void {
+                            if (drawing != null)
+                                props.spellPart.glyph = new PatternFragment(drawing.pattern);
+                            props.setDrawing(null);
+                        }}
+                        addPoint={function (p: number): void {
+                            if (
+                                drawing != null &&
+                                !hasOverlappingLines(
+                                    drawing.pattern,
+                                    drawing.pattern[drawing.pattern.length - 1],
+                                    p
+                                )
+                            )
+                                drawing?.pattern.push(p);
+                        }}
                     />
+                    {drawing != null && drawing.circle == props.spellPart ? (
+                        <>
+                            <GlyphLines
+                                dotPositions={globalDotPositions}
+                                pattern={drawing.pattern}
+                                pixelSize={pixelSize}
+                                color={0x7f7fff}
+                            />
+                            <GlyphLine
+                                startPos={
+                                    globalDotPositions[drawing.pattern[drawing.pattern.length - 1]]
+                                }
+                                endPos={mousePos}
+                                pixelSize={pixelSize}
+                                color={0x7f7fff}
+                            />
+                        </>
+                    ) : null}
                 </>
             ) : null}
-            {subCircles}
         </Container>
     );
 }

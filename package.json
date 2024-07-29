@@ -12,6 +12,7 @@
   "dependencies": {
     "@amandaghassaei/vector-math": "^1.0.28",
     "@pixi/react": "^7.1.2",
+    "pixi-viewport": "^5.0.3",
     "pixi.js": "^7.4.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
