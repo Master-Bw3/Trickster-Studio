@@ -1,10 +1,10 @@
 import '../../App.css';
-import { Container, Sprite } from '@pixi/react';
+import { _ReactPixi, Container, PixiRef, Sprite } from '@pixi/react';
 import '@pixi/events';
-import { Point, SCALE_MODES, Texture } from 'pixi.js';
+import { DisplayObject, Point, SCALE_MODES, Texture } from 'pixi.js';
 import '@pixi/events';
 import Dots, { getPatternDotPosition } from './Dots';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Drawing } from '../../App';
 import { GlyphLine, GlyphLines } from './Lines';
 import PatternGlyph from '../Glyph/PatternGlyph';
@@ -14,6 +14,8 @@ import GlyphRegistry from '../Glyph/GlyphRegistry';
 
 const circle = Texture.from('/circle_48.png');
 circle.baseTexture.scaleMode = SCALE_MODES.NEAREST;
+
+type IContainer = PixiRef<typeof Container>;
 
 type SpellCirclePros = {
     spellPart: SpellPart;
@@ -31,7 +33,6 @@ export function SpellCircle(props: SpellCirclePros) {
     const partCount = props.spellPart.subParts.length;
     const [globalPos, setGlobalPos] = useState(new Point());
     const [mousePos, setMousePos] = useState(new Point());
-    const localMousePos = new Point(mousePos.x - props.x, mousePos.y - props.y);
     const drawing = props.drawing;
 
     const subCircles = props.spellPart.subParts.map((spellPart, index) => {
@@ -69,14 +70,17 @@ export function SpellCircle(props: SpellCirclePros) {
     });
 
     const GlyphComponent = GlyphRegistry.find(props.spellPart.glyph.type)!;
+    const circleRef = useRef<IContainer>(null);
 
     return (
         <Container
+            ref={circleRef}
             sortableChildren={true}
             zIndex={props.zIndex}
             eventMode={'static'}
             onglobalmousemove={(e) => {
-                setMousePos(new Point(e.x, e.y));
+                const globalPos = circleRef.current!.getGlobalPosition();
+                setMousePos(new Point(e.x - globalPos.x, e.y - globalPos.y));
             }}
         >
             {subCircles}
