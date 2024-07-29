@@ -48,7 +48,9 @@ export default function Dots({
 
                 var isLinked =
                     (isDrawing && drawingPattern?.includes(dotIndex)) ||
-                    (glyph instanceof PatternFragment && glyph.pattern.includes(dotIndex));
+                    (!isDrawing &&
+                        glyph instanceof PatternFragment &&
+                        glyph.pattern.includes(dotIndex));
 
                 var dotScale = 1;
 
