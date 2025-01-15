@@ -5,7 +5,7 @@ import RevisionContext from "./RevisionContext";
 const Revisions = {
     EXECUTE_OFF_HAND: {
         pattern() {
-            return new Pattern();
+            return new Pattern([]);
         },
 
         apply(a: RevisionContext, b: SpellPart, c: SpellPart) {},

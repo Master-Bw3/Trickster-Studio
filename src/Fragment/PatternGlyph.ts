@@ -1,18 +1,22 @@
-import Pattern from "../Pattern";
+import Pattern, { patternOf } from "../Pattern";
+import Fragment from "./Fragment";
 
-export default class PatternGlyph{
-
+export default class PatternGlyph extends Fragment {
+    pattern: Pattern;
 
     constructor(pattern: Array<number> | Pattern | null = null) {
+        super();
         if (pattern === null) {
-            console.log("Pattern is null");
+            this.pattern = new Pattern([]);
+
         } else if (Array.isArray(pattern)) {
-            console.log("Pattern is an array of numbers:", pattern);
+            this.pattern = patternOf(pattern);
+
         } else if (pattern instanceof Pattern) {
-            console.log("Pattern is an instance of Pattern:", pattern);
+            this.pattern = pattern;
+            
         } else {
             throw new Error("Invalid pattern type");
         }
     }
-
 }

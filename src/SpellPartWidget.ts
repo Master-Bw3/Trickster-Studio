@@ -1,5 +1,5 @@
 import SpellPart from "./Fragment/SpellPart";
-import { Point } from "pixi.js";
+import { Container, Point, Texture } from "pixi.js";
 import RevisionContext from "./RevisionContext";
 import Fragment from "./Fragment/Fragment";
 import SpellCircleRenderer, { getPatternDotPosition, isInsideHitbox, PART_PIXEL_RADIUS, PATTERN_TO_PART_RATIO } from "./SpellCircleRenderer";
@@ -106,25 +106,23 @@ export default class SpellPartWidget {
         this.angleOffsets.push(...newAngleOffsets);
     }
 
-    render(mouseX: number, mouseY: number, delta: number, height: number) {
+    render(container: Container, mouseX: number, mouseY: number, delta: number, height: number, textures: Map<string, Texture>) {
         if (this.isMutable) {
             this.renderer.setMousePosition(mouseX, mouseY);
         }
 
         this.renderer.renderPart(
             //
+            container,
             this.spellPart,
             this.x,
             this.y,
             this.size,
             this.angleOffsets[this.angleOffsets.length - 1],
             delta,
-            (size: number) => Math.min(Math.max(1 / ((size / height) * 3) - 0.2, 0), 1)
+            (size: number) => Math.min(Math.max(1 / ((size / height) * 3) - 0.2, 0), 1),
+            textures
         );
-    }
-
-    isCircleClickable(size: number) {
-        return size >= 16 && size <= 256;
     }
 
     setMutable(mutable: boolean) {
@@ -143,7 +141,7 @@ export default class SpellPartWidget {
         this.x += (verticalAmount * (this.x - this.toScaledSpace(mouseX))) / 10;
         this.y += (verticalAmount * (this.y - this.toScaledSpace(mouseY))) / 10;
 
-        if (this.toLocalSpace(this.size) > 600) {
+        if (this.toLocalSpace(this.size) > 600 * 5) {
             this.pushNewRoot(this.toScaledSpace(mouseX), this.toScaledSpace(mouseY));
         } else if (this.toLocalSpace(this.size) < 300 && !(this.parents.length == 0)) {
             this.popOldRoot();
@@ -490,7 +488,7 @@ export default class SpellPartWidget {
         let closestSize = size;
 
         let centerAvailable =
-            (this.isCircleClickable(this.toLocalSpace(size)) && (this.drawingPart == null || this.drawingPart == part)) ||
+            (isCircleClickable(this.toLocalSpace(size)) && (this.drawingPart == null || this.drawingPart == part)) ||
             part.glyph instanceof SpellPart;
         let closestDistanceSquared = Number.MAX_VALUE;
 
@@ -551,6 +549,10 @@ export default class SpellPartWidget {
     }
 }
 
+function isCircleClickable(size: number) {
+    return size >= 16*5 && size <= 256*5;
+}
+
 type MouseEventHandler = (part: SpellPart, x: number, y: number, size: number) => boolean;
 
-export { MouseEventHandler };
+export { MouseEventHandler, isCircleClickable };
