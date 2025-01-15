@@ -1,4 +1,4 @@
-import { Assets, Container, Graphics, Point, Sprite, Texture } from "pixi.js";
+import { Assets, Color, Container, Graphics, Point, Sprite, Texture } from "pixi.js";
 import SpellPart from "./Fragment/SpellPart";
 import Fragment, { fragmentTypes, getKeyByValue } from "./Fragment/Fragment";
 import PatternGlyph from "./Fragment/PatternGlyph";
@@ -73,6 +73,7 @@ export default class SpellCircleRenderer {
         circle.y = this.toLocalSpace(y - size / 2);
         circle.width = this.toLocalSpace(size);
         circle.height = this.toLocalSpace(size);
+        circle.alpha = alpha
 
         container.addChild(circle);
 
@@ -101,22 +102,17 @@ export default class SpellCircleRenderer {
         const pixelSize = size / PART_PIXEL_RADIUS;
         const lineAngle = startingAngle + ((2 * Math.PI) / partCount) * -0.5 - Math.PI / 2;
 
-        const lineX = x + size * Math.cos(lineAngle);
-        const lineY = y + size * Math.sin(lineAngle);
+        const lineX = x + size * Math.cos(lineAngle) * 0.55;
+        const lineY = y + size * Math.sin(lineAngle) * 0.55;
 
-        const toCenterVec = normalize(new Point(lineX - x, lineY - y));
-        const perpendicularVec = perpendicular(toCenterVec.clone());
-        multiplyScalar(toCenterVec, pixelSize * 6);
-        multiplyScalar(perpendicularVec, pixelSize * 0.5);
+        const toCenter = new Point(lineX - x, lineY - y);
+        const toCenterScaled = normalize(toCenter);
+
+        const lineEnd = new Point(lineX - toCenterScaled.x * 8 * pixelSize, lineY - toCenterScaled.y * 8 * pixelSize);
 
         const g = new Graphics();
-        g.poly([
-            new Point(lineX - perpendicularVec.x + toCenterVec.x * 0.5, lineY - perpendicularVec.y + toCenterVec.y * 0.5),
-            new Point(lineX + perpendicularVec.x + toCenterVec.x * 0.5, lineY + perpendicularVec.y + toCenterVec.y * 0.5),
-            new Point(lineX + perpendicularVec.x - toCenterVec.x, lineY + perpendicularVec.y - toCenterVec.y),
-            new Point(lineX - perpendicularVec.x - toCenterVec.x, lineY - perpendicularVec.y - toCenterVec.y),
-        ]);
-        g.fill(0xffffff);
+        g.poly([new Point(lineX, lineY), lineEnd]);
+        g.stroke({ width: 1 * pixelSize, color: [0.5 * this.r, 0.5 * this.g, 1 * this.b, alpha * 0.2] });
 
         container.addChild(g);
     }
@@ -189,7 +185,7 @@ export default class SpellCircleRenderer {
                     new Point(pos.x + dotSize, pos.y - dotSize),
                 ]);
 
-                g.fill(0xffffff);
+                g.fill([(isDrawing && isLinked ? 0.8 : 1) * this.r, (isDrawing && isLinked ? 0.5 : 1) * this.g, 1 * this.b, 0.7 * alpha]);
 
                 container.addChild(g);
             }
@@ -256,7 +252,7 @@ export default class SpellCircleRenderer {
                         new Point(pos.x + dotSize, pos.y - dotSize),
                     ]);
 
-                    g.fill(0xffffff);
+                    g.fill([this.r, this.g, this.b, 0.25]);
 
                     container.addChild(g);
                 }
@@ -278,14 +274,11 @@ function drawGlyphLine(
     opacity: number,
     animated: boolean
 ) {
-    console.log("hey");
-
     let graphics = new Graphics();
 
-    graphics.stroke({ width: 20, color: 0xffffff });
+    graphics.poly([last, now], true);
 
-    graphics.moveTo(last.x, last.y);
-    graphics.lineTo(now.x, now.y);
+    graphics.stroke({ width: pixelSize, color: 0xffffff });
 
     container.addChild(graphics);
 }

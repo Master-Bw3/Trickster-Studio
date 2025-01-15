@@ -120,7 +120,7 @@ export default class SpellPartWidget {
             this.size,
             this.angleOffsets[this.angleOffsets.length - 1],
             delta,
-            (size: number) => Math.min(Math.max(1 / ((size / height) * 3) - 0.2, 0), 1),
+            (size: number) => Math.min(Math.max(1 / ((size / 1.5 / height) * 3) - 0.2, 0), 1),
             textures
         );
     }
@@ -143,7 +143,7 @@ export default class SpellPartWidget {
 
         if (this.toLocalSpace(this.size) > 600 * 5) {
             this.pushNewRoot(this.toScaledSpace(mouseX), this.toScaledSpace(mouseY));
-        } else if (this.toLocalSpace(this.size) < 300 && !(this.parents.length == 0)) {
+        } else if (this.toLocalSpace(this.size) < 300 * 5 && !(this.parents.length == 0)) {
             this.popOldRoot();
         }
 
@@ -165,8 +165,8 @@ export default class SpellPartWidget {
             for (const child of result!.subParts) {
                 if (child == this.spellPart) {
                     let angle = this.angleOffsets[this.angleOffsets.length - 1] + ((2 * Math.PI) / partCount) * i - Math.PI / 2;
-                    this.x -= parentSize * Math.cos(angle);
-                    this.y -= parentSize * Math.sin(angle);
+                    this.x -= parentSize * Math.cos(angle) * 0.5;
+                    this.y -= parentSize * Math.sin(angle) * 0.5;
                     break;
                 }
 
@@ -202,8 +202,8 @@ export default class SpellPartWidget {
 
         for (const child of this.spellPart.subParts) {
             const angle = this.angleOffsets[this.angleOffsets.length - 1] + ((2 * Math.PI) / partCount) * i - Math.PI / 2;
-            const nextX = this.x + this.size * Math.cos(angle);
-            const nextY = this.y + this.size * Math.sin(angle);
+            const nextX = this.x + this.size * Math.cos(angle) * 0.5;
+            const nextY = this.y + this.size * Math.sin(angle) * 0.5;
             const diffX = nextX - this.x;
             const diffY = nextY - this.y;
             const mDiffX = nextX - mouseX;
@@ -373,6 +373,8 @@ export default class SpellPartWidget {
                     //         ModSounds.DRAW, SoundCategory.MASTER,
                     //         1f, ModSounds.randomPitch(1f, 0.2f)
                     // );
+
+
                 }
 
                 return true;
@@ -499,8 +501,8 @@ export default class SpellPartWidget {
         for (const child of part.getSubParts()) {
             let angle = startingAngle + ((2 * Math.PI) / partCount) * i - Math.PI / 2;
 
-            let nextX = x + size * Math.cos(angle);
-            let nextY = y + size * Math.sin(angle);
+            let nextX = x + size * Math.cos(angle) * 0.5;
+            let nextY = y + size * Math.sin(angle) * 0.5;
             let diffX = nextX - mouseX;
             let diffY = nextY - mouseY;
             let distanceSquared = diffX * diffX + diffY * diffY;
@@ -528,6 +530,8 @@ export default class SpellPartWidget {
                 }
             }
         }
+
+
 
         if (Math.sqrt(closestDistanceSquared) <= size && this.toLocalSpace(size) >= 16) {
             if (closest == part) {
