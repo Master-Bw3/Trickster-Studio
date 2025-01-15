@@ -73,7 +73,7 @@ export default class SpellCircleRenderer {
         circle.y = this.toLocalSpace(y - size / 2);
         circle.width = this.toLocalSpace(size);
         circle.height = this.toLocalSpace(size);
-        circle.alpha = alpha
+        circle.alpha = alpha;
 
         container.addChild(circle);
 
@@ -274,13 +274,22 @@ function drawGlyphLine(
     opacity: number,
     animated: boolean
 ) {
-    let graphics = new Graphics();
+    const directionVec = new Point(last.x - now.x, last.y - now.y);
 
-    graphics.poly([last, now], true);
+    if (magnitude(directionVec) >= pixelSize * 8) {
+        const unitDirectionVec = normalize(directionVec);
 
-    graphics.stroke({ width: pixelSize, color: 0xffffff });
+        const start = new Point(last.x - unitDirectionVec.x * pixelSize * 4, last.y - unitDirectionVec.y * pixelSize * 4);
+        const end = new Point(now.x + unitDirectionVec.x * pixelSize * 4, now.y + unitDirectionVec.y * pixelSize * 4);
 
-    container.addChild(graphics);
+        let graphics = new Graphics();
+
+        graphics.poly([start, end], true);
+
+        graphics.stroke({ width: pixelSize, color: [(isDrawing ? 0.5 : tone) * r, (isDrawing ? 0.5 : tone) * g, tone * b, opacity] });
+
+        container.addChild(graphics);
+    }
 }
 
 function getPatternDotPosition(x: number, y: number, i: number, size: number): Point {
