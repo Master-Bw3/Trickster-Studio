@@ -15,6 +15,24 @@ export default class Pattern {
         }
         return false;
     }
+
+    equals(other: Pattern): boolean {
+        if(other.entries.length != this.entries.length)
+            return false
+
+        let equal = true
+
+        for (let i = 0; i < this.entries.length; i++) {
+            const a = this.entries[i];
+            const b = other.entries[i];
+
+            equal = a.x == b.x && a.y == b.y
+
+            if (!equal) break
+        }
+
+        return equal
+    }
 }
 
 const possibleLines: Array<Point> = new Array(32);

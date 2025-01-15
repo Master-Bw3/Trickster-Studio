@@ -23,9 +23,8 @@ import RevisionContext from "./RevisionContext";
     textures.set("circle_48", await Assets.load("./circle_48.png"));
     textures.get("circle_48")!.source.scaleMode = "nearest";
 
-    const spellPart = new SpellPart(new PatternGlyph(), [new SpellPart(new PatternGlyph(), [new SpellPart(new PatternGlyph(), [new SpellPart(new PatternGlyph(), [])])]), new SpellPart(new PatternGlyph(), []), new SpellPart(new PatternGlyph(), [])]);
 
-    const widget = new SpellPartWidget(spellPart, app.canvas.width / 2, app.canvas.height / 2, 64 * 5, new RevisionContext(), true);
+    const widget = new SpellPartWidget(new SpellPart(), app.canvas.width / 2, app.canvas.height / 2, 64 * 5, new RevisionContext(), true);
 
     widget.render(app.stage, 0, 0, 0, app.canvas.height, textures);
 

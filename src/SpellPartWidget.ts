@@ -5,7 +5,7 @@ import Fragment from "./fragment/Fragment";
 import SpellCircleRenderer, { getPatternDotPosition, isInsideHitbox, PART_PIXEL_RADIUS, PATTERN_TO_PART_RATIO } from "./SpellCircleRenderer";
 import PatternGlyph from "./fragment/PatternGlyph";
 import Pattern, { patternOf } from "./Pattern";
-import Revisions from "./Revisions";
+import * as revision from "./revision";
 
 const PRECISION_OFFSET = Math.pow(2, 50);
 
@@ -122,8 +122,6 @@ export default class SpellPartWidget {
             delta,
             (size: number) => {
                 const alpha = Math.min(height / (size * 2) - 0.1, Math.pow(size, 1.2) / height)
-                console.log(size, height, alpha)
-
                 return Math.min(Math.max(alpha, 0), 1)
             },
             textures
@@ -392,13 +390,14 @@ export default class SpellPartWidget {
     stopDrawing() {
         const compiled = patternOf(this.drawingPattern!);
         const patternSize = this.drawingPattern!.length;
-        const rev = Revisions.lookup(compiled);
+        const rev = revision.lookup(compiled);
+
 
         this.drawingPart!.glyph = this.oldGlyph!;
 
-        if (compiled == Revisions.EXECUTE_OFF_HAND.pattern()) {
+        if (compiled == revision.EXECUTE_OFF_HAND.pattern()) {
             this.toBeReplaced = this.drawingPart;
-            Revisions.EXECUTE_OFF_HAND.apply(this.revisionContext, this.spellPart, this.drawingPart!);
+            revision.EXECUTE_OFF_HAND.apply(this.revisionContext, this.spellPart, this.drawingPart!);
         } else if (rev != null) {
             const result = rev.apply(this.revisionContext, this.spellPart, this.drawingPart!);
 
