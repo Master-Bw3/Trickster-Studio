@@ -1,9 +1,9 @@
-import SpellPart from "./Fragment/SpellPart";
+import SpellPart from "./fragment/SpellPart";
 import { Container, Point, Texture } from "pixi.js";
 import RevisionContext from "./RevisionContext";
-import Fragment from "./Fragment/Fragment";
+import Fragment from "./fragment/Fragment";
 import SpellCircleRenderer, { getPatternDotPosition, isInsideHitbox, PART_PIXEL_RADIUS, PATTERN_TO_PART_RATIO } from "./SpellCircleRenderer";
-import PatternGlyph from "./Fragment/PatternGlyph";
+import PatternGlyph from "./fragment/PatternGlyph";
 import Pattern, { patternOf } from "./Pattern";
 import Revisions from "./Revisions";
 
@@ -120,7 +120,12 @@ export default class SpellPartWidget {
             this.size,
             this.angleOffsets[this.angleOffsets.length - 1],
             delta,
-            (size: number) => Math.min(Math.max(1 / ((size / 1.5 / height) * 3) - 0.2, 0), 1),
+            (size: number) => {
+                const alpha = Math.min(height / (size * 2) - 0.1, Math.pow(size, 1.2) / height)
+                console.log(size, height, alpha)
+
+                return Math.min(Math.max(alpha, 0), 1)
+            },
             textures
         );
     }

@@ -1,4 +1,4 @@
-import SpellPart from "./Fragment/SpellPart";
+import SpellPart from "./fragment/SpellPart";
 import Pattern from "./Pattern";
 
 export default class RevisionContext {

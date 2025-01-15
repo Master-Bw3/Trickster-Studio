@@ -1,7 +1,7 @@
 import { Application, Assets, Container, Matrix, SCALE_MODES, Sprite, Texture } from "pixi.js";
 import SpellPartWidget from "./SpellPartWidget";
-import SpellPart from "./Fragment/SpellPart";
-import PatternGlyph from "./Fragment/PatternGlyph";
+import SpellPart from "./fragment/SpellPart";
+import PatternGlyph from "./fragment/PatternGlyph";
 import RevisionContext from "./RevisionContext";
 
 (async () => {

@@ -1,6 +1,6 @@
 import { Container, Texture } from "pixi.js"
 import SpellCircleRenderer from "./SpellCircleRenderer"
-import Fragment from "./Fragment/Fragment"
+import Fragment from "./fragment/Fragment"
 
 export default interface FragmentRenderer<T extends Fragment> {
     render(fragment: T, container: Container, x: number, y: number, size: number, alpha: number, textures: Map<string, Texture>, delegator: SpellCircleRenderer): void
