@@ -27,7 +27,7 @@ import { decodeSpell } from "./serialization";
     textures.get("circle_48")!.source.scaleMode = "nearest";
 
 
-    const spellPart = decodeSpell("YwqT9+ZnZHDoZGJkY2BgYGZkYGBgYGRkBAkzODRwYIhBABMjlGRkxq0CALUJa4lcAAAA")
+    const spellPart = decodeSpell("YwqT9+ZnYGBgYGTMYWBgYGaEsBlhwqNio2JDUWwDR0MrAwMDE1hsmJEAVqVUkLQDAAA=")
 
     const widget = new SpellPartWidget(spellPart , app.canvas.width / 2, app.canvas.height / 2, 64 * 5, new RevisionContext(), true);
 

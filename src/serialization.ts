@@ -16,7 +16,6 @@ function decodeSpell(encodedString: string): SpellPart {
 
 function translateType(object): Fragment {
     if (object instanceof wasm.SpellPart) {
-        console.log(object)
         return new SpellPart(translateType(object.glyph), object.subParts.map(translateType));
 
     } else if (object instanceof wasm.PatternGlyph) {

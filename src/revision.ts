@@ -24,7 +24,6 @@ const CREATE_SUBCIRCLE: Revision = {
     },
 
     apply(ctx: RevisionContext, root: SpellPart, drawingPart: SpellPart): SpellPart {
-        console.log("hey")
         drawingPart.subParts.push(new SpellPart());
         return root;
     },
