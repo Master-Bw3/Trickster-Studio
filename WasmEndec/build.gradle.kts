@@ -1,3 +1,5 @@
+import org.teavm.gradle.api.JSModuleType
+
 plugins {
     id("java")
     id("war")
@@ -24,8 +26,8 @@ dependencies {
     implementation("com.google.guava:guava:33.4.0-jre")
     implementation("io.netty:netty-all:4.1.24.Final")
     implementation("org.apache.commons:commons-lang3:3.17.0")
-    implementation("io.wispforest.endec:gson:0.1.6")
     implementation("it.unimi.dsi:fastutil:8.5.15")
+    implementation("org.teavm.flavour:teavm-flavour-json:0.2.1")
 
 
 
@@ -40,6 +42,8 @@ teavm {
 
         // this is also optional, default value is <project name>.js
         targetFileName = "endec.js"
+
+        moduleType = JSModuleType.ES2015
     }
     wasmGC {
         addedToWebApp = true

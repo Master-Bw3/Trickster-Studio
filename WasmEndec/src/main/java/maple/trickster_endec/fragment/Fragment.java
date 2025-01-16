@@ -4,9 +4,12 @@ import io.wispforest.endec.Endec;
 import io.wispforest.endec.StructEndec;
 import maple.trickster_endec.Identifier;
 import maple.trickster_endec.endecs.EndecTomfoolery;
+import maple.trickster_endec.spell_instruction.SerializedSpellInstruction;
+import maple.trickster_endec.spell_instruction.SpellInstruction;
+import maple.trickster_endec.spell_instruction.SpellInstructionType;
 
 
-public interface Fragment  {
+public interface Fragment extends SpellInstruction {
     final int MAX_WEIGHT = 64000;
 
     @SuppressWarnings("unchecked")
@@ -18,7 +21,10 @@ public interface Fragment  {
             )
     );
 
-
+    @Override
+    default SerializedSpellInstruction asSerialized() {
+        return new SerializedSpellInstruction(SpellInstructionType.FRAGMENT, this);
+    }
 
     FragmentType<?> type();
 }

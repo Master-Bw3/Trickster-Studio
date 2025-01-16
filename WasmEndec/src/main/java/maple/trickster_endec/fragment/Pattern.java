@@ -3,6 +3,10 @@ package maple.trickster_endec.fragment;
 import com.google.common.collect.ImmutableList;
 import io.wispforest.endec.Endec;
 import maple.trickster_endec.endecs.EndecTomfoolery;
+import org.teavm.jso.JSExport;
+import org.teavm.jso.JSExportClasses;
+import org.teavm.jso.JSProperty;
+import org.teavm.jso.core.JSArray;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,6 +30,14 @@ public record Pattern(List<PatternEntry> entries) implements Fragment {
                 }
             }
         }
+    }
+
+    @JSExport
+    @JSProperty
+    public JSArray<PatternEntry> getEntries() {
+        var array = new JSArray<PatternEntry>();
+        entries.forEach(array::push);
+        return array;
     }
 
     public static Pattern from(List<Byte> pattern) {
@@ -105,7 +117,7 @@ public record Pattern(List<PatternEntry> entries) implements Fragment {
         return FragmentType.PATTERN_LITERAL;
     }
 
-    public record PatternEntry(byte p1, byte p2) implements Comparable<PatternEntry> {
+    public record PatternEntry(@JSExport @JSProperty byte p1, @JSExport @JSProperty byte p2) implements Comparable<PatternEntry> {
         public static final Endec<PatternEntry> ENDEC = Endec.BYTES
                 .xmap(list -> new PatternEntry(list[0], list[1]), entry -> new byte[]{entry.p1, entry.p2});
 

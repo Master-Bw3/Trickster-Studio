@@ -1,19 +1,23 @@
 package maple.trickster_endec;
 
 
+import maple.trickster_endec.endecs.JSONSerializer;
+import maple.trickster_endec.fragment.Fragment;
+import maple.trickster_endec.fragment.Pattern;
+import maple.trickster_endec.fragment.PatternGlyph;
 import maple.trickster_endec.fragment.SpellPart;
 import org.teavm.jso.JSExport;
-import io.wispforest.endec.format.gson.GsonSerializer;
+import org.teavm.jso.JSExportClasses;
 
+@JSExportClasses({Fragment.class, SpellPart.class, Pattern.class, PatternGlyph.class, Pattern.PatternEntry.class})
 public class TricksterEndec {
     public static void main(String[] args) {
-        System.out.println(convertBase64SpellToJson("YwqT9+ZnAAEAZjD29AoAAAA="));
     }
 
     @JSExport
-    public static String convertBase64SpellToJson(String base64String) {
+    public static SpellPart decodeBase64Spell(String base64String) {
 
-        return SpellPart.fromBase64(base64String).toString();
+        return SpellPart.fromBase64(base64String);
     }
 
 }

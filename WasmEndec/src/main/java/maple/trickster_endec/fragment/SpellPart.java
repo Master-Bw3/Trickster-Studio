@@ -7,10 +7,15 @@ import io.wispforest.endec.StructEndec;
 import io.wispforest.endec.format.bytebuf.ByteBufDeserializer;
 import io.wispforest.endec.format.bytebuf.ByteBufSerializer;
 import io.wispforest.endec.impl.StructEndecBuilder;
+import maple.trickster_endec.SpellUtils;
 import maple.trickster_endec.endecs.ByteBufferDeserializer;
 import maple.trickster_endec.endecs.ByteBufferSerializer;
 import maple.trickster_endec.endecs.EndecTomfoolery;
+import maple.trickster_endec.spell_instruction.SpellInstruction;
 import org.apache.commons.lang3.ArrayUtils;
+import org.teavm.jso.JSExport;
+import org.teavm.jso.JSProperty;
+import org.teavm.jso.core.JSArray;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -24,11 +29,19 @@ import java.util.zip.GZIPOutputStream;
 public final class SpellPart implements Fragment {
     public static final StructEndec<SpellPart> ENDEC = EndecTomfoolery.recursive(self -> StructEndecBuilder.of(
             Fragment.ENDEC.fieldOf("glyph", SpellPart::getGlyph),
-            self.listOf().fieldOf("sub_parts", SpellPart::getSubParts),
-            SpellPart::new
+            EndecTomfoolery.protocolVersionAlternatives(
+                    Map.of(
+                            (byte) 1, self.listOf()
+                    ),
+                    EndecTomfoolery.withAlternative(SpellInstruction.STACK_ENDEC.xmap(
+                            instructions -> SpellUtils.decodeInstructions(instructions, new Stack<>(), new Stack<>(), Optional.empty()),
+                            SpellUtils::flattenNode
+                    ), self).listOf()
+            ).fieldOf("sub_parts", SpellPart::getSubParts), SpellPart::new
     ));
 
     public Fragment glyph;
+
     public List<SpellPart> subParts;
 
     public SpellPart(Fragment glyph, List<SpellPart> subParts) {
@@ -44,12 +57,22 @@ public final class SpellPart implements Fragment {
         this(new PatternGlyph());
     }
 
+    @JSExport
+    @JSProperty
     public Fragment getGlyph() {
         return glyph;
     }
 
     public List<SpellPart> getSubParts() {
         return subParts;
+    }
+
+    @JSExport
+    @JSProperty("subParts")
+    public JSArray<SpellPart> getSubPartsJS() {
+        var array = new JSArray<SpellPart>();
+        subParts.forEach(array::push);
+        return array;
     }
 
     @Override

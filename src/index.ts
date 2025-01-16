@@ -3,6 +3,9 @@ import SpellPartWidget from "./SpellPartWidget";
 import SpellPart from "./fragment/SpellPart";
 import PatternGlyph from "./fragment/PatternGlyph";
 import RevisionContext from "./RevisionContext";
+import { decodeSpell } from "./serialization";
+
+
 
 (async () => {
     const app = new Application();
@@ -24,7 +27,9 @@ import RevisionContext from "./RevisionContext";
     textures.get("circle_48")!.source.scaleMode = "nearest";
 
 
-    const widget = new SpellPartWidget(new SpellPart(), app.canvas.width / 2, app.canvas.height / 2, 64 * 5, new RevisionContext(), true);
+    const spellPart = decodeSpell("YwqT9+ZnZHDoZGJkY2BgYGZkYGBgYGRkBAkzODRwYIhBABMjlGRkxq0CALUJa4lcAAAA")
+
+    const widget = new SpellPartWidget(spellPart , app.canvas.width / 2, app.canvas.height / 2, 64 * 5, new RevisionContext(), true);
 
     widget.render(app.stage, 0, 0, 0, app.canvas.height, textures);
 
@@ -60,7 +65,7 @@ import RevisionContext from "./RevisionContext";
             const button = e.button;
             widget.mouseDragged(e.x, e.y, button, e.movementX, e.movementY);
         } else {
-            widget.mouseMoved(e.x, e.y)
+            widget.mouseMoved(e.x, e.y);
         }
 
         app.stage.removeChildren();
