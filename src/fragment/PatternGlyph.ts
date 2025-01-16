@@ -1,7 +1,9 @@
-import Pattern, { patternOf } from "../Pattern";
-import Fragment from "./Fragment";
+import { Text } from "pixi.js";
+import Pattern, { patternOf } from "./Pattern";
+import Fragment, { FragmentType, TYPES } from "./Fragment";
 
 export default class PatternGlyph extends Fragment {
+
     pattern: Pattern;
 
     constructor(pattern: Array<number> | Pattern | null = null) {
@@ -18,5 +20,15 @@ export default class PatternGlyph extends Fragment {
         } else {
             throw new Error("Invalid pattern type");
         }
+    }
+
+    override asFormattedText(): Text {
+        return new Text({
+            text: "pattern"
+        })
+    }
+
+    override type(): FragmentType {
+        return TYPES.PATTERN_GLYPH
     }
 }

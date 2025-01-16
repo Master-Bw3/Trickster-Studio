@@ -6,7 +6,7 @@ import Fragment from "./fragment/Fragment";
 import SpellPart from "./fragment/SpellPart";
 import PatternGlyph from "./fragment/PatternGlyph";
 import { Point } from "pixi.js";
-import Pattern from "./Pattern";
+import Pattern from "./fragment/Pattern";
 
 function decodeSpell(encodedString: string): SpellPart {
     const decoded = wasm.decodeBase64Spell(encodedString);

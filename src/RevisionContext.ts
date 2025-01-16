@@ -1,5 +1,5 @@
 import SpellPart from "./fragment/SpellPart";
-import Pattern from "./Pattern";
+import Pattern from "./fragment/Pattern";
 
 export default class RevisionContext {
     updateSpell(rootSpellPart: SpellPart) {

@@ -1,9 +1,11 @@
-import { Point } from "pixi.js";
+import { Point, Text } from "pixi.js";
+import Fragment, { FragmentType, TYPES } from "./Fragment";
 
-export default class Pattern {
+export default class Pattern extends Fragment {
     entries: Array<Point>;
 
     constructor(entries: Array<Point>) {
+        super();
         this.entries = entries;
     }
 
@@ -17,21 +19,30 @@ export default class Pattern {
     }
 
     equals(other: Pattern): boolean {
-        if(other.entries.length != this.entries.length)
-            return false
+        if (other.entries.length != this.entries.length) return false;
 
-        let equal = true
+        let equal = true;
 
         for (let i = 0; i < this.entries.length; i++) {
             const a = this.entries[i];
             const b = other.entries[i];
 
-            equal = a.x == b.x && a.y == b.y
+            equal = a.x == b.x && a.y == b.y;
 
-            if (!equal) break
+            if (!equal) break;
         }
 
-        return equal
+        return equal;
+    }
+
+    override asFormattedText(): Text {
+        return new Text({
+            text: "pattern",
+        });
+    }
+
+    override type(): FragmentType {
+        return TYPES.PATTERN;
     }
 }
 

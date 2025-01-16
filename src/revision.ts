@@ -1,5 +1,5 @@
 import SpellPart from "./fragment/SpellPart";
-import Pattern, { patternOf } from "./Pattern";
+import Pattern, { patternOf } from "./fragment/Pattern";
 import RevisionContext from "./RevisionContext";
 
 interface Revision {

@@ -4,7 +4,7 @@ import RevisionContext from "./RevisionContext";
 import Fragment from "./fragment/Fragment";
 import SpellCircleRenderer, { getPatternDotPosition, isInsideHitbox, PART_PIXEL_RADIUS, PATTERN_TO_PART_RATIO } from "./SpellCircleRenderer";
 import PatternGlyph from "./fragment/PatternGlyph";
-import Pattern, { patternOf } from "./Pattern";
+import Pattern, { patternOf } from "./fragment/Pattern";
 import * as revision from "./revision";
 
 const PRECISION_OFFSET = Math.pow(2, 50);
