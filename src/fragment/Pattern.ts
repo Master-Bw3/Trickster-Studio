@@ -1,5 +1,23 @@
 import { Point, Text } from "pixi.js";
-import Fragment, { FragmentType, TYPES } from "./Fragment";
+import Fragment, { FragmentType, register } from "./Fragment";
+
+//@ts-ignore
+import * as wasm from "../WasmEndec-1.0-SNAPSHOT/js/endec.js";
+
+const PATTERN = register("trickster:pattern_glyph", (object: any) => {
+    if (object instanceof wasm.Pattern) {
+        const entries: Array<Point | null> = object.entries.map((x: any) => {
+            if (object instanceof wasm.PatternEntry) {
+                return new Point(object.p1, object.p2);
+            } else return null;
+        });
+
+        if (entries.every((x) => x != null)) {
+            return new Pattern(entries);
+        }
+    }
+    return null;
+});
 
 export default class Pattern extends Fragment {
     entries: Array<Point>;
@@ -42,7 +60,7 @@ export default class Pattern extends Fragment {
     }
 
     override type(): FragmentType {
-        return TYPES.PATTERN;
+        return PATTERN;
     }
 }
 

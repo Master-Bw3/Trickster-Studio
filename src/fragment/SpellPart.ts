@@ -1,6 +1,20 @@
 import { Text } from "pixi.js";
-import Fragment, { FragmentType, TYPES } from "./Fragment";
+import Fragment, { decode, FragmentType, register } from "./Fragment";
 import PatternGlyph from "./PatternGlyph";
+
+//@ts-ignore
+import * as wasm from "../WasmEndec-1.0-SNAPSHOT/js/endec.js";
+
+const SPELL_PART = register("trickster:spell_part", (object: any) => {
+    if (object instanceof wasm.SpellPart) {
+        const glyph = decode(object.glyph);
+        const subparts: Array<Fragment | null> = object.subParts.map(decode);
+        if (glyph != null && subparts.every((x) => x instanceof SpellPart)) {
+            return new SpellPart(glyph, subparts);
+        }
+    }
+    return null;
+});
 
 export default class SpellPart extends Fragment {
     glyph: Fragment;
@@ -15,12 +29,12 @@ export default class SpellPart extends Fragment {
 
     override asFormattedText(): Text {
         return new Text({
-            text: "spell"
-        })
+            text: "spell",
+        });
     }
 
     override type(): FragmentType {
-        return TYPES.SPELL_PART
+        return SPELL_PART;
     }
 
     getSubParts(): Array<SpellPart> {
