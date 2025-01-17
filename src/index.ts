@@ -132,6 +132,8 @@ async function spellPartDisplay(spellPart: SpellPart) {
 
     textures.set("circle_48", await Assets.load("./circle_48.png"));
     textures.get("circle_48")!.source.scaleMode = "nearest";
+    textures.set("overlay", await Assets.load("./pattern_literal.png"));
+    textures.get("overlay")!.source.scaleMode = "nearest";
 
     //query
     const params = new URLSearchParams(window.location.search);

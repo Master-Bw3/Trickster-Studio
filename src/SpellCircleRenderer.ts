@@ -2,7 +2,7 @@ import { Assets, Color, Container, Graphics, Point, Sprite, Texture } from "pixi
 import SpellPart from "./fragment/SpellPart";
 import Fragment, { fragmentTypes, getKeyByValue } from "./fragment/Fragment";
 import PatternGlyph from "./fragment/PatternGlyph";
-import { patternOf } from "./fragment/Pattern";
+import Pattern, { patternOf } from "./fragment/Pattern";
 import { fragmentRenderers } from "./FragmentRenderer";
 import { isCircleClickable } from "./SpellPartWidget";
 
@@ -151,10 +151,26 @@ export default class SpellCircleRenderer {
         const patternSize = size / PATTERN_TO_PART_RATIO;
         const pixelSize = patternSize / PART_PIXEL_RADIUS;
 
-        if (glyph instanceof PatternGlyph) {
+        if (glyph instanceof PatternGlyph || glyph instanceof Pattern) {
+            let pattern;
+            if (glyph instanceof Pattern) {
+                pattern = glyph
+                const overlay = new Sprite(textures.get("overlay")!);
+                overlay.x = x - size / 2;
+                overlay.y = y - size / 2;
+                overlay.width = size;
+                overlay.height = size;
+                overlay.alpha = alpha;
+        
+        
+                container.addChild(overlay);
+            } else {
+                pattern = glyph.pattern
+            }
+            
             const isDrawing = this.inEditor && this.drawingPartGetter() == parent;
             const drawingPattern = this.inEditor ? this.drawingPatternGetter() : null;
-            const patternList = isDrawing ? patternOf(drawingPattern!) : glyph.pattern;
+            const patternList = isDrawing ? patternOf(drawingPattern!) : pattern;
 
             for (let i = 0; i < 9; i++) {
                 const pos = getPatternDotPosition(x, y, i, patternSize);
