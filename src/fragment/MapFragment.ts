@@ -1,10 +1,10 @@
-import { Text } from "pixi.js";
+import { HTMLText, Text } from "pixi.js";
 import Fragment, { decode, FragmentType, register } from "./Fragment";
 
 //@ts-ignore
 import * as wasm from "../WasmEndec-1.0-SNAPSHOT/js/endec.js";
 
-const MAP = register("trickster:map", (object: any) => {
+const MAP = register("trickster:map", 0xffffff, (object: any) => {
     if (object instanceof wasm.MapFragment) {
         const fragments: Array<[Fragment, Fragment] | null> = object.entries.map((entry: Array<any>) => {
             const key = decode(entry[0]);
@@ -28,7 +28,7 @@ export default class MapFragment extends Fragment {
         this.map = map;
     }
 
-    override asFormattedText(): Text {
+    override asFormattedText(): HTMLText {
         let out = "{";
 
         const entries = this.map.entries();
@@ -37,7 +37,7 @@ export default class MapFragment extends Fragment {
         let result = iterator.next();
         while (!result.done) {
             const [key, value] = result.value;
-            out += key.asFormattedText() + ": " + value.asFormattedText();
+            out += key.asFormattedText().text + ": " + value.asFormattedText().text;
 
             result = iterator.next();
             if (!result.done) {
@@ -47,9 +47,31 @@ export default class MapFragment extends Fragment {
 
         out += "}";
 
-        return new Text({
-            text: out,
+        return new HTMLText({
+            text: `<span style="color: #${this.type().color.toString(16)}">${out}</span>`,
         });
+    }
+
+    override toString(): string {
+        let out = "{";
+
+        const entries = this.map.entries();
+        const iterator = entries[Symbol.iterator]();
+
+        let result = iterator.next();
+        while (!result.done) {
+            const [key, value] = result.value;
+            out += key.toString() + ": " + value.toString();
+
+            result = iterator.next();
+            if (!result.done) {
+                out += ", ";
+            }
+        }
+
+        out += "}";
+
+        return out;
     }
 
     override type(): FragmentType {

@@ -4,15 +4,15 @@ import Fragment, { decode, FragmentType, register } from "./Fragment";
 //@ts-ignore
 import * as wasm from "../WasmEndec-1.0-SNAPSHOT/js/endec.js";
 
-const SLOT = register("trickster:string", (object: any) => {
+const SLOT = register("trickster:string", 0xaabb77, (object: any) => {
     if (object instanceof wasm.StringFragment) {
-        return new StringFragment(object.value)
+        return new StringFragment(object.value);
     }
     return null;
 });
 
 export default class StringFragment extends Fragment {
-    string: string
+    string: string;
 
     constructor(string: string) {
         super();
@@ -20,10 +20,8 @@ export default class StringFragment extends Fragment {
         this.string = string;
     }
 
-    override asFormattedText(): Text {
-        return new Text({
-            text: this.string,
-        });
+    override toString(): string {
+        return this.string;
     }
 
     override type(): FragmentType {

@@ -1,10 +1,10 @@
-import { Text } from "pixi.js";
+import { HTMLText, Text } from "pixi.js";
 import Fragment, { decode, FragmentType, register } from "./Fragment";
 
 //@ts-ignore
 import * as wasm from "../WasmEndec-1.0-SNAPSHOT/js/endec.js";
 
-const LIST = register("trickster:list", (object: any) => {
+const LIST = register("trickster:list", 0xffffff, (object: any) => {
     if (object instanceof wasm.ListFragment) {
         const fragments: Array<Fragment | null> = object.fragments.map(decode);
 
@@ -24,7 +24,7 @@ export default class ListFragment extends Fragment {
         this.fragments = fragments;
     }
 
-    override asFormattedText(): Text {
+    override asFormattedText(): HTMLText {
         let result = "[";
 
         for (let i = 0; i < this.fragments.length; i++) {
@@ -32,14 +32,30 @@ export default class ListFragment extends Fragment {
             if (i !== 0) {
                 result += ", ";
             }
-            result += fragment.asFormattedText();
+            result += fragment.asFormattedText().text;
         }
 
         result += "]";
 
-        return new Text({
-            text: result,
+        return new HTMLText({
+            text: `<span style="color: #${this.type().color.toString(16)}">${result}</span>`,
         });
+    }
+
+    override toString(): string {
+        let result = "[";
+
+        for (let i = 0; i < this.fragments.length; i++) {
+            const fragment = this.fragments[i];
+            if (i !== 0) {
+                result += ", ";
+            }
+            result += fragment.asFormattedText().text;
+        }
+
+        result += "]";
+
+        return result;
     }
 
     override type(): FragmentType {

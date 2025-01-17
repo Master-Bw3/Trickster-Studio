@@ -4,16 +4,17 @@ import Fragment, { decode, FragmentType, register } from "./Fragment";
 //@ts-ignore
 import * as wasm from "../WasmEndec-1.0-SNAPSHOT/js/endec.js";
 
-const ENTITY = register("trickster:entity", (object: any) => {
+const ENTITY = register("trickster:entity", 0x338888, (object: any) => {
     if (object instanceof wasm.EntityFragment) {
-        return new EntityFragment(object.uuid, object.name)
+        console.log(object);
+        return new EntityFragment(object.uuid, object.name);
     }
     return null;
 });
 
 export default class EntityFragment extends Fragment {
-    uuid: string
-    name: string
+    uuid: string;
+    name: string;
 
     constructor(uuid: string, name: string) {
         super();
@@ -22,10 +23,11 @@ export default class EntityFragment extends Fragment {
         this.name = name;
     }
 
-    override asFormattedText(): Text {
-        return new Text({
-            text: this.name,
-        });
+    override toString(): string {
+        const match = this.name.match(/"([^"]+)"/);
+        const name = match ? match[1] : "entity";
+
+        return name;
     }
 
     override type(): FragmentType {

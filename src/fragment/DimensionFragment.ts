@@ -4,9 +4,9 @@ import Fragment, { decode, FragmentType, register } from "./Fragment";
 //@ts-ignore
 import * as wasm from "../WasmEndec-1.0-SNAPSHOT/js/endec.js";
 
-const DIMENSION = register("trickster:dimension", (object: any) => {
+const DIMENSION = register("trickster:dimension", 0xdd55bb, (object: any) => {
     if (object instanceof wasm.DimensionFragment) {
-        return new DimensionFragment(object.bool);
+        return new DimensionFragment(object.world);
     }
     return null;
 });
@@ -20,14 +20,8 @@ export default class DimensionFragment extends Fragment {
         this.world = world;
     }
 
-    override asFormattedText(): Text {
-        return new Text({
-            text: this.world
-                .replace("_", " ")
-                .split(" ")
-                .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                .join(" "),
-        });
+    override toString(): string {
+        return this.world.replace(/^[^a-zA-Z0-9]+/, "");
     }
 
     override type(): FragmentType {

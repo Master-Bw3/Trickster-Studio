@@ -210,17 +210,18 @@ export default class SpellCircleRenderer {
                 renderer.render(glyph, container, x, y, size, alpha, textures, this);
                 renderDots = renderer.renderRedrawDots();
             } else {
-                let text = glyph.asFormattedText();
-                text.anchor = 0.5;
+                let [text, width] = glyph.asFormattedTextCached();
+
+                const scale = size / 2 / Math.max(width, 100);
+
+                text.anchor = { x: 0.5, y: 0.3 };
                 text.resolution = 20;
-                text.style.align = "center";
                 text.style.fontFamily = "slkscr";
+                text.alpha = alpha;
 
-                const width = text.width;
-
-                text.x += x;
-                text.y += y;
-                text.scale = size / 1.3 / Math.max(width, 100);
+                text.x = x;
+                text.y = y;
+                text.scale = scale;
 
                 container.addChild(text);
             }

@@ -4,8 +4,10 @@ import Fragment, { decode, FragmentType, register } from "./Fragment";
 //@ts-ignore
 import * as wasm from "../WasmEndec-1.0-SNAPSHOT/js/endec.js";
 
-const BOOLEAN = register("trickster:boolean", (object: any) => {
+const BOOLEAN = register("trickster:boolean", 0xaa3355, (object: any) => {
     if (object instanceof wasm.BooleanFragment) {
+        console.log(object)
+
         return new BooleanFragment(object.bool)
     }
     return null;
@@ -16,14 +18,11 @@ export default class BooleanFragment extends Fragment {
 
     constructor(bool: boolean) {
         super();
-
         this.bool = bool;
     }
 
-    override asFormattedText(): Text {
-        return new Text({
-            text: this.bool.toString(),
-        });
+    override toString(): string {
+        return this.bool ? "True" : "False";
     }
 
     override type(): FragmentType {

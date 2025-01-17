@@ -5,7 +5,7 @@ import PatternGlyph from "./PatternGlyph";
 //@ts-ignore
 import * as wasm from "../WasmEndec-1.0-SNAPSHOT/js/endec.js";
 
-const SPELL_PART = register("trickster:spell_part", (object: any) => {
+const SPELL_PART = register("trickster:spell_part", 0xaa44aa, (object: any) => {
     if (object instanceof wasm.SpellPart) {
         const glyph = decode(object.glyph);
         const subparts: Array<Fragment | null> = object.subParts.map(decode);
@@ -27,10 +27,8 @@ export default class SpellPart extends Fragment {
         this.subParts = subParts != undefined ? subParts : [];
     }
 
-    override asFormattedText(): Text {
-        return new Text({
-            text: "spell",
-        });
+    override toString(): string {
+        return "spell";
     }
 
     override type(): FragmentType {

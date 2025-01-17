@@ -4,7 +4,7 @@ import Fragment, { FragmentType, register } from "./Fragment";
 //@ts-ignore
 import * as wasm from "../WasmEndec-1.0-SNAPSHOT/js/endec.js";
 
-const PATTERN = register("trickster:pattern", (object: any) => {
+const PATTERN = register("trickster:pattern", 0xffffff, (object: any) => {
     if (object instanceof wasm.Pattern) {
         const entries: Array<Point | null> = object.entries.map((entry: any) => {
             if (entry instanceof wasm.PatternEntry) {
@@ -53,10 +53,8 @@ export default class Pattern extends Fragment {
         return equal;
     }
 
-    override asFormattedText(): Text {
-        return new Text({
-            text: "pattern",
-        });
+    override toString(): string {
+        return "pattern";
     }
 
     override type(): FragmentType {

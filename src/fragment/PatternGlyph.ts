@@ -5,7 +5,7 @@ import Fragment, { decode, FragmentType, register } from "./Fragment";
 //@ts-ignore
 import * as wasm from "../WasmEndec-1.0-SNAPSHOT/js/endec.js";
 
-const PATTERN_GLYPH = register("trickster:pattern_glyph", (object: any) => {
+const PATTERN_GLYPH = register("trickster:pattern_glyph", 0x6644aa, (object: any) => {
     if (object instanceof wasm.PatternGlyph) {
         const pattern = decode(object.pattern);
         if (pattern instanceof Pattern) {
@@ -31,10 +31,8 @@ export default class PatternGlyph extends Fragment {
         }
     }
 
-    override asFormattedText(): Text {
-        return new Text({
-            text: "pattern",
-        });
+    override toString(): string {
+        return "pattern glyph";
     }
 
     override type(): FragmentType {
