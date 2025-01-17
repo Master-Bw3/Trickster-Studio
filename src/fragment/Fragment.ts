@@ -31,9 +31,10 @@ function decode(object: any): Fragment | null {
     let decoded: Fragment | null = null;
 
     for (const type of fragmentTypes.values()) {
-        decoded = type.decode(object);
+        decoded = type.decode(object)
         if (decoded != null) break;
     }
+
 
     return decoded;
 }

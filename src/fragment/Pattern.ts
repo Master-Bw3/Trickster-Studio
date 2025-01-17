@@ -4,11 +4,11 @@ import Fragment, { FragmentType, register } from "./Fragment";
 //@ts-ignore
 import * as wasm from "../WasmEndec-1.0-SNAPSHOT/js/endec.js";
 
-const PATTERN = register("trickster:pattern_glyph", (object: any) => {
+const PATTERN = register("trickster:pattern", (object: any) => {
     if (object instanceof wasm.Pattern) {
-        const entries: Array<Point | null> = object.entries.map((x: any) => {
-            if (object instanceof wasm.PatternEntry) {
-                return new Point(object.p1, object.p2);
+        const entries: Array<Point | null> = object.entries.map((entry: any) => {
+            if (entry instanceof wasm.PatternEntry) {
+                return new Point(entry.p1, entry.p2);
             } else return null;
         });
 

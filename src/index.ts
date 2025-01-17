@@ -4,6 +4,26 @@ import SpellPart from "./fragment/SpellPart";
 import PatternGlyph from "./fragment/PatternGlyph";
 import RevisionContext from "./RevisionContext";
 import { decodeSpell } from "./serialization";
+import "./fragment/BlockTypeFragment";
+import "./fragment/BooleanFragment";
+import "./fragment/DimensionFragment";
+import "./fragment/EntityFragment";
+import "./fragment/EntityTypeFragment";
+import "./fragment/ItemTypeFragment";
+import "./fragment/ListFragment";
+import "./fragment/MapFragment";
+import "./fragment/NumberFragment";
+import "./fragment/Pattern";
+import "./fragment/PatternGlyph";
+import "./fragment/SlotFragment";
+import "./fragment/SpellPart";
+import "./fragment/StringFragment";
+import "./fragment/TypeFragment";
+import "./fragment/VectorFragment";
+import "./fragment/VoidFragment";
+import "./fragment/ZalgoFragment";
+
+
 
 (async () => {
     const params = new URLSearchParams(window.location.search);
@@ -11,7 +31,8 @@ import { decodeSpell } from "./serialization";
 
     try {
         if (encoded == null) throw new Error();
-        await spellPartDisplay(decodeSpell(encoded));
+        const decoded = decodeSpell(encoded);
+        await spellPartDisplay(decoded);
     } catch (e: any) {
         createSpellForm()
     }
@@ -102,10 +123,14 @@ async function spellPartDisplay(spellPart: SpellPart) {
         resizeTo: window,
     });
 
+    await Assets.load('slkscr.ttf');
+
+
     const textures: Map<string, Texture> = new Map();
 
     textures.set("circle_48", await Assets.load("./circle_48.png"));
     textures.get("circle_48")!.source.scaleMode = "nearest";
+
 
     //query
     const params = new URLSearchParams(window.location.search);
