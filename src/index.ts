@@ -103,7 +103,7 @@ function createSpellForm() {
         event.preventDefault();
         const spell = (document.getElementById("spell") as HTMLInputElement).value;
         const addr = window.location.href.split('?')[0];
-        window.location.href = `${addr}/?spell=${encodeURIComponent(spell)}`;
+        window.location.href = `${addr}?spell=${encodeURIComponent(spell)}`;
     });
 }
 
