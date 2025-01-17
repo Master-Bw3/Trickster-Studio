@@ -23,12 +23,7 @@ import "./fragment/VectorFragment";
 import "./fragment/VoidFragment";
 import "./fragment/ZalgoFragment";
 import { SpellDisplay } from "./SpellDisplay";
-
-
 import { render } from "solid-js/web";
-import { CounterProvider, useCounter } from "./test/counter-store";
-import { MetaProvider, Title } from "@solidjs/meta";
-import { Router } from "@solidjs/router"
 
 
 const params = new URLSearchParams(window.location.search);
@@ -38,8 +33,8 @@ const decoded = encoded === null ? new SpellPart() : decodeSpell(encoded);
 const App = () => (
     <>
         <div id="editor">
-            <SpellDisplay spellPart={decoded} id="spell"></SpellDisplay>
-            <SpellDisplay spellPart={decoded} id="spell_name"></SpellDisplay>
+            <SpellDisplay spellPart={decoded} fixedPosition={true} class="spell_name"></SpellDisplay>
+            <SpellDisplay spellPart={new SpellPart()} initialScale={0.5} class="spell"></SpellDisplay>
         </div>
     </>
 );

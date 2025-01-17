@@ -2,23 +2,21 @@ import { Application, Assets, Texture } from "pixi.js";
 import SpellPartWidget from "./SpellPartWidget";
 import RevisionContext from "./RevisionContext";
 import SpellPart from "./fragment/SpellPart";
-import { createUniqueId, onMount } from "solid-js";
+import { createUniqueId, JSX, onMount } from "solid-js";
 
-type Props = { spellPart: SpellPart; fixedPosition?: boolean; isMutable?: boolean; id?: string }
+type Props = { spellPart: SpellPart; fixedPosition?: boolean; isMutable?: boolean; initialScale?: number } & JSX.HTMLAttributes<HTMLDivElement>
 
-function SpellDisplay({ spellPart, fixedPosition = false, isMutable = true, id = createUniqueId() }: Props) {
+function SpellDisplay({ spellPart, fixedPosition = false, isMutable = true, initialScale = 1, ...rest }: Props) {
     let container: HTMLDivElement;
     let canvas: HTMLCanvasElement;
 
-
     onMount(async () => {
-        console.log(canvas!)
         const app = new Application();
         await app.init({
             canvas: canvas!,
             resolution: 1,
             autoDensity: true,
-            background: 0x151515,
+            backgroundAlpha: 0,
             width: container!.clientWidth,
             height: container!.clientHeight,
             resizeTo: container!,
@@ -38,10 +36,7 @@ function SpellDisplay({ spellPart, fixedPosition = false, isMutable = true, id =
         textures.set("overlay", await Assets.load("./pattern_literal.png"));
         textures.get("overlay")!.source.scaleMode = "nearest";
 
-        //query
-        const params = new URLSearchParams(window.location.search);
-
-        const widget = new SpellPartWidget(spellPart, app.canvas.width / 2, app.canvas.height / 2, 64 * 5, new RevisionContext(), true, fixedPosition, isMutable);
+        const widget = new SpellPartWidget(spellPart, app.canvas.width / 2, app.canvas.height / 2, app.canvas.height * initialScale, new RevisionContext(), true, fixedPosition, isMutable);
 
         widget.render(app.stage, 0, 0, 0, app.canvas.height, textures);
 
@@ -49,17 +44,23 @@ function SpellDisplay({ spellPart, fixedPosition = false, isMutable = true, id =
         let lastPinchDistance = 0;
 
         canvas!.addEventListener("wheel", (e) => {
-            widget.mouseScrolled(e.x, e.y, -e.deltaY / 100);
+            const rect = container!.getBoundingClientRect();
+            const [x, y] = [e.x - rect.left, e.y - rect.top]
+
+            widget.mouseScrolled(x, y, -e.deltaY / 100);
 
             app.stage.removeChildren();
-            widget.render(app.stage, e.x, e.y, 0, app.canvas.height, textures);
+            widget.render(app.stage, x, y, 0, app.canvas.height, textures);
         });
 
         const activeTouches = new Map();
         let mouseDown = () => activeTouches.size != 0;
 
         canvas!.addEventListener("pointerdown", (e) => {
-            activeTouches.set(e.pointerId, { x: e.x, y: e.y });
+            const rect = container!.getBoundingClientRect();
+            const [x, y] = [e.x - rect.left, e.y - rect.top]
+
+            activeTouches.set(e.pointerId, { x: x, y: y });
 
             if (e.pointerType === "touch" && activeTouches.size === 2) {
                 pinchZooming = true;
@@ -71,28 +72,37 @@ function SpellDisplay({ spellPart, fixedPosition = false, isMutable = true, id =
 
             widget.dragDrawing = e.pointerType === "touch";
 
+            console.log(x, y)
+
             const button = e.button;
-            widget.mouseClicked(e.x, e.y, button);
+            widget.mouseClicked(x, y, button);
 
             app.stage.removeChildren();
-            widget.render(app.stage, e.x, e.y, 0, app.canvas.height, textures);
+            widget.render(app.stage, x, y, 0, app.canvas.height, textures);
         });
 
-        canvas!.addEventListener("pointerup", (e) => {
-            activeTouches.delete(e.pointerId);
+        window.addEventListener("pointerup", (e) => {
+            const rect = container!.getBoundingClientRect();
+            const [x, y] = [e.x - rect.left, e.y - rect.top]
 
+            if (mouseDown()) {
+                const button = e.button;
+                widget.mouseReleased(x, y, button);
+            }
+
+            activeTouches.delete(e.pointerId);
             if (activeTouches.size < 2) {
                 pinchZooming = false;
             }
 
-            const button = e.button;
-            widget.mouseReleased(e.x, e.y, button);
-
             app.stage.removeChildren();
-            widget.render(app.stage, e.x, e.y, 0, app.canvas.height, textures);
+            widget.render(app.stage, x, y, 0, app.canvas.height, textures);
         });
 
-        canvas!.addEventListener("pointermove", (e) => {
+        window.addEventListener("pointermove", (e) => {
+            const rect = container!.getBoundingClientRect();
+            const [x, y] = [e.x - rect.left, e.y - rect.top]
+
             if (pinchZooming && activeTouches.size === 2) {
                 widget.stopDrawing()
 
@@ -102,7 +112,7 @@ function SpellDisplay({ spellPart, fixedPosition = false, isMutable = true, id =
                 }));
 
                 if (activeTouches.has(e.pointerId)) {
-                    activeTouches.set(e.pointerId, { x: e.x, y: e.y });
+                    activeTouches.set(e.pointerId, { x: x, y: y });
                 }
 
                 const touchPoints = Array.from(activeTouches.values());
@@ -132,21 +142,21 @@ function SpellDisplay({ spellPart, fixedPosition = false, isMutable = true, id =
                 );
             } else if (mouseDown()) {
                 if (activeTouches.has(e.pointerId)) {
-                    activeTouches.set(e.pointerId, { x: e.x, y: e.y });
+                    activeTouches.set(e.pointerId, { x: x, y: y });
                 }
 
                 const button = e.button;
-                widget.mouseDragged(e.x, e.y, button, e.movementX, e.movementY);
+                widget.mouseDragged(x, y, button, e.movementX, e.movementY);
             }
 
-            widget.mouseMoved(e.x, e.y);
+            widget.mouseMoved(x, y);
 
             app.stage.removeChildren();
-            widget.render(app.stage, e.x, e.y, 0, app.canvas.height, textures);
+            widget.render(app.stage, x, y, 0, app.canvas.height, textures);
         });
     })
 
-    return <div id={id} ref={container!}>
+    return <div ref={container!} {...rest}>
         <canvas ref={canvas!} />
     </div>;
 }

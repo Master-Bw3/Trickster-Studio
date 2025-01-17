@@ -154,20 +154,19 @@ export default class SpellCircleRenderer {
         if (glyph instanceof PatternGlyph || glyph instanceof Pattern) {
             let pattern;
             if (glyph instanceof Pattern) {
-                pattern = glyph
+                pattern = glyph;
                 const overlay = new Sprite(textures.get("overlay")!);
                 overlay.x = x - size / 2;
                 overlay.y = y - size / 2;
                 overlay.width = size;
                 overlay.height = size;
                 overlay.alpha = alpha;
-        
-        
+
                 container.addChild(overlay);
             } else {
-                pattern = glyph.pattern
+                pattern = glyph.pattern;
             }
-            
+
             const isDrawing = this.inEditor && this.drawingPartGetter() == parent;
             const drawingPattern = this.inEditor ? this.drawingPatternGetter() : null;
             const patternList = isDrawing ? patternOf(drawingPattern!)! : pattern;
@@ -192,18 +191,20 @@ export default class SpellCircleRenderer {
 
                 var dotSize = pixelSize * dotScale;
 
-                const g = new Graphics();
+                if (dotSize > 1) {
+                    const g = new Graphics();
 
-                g.poly([
-                    new Point(pos.x - dotSize, pos.y - dotSize),
-                    new Point(pos.x - dotSize, pos.y + dotSize),
-                    new Point(pos.x + dotSize, pos.y + dotSize),
-                    new Point(pos.x + dotSize, pos.y - dotSize),
-                ]);
+                    g.poly([
+                        new Point(pos.x - dotSize, pos.y - dotSize),
+                        new Point(pos.x - dotSize, pos.y + dotSize),
+                        new Point(pos.x + dotSize, pos.y + dotSize),
+                        new Point(pos.x + dotSize, pos.y - dotSize),
+                    ]);
 
-                g.fill([(isDrawing && isLinked ? 0.8 : 1) * this.r, (isDrawing && isLinked ? 0.5 : 1) * this.g, 1 * this.b, 0.7 * alpha]);
+                    g.fill([(isDrawing && isLinked ? 0.8 : 1) * this.r, (isDrawing && isLinked ? 0.5 : 1) * this.g, 1 * this.b, 0.7 * alpha]);
 
-                container.addChild(g);
+                    container.addChild(g);
+                }
             }
 
             for (var line of patternList.entries) {
@@ -262,18 +263,20 @@ export default class SpellCircleRenderer {
 
                     const dotSize = pixelSize * dotScale;
 
-                    const g = new Graphics();
+                    if (dotSize > 1) {
+                        const g = new Graphics();
 
-                    g.poly([
-                        new Point(pos.x - dotSize, pos.y - dotSize),
-                        new Point(pos.x - dotSize, pos.y + dotSize),
-                        new Point(pos.x + dotSize, pos.y + dotSize),
-                        new Point(pos.x + dotSize, pos.y - dotSize),
-                    ]);
-
-                    g.fill([this.r, this.g, this.b, 0.25]);
-
-                    container.addChild(g);
+                        g.poly([
+                            new Point(pos.x - dotSize, pos.y - dotSize),
+                            new Point(pos.x - dotSize, pos.y + dotSize),
+                            new Point(pos.x + dotSize, pos.y + dotSize),
+                            new Point(pos.x + dotSize, pos.y - dotSize),
+                        ]);
+    
+                        g.fill([this.r, this.g, this.b, 0.25]);
+    
+                        container.addChild(g);
+                    }
                 }
             }
         }

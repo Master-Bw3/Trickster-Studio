@@ -6,7 +6,6 @@ import * as wasm from "../WasmEndec-1.0-SNAPSHOT/js/endec.js";
 
 const ENTITY = register("trickster:entity", 0x338888, (object: any) => {
     if (object instanceof wasm.EntityFragment) {
-        console.log(object);
         return new EntityFragment(object.uuid, object.name);
     }
     return null;

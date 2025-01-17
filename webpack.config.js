@@ -3,6 +3,7 @@ const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
+const { watchFile } = require('fs');
 
 module.exports = (env, argv) => {
     return ({
@@ -20,6 +21,7 @@ module.exports = (env, argv) => {
             compress: true,
             allowedHosts: "all", // If you are using WebpackDevServer as your production server, please fix this line!
             static: false,
+            watchFiles: ["./static/*"],
             client: {
                 logging: "warn",
                 overlay: {

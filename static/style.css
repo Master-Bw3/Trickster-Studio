@@ -12,3 +12,17 @@ body {
     height: 100%;
 }
 
+
+
+.spell {
+    height: 100%;
+    background-color: #151515;
+}
+
+.spell_name {
+    position: absolute;
+    height: 35vh;
+    width: 35vh;
+    right: 5vh;
+    top: 5vh;
+}

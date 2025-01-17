@@ -6,8 +6,6 @@ import * as wasm from "../WasmEndec-1.0-SNAPSHOT/js/endec.js";
 
 const BLOCK_TYPE = register("trickster:block_type", 0x44aa33, (object: any) => {
     if (object instanceof wasm.BlockTypeFragment) {
-        console.log(object)
-
         return new BlockTypeFragment(object.block);
     }
     return null;

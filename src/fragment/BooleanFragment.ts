@@ -6,8 +6,6 @@ import * as wasm from "../WasmEndec-1.0-SNAPSHOT/js/endec.js";
 
 const BOOLEAN = register("trickster:boolean", 0xaa3355, (object: any) => {
     if (object instanceof wasm.BooleanFragment) {
-        console.log(object)
-
         return new BooleanFragment(object.bool)
     }
     return null;
