@@ -170,7 +170,7 @@ export default class SpellCircleRenderer {
             
             const isDrawing = this.inEditor && this.drawingPartGetter() == parent;
             const drawingPattern = this.inEditor ? this.drawingPatternGetter() : null;
-            const patternList = isDrawing ? patternOf(drawingPattern!) : pattern;
+            const patternList = isDrawing ? patternOf(drawingPattern!)! : pattern;
 
             for (let i = 0; i < 9; i++) {
                 const pos = getPatternDotPosition(x, y, i, patternSize);

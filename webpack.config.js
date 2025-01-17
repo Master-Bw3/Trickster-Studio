@@ -7,7 +7,7 @@ const TerserPlugin = require('terser-webpack-plugin');
 module.exports = (env, argv) => {
     return ({
         stats: 'minimal', // Keep console output easy to read.
-        entry: './src/index.ts', // Your program entry point
+        entry: './src/index.tsx', // Your program entry point
 
         // Your build destination
         output: {
@@ -53,13 +53,21 @@ module.exports = (env, argv) => {
         // Explain webpack how to do Typescript
         module: {
             rules: [
-                {
-                    test: /\.ts(x)?$/,
-                    loader: 'ts-loader',
-                    exclude: /node_modules/
+              {
+                test: /\.(ts)x?$/,
+                exclude: /node_modules/,
+                use: {
+                  loader: 'babel-loader',
+                  options: {
+                    babelrc: false,
+                    configFile: false,
+                    presets: ['@babel/preset-env', 'solid', '@babel/preset-typescript'],
+                    plugins: ['@babel/plugin-syntax-dynamic-import', '@babel/plugin-proposal-class-properties', '@babel/plugin-proposal-object-rest-spread'],
+                  }
                 }
+              }
             ]
-        },
+          },
         resolve: {
             extensions: [
                 '.tsx',

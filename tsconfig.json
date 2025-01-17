@@ -21,6 +21,9 @@
         "resolveJsonModule": true,
         "allowSyntheticDefaultImports": true,
         "experimentalDecorators": true,
+        "jsx": "preserve",
+        "jsxImportSource": "solid-js"
+
 
     },
     // Folder for your code

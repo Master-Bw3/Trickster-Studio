@@ -10,7 +10,7 @@ interface Revision {
 
 const EXECUTE_OFF_HAND: Revision = {
     pattern() {
-        return patternOf([4, 3, 0, 4, 5, 2, 4, 1]);
+        return patternOf([4, 3, 0, 4, 5, 2, 4, 1])!;
     },
 
     apply(ctx: RevisionContext, root: SpellPart, drawingPart: SpellPart) {
@@ -20,7 +20,7 @@ const EXECUTE_OFF_HAND: Revision = {
 
 const CREATE_SUBCIRCLE: Revision = {
     pattern(): Pattern {
-        return patternOf([0, 4, 8, 7]);
+        return patternOf([0, 4, 8, 7])!;
     },
 
     apply(ctx: RevisionContext, root: SpellPart, drawingPart: SpellPart): SpellPart {

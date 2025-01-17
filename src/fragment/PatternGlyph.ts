@@ -23,7 +23,7 @@ export default class PatternGlyph extends Fragment {
         if (pattern === null) {
             this.pattern = new Pattern([]);
         } else if (Array.isArray(pattern)) {
-            this.pattern = patternOf(pattern);
+            this.pattern = patternOf(pattern) ?? (() => {throw new Error("invalid pattern")})();
         } else if (pattern instanceof Pattern) {
             this.pattern = pattern;
         } else {

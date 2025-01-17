@@ -22,7 +22,8 @@ export default class SpellPartWidget {
     size: number;
 
     amountDragged: number = 0;
-    isMutable: boolean = true;
+    isMutable: boolean;
+    fixedPosition: boolean;
 
     toBeReplaced: SpellPart | null = null;
 
@@ -34,7 +35,16 @@ export default class SpellPartWidget {
 
     renderer: SpellCircleRenderer;
 
-    constructor(spellPart: SpellPart, x: number, y: number, size: number, revisionContext: RevisionContext, animated: boolean) {
+    constructor(
+        spellPart: SpellPart,
+        x: number,
+        y: number,
+        size: number,
+        revisionContext: RevisionContext,
+        animated: boolean,
+        fixedPosition: boolean,
+        isMutable: boolean
+    ) {
         this.rootSpellPart = spellPart;
         this.spellPart = spellPart;
         this.originalPosition = new Point(this.toScaledSpace(x), this.toScaledSpace(y));
@@ -48,6 +58,8 @@ export default class SpellPartWidget {
             PRECISION_OFFSET,
             animated
         );
+        this.fixedPosition = fixedPosition;
+        this.isMutable = isMutable;
         this.angleOffsets.push(0);
     }
 
@@ -121,8 +133,8 @@ export default class SpellPartWidget {
             this.angleOffsets[this.angleOffsets.length - 1],
             delta,
             (size: number) => {
-                const alpha = Math.min(height / (size * 2) - 0.1, Math.pow(size, 1.2) / height + 0.1)
-                return Math.min(Math.max(alpha, 0), 1)
+                const alpha = Math.min(height / (size * 2) - 0.1, Math.pow(size, 1.2) / height + 0.1);
+                return Math.min(Math.max(alpha, 0), 1);
             },
             textures
         );
@@ -140,6 +152,8 @@ export default class SpellPartWidget {
     }
 
     mouseScrolled(mouseX: number, mouseY: number, verticalAmount: number) {
+        if (this.fixedPosition) return;
+
         this.size += (verticalAmount * this.size) / 10;
         this.x += (verticalAmount * (this.x - this.toScaledSpace(mouseX))) / 10;
         this.y += (verticalAmount * (this.y - this.toScaledSpace(mouseY))) / 10;
@@ -234,7 +248,7 @@ export default class SpellPartWidget {
     }
 
     mouseDragged(mouseX: number, mouseY: number, button: number, deltaX: number, deltaY: number): boolean {
-        if (!this.isDrawing()) {
+        if (!this.isDrawing() && !this.fixedPosition) {
             this.x += this.toScaledSpace(deltaX);
             this.y += this.toScaledSpace(deltaY);
 
@@ -376,8 +390,6 @@ export default class SpellPartWidget {
                     //         ModSounds.DRAW, SoundCategory.MASTER,
                     //         1f, ModSounds.randomPitch(1f, 0.2f)
                     // );
-
-
                 }
 
                 return true;
@@ -388,10 +400,11 @@ export default class SpellPartWidget {
     }
 
     stopDrawing() {
-        const compiled = patternOf(this.drawingPattern!);
+        const compiled = this.drawingPattern !== null ? patternOf(this.drawingPattern) : null;
+        if (compiled === null) return;
+
         const patternSize = this.drawingPattern!.length;
         const rev = revision.lookup(compiled);
-
 
         this.drawingPart!.glyph = this.oldGlyph!;
 
@@ -494,8 +507,7 @@ export default class SpellPartWidget {
         let closestSize = size;
 
         let centerAvailable =
-            (isCircleClickable(this.toLocalSpace(size)) && (this.drawingPart == null || this.drawingPart == part)) ||
-            part.glyph instanceof SpellPart;
+            (isCircleClickable(this.toLocalSpace(size)) && (this.drawingPart == null || this.drawingPart == part)) || part.glyph instanceof SpellPart;
         let closestDistanceSquared = Number.MAX_VALUE;
 
         let partCount = part.getSubParts().length;
@@ -535,8 +547,6 @@ export default class SpellPartWidget {
             }
         }
 
-
-
         if (Math.sqrt(closestDistanceSquared) <= size && this.toLocalSpace(size) >= 16) {
             if (closest == part) {
                 return false;
@@ -558,7 +568,7 @@ export default class SpellPartWidget {
 }
 
 function isCircleClickable(size: number) {
-    return size >= 16*5 && size <= 256*5;
+    return size >= 16 * 5 && size <= 256 * 5;
 }
 
 type MouseEventHandler = (part: SpellPart, x: number, y: number, size: number) => boolean;

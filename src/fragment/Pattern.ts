@@ -74,7 +74,7 @@ for (let p1 = 0; p1 < 9; p1++) {
     }
 }
 
-function patternOf(pattern: Array<number>): Pattern {
+function patternOf(pattern: Array<number>): Pattern | null {
     const result = patternFrom(pattern);
 
     for (const line of result.entries) {
@@ -88,7 +88,7 @@ function patternOf(pattern: Array<number>): Pattern {
         }
 
         if (!b) {
-            throw new Error("Pattern is not valid");
+            return null;
         }
     }
 
