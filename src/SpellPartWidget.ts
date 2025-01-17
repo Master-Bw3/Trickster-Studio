@@ -121,7 +121,7 @@ export default class SpellPartWidget {
             this.angleOffsets[this.angleOffsets.length - 1],
             delta,
             (size: number) => {
-                const alpha = Math.min(height / (size * 2) - 0.1, Math.pow(size, 1.2) / height)
+                const alpha = Math.min(height / (size * 2) - 0.1, Math.pow(size, 1.2) / height + 0.1)
                 return Math.min(Math.max(alpha, 0), 1)
             },
             textures
