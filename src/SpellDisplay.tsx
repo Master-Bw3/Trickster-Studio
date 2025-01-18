@@ -2,13 +2,16 @@ import { Application, Assets, Texture } from "pixi.js";
 import SpellPartWidget from "./SpellPartWidget";
 import RevisionContext from "./RevisionContext";
 import SpellPart from "./fragment/SpellPart";
-import { createUniqueId, JSX, onMount } from "solid-js";
+import { Accessor, createEffect, createUniqueId, JSX, onMount, Setter, splitProps } from "solid-js";
 
-type Props = { spellPart: SpellPart; fixedPosition?: boolean; isMutable?: boolean; initialScale?: number } & JSX.HTMLAttributes<HTMLDivElement>
+type Props = { spellPart: Accessor<SpellPart>; setSpellPart: Setter<SpellPart>; fixedPosition?: boolean; isMutable?: boolean; initialScale?: number } & JSX.HTMLAttributes<HTMLDivElement>
 
-function SpellDisplay({ spellPart, fixedPosition = false, isMutable = true, initialScale = 1, ...rest }: Props) {
+function SpellDisplay(props: Props) {
+    const [local, other] = splitProps(props, ["spellPart", "setSpellPart", "fixedPosition", "isMutable", "initialScale"])
+
     let container: HTMLDivElement;
     let canvas: HTMLCanvasElement;
+   
 
     onMount(async () => {
         const app = new Application();
@@ -29,6 +32,7 @@ function SpellDisplay({ spellPart, fixedPosition = false, isMutable = true, init
             },
         });
 
+   
         const textures: Map<string, Texture> = new Map();
 
         textures.set("circle_48", await Assets.load("./circle_48.png"));
@@ -36,7 +40,8 @@ function SpellDisplay({ spellPart, fixedPosition = false, isMutable = true, init
         textures.set("overlay", await Assets.load("./pattern_literal.png"));
         textures.get("overlay")!.source.scaleMode = "nearest";
 
-        const widget = new SpellPartWidget(spellPart, app.canvas.width / 2, app.canvas.height / 2, app.canvas.height * initialScale, new RevisionContext(), true, fixedPosition, isMutable);
+        const widget = new SpellPartWidget(local.spellPart(), local.setSpellPart, app.canvas.width / 2, app.canvas.height / 2, app.canvas.height * (local.initialScale ?? 1), new RevisionContext(), true, (local.fixedPosition ?? false), (local.isMutable ?? true));
+
 
         widget.render(app.stage, 0, 0, 0, app.canvas.height, textures);
 
@@ -72,12 +77,9 @@ function SpellDisplay({ spellPart, fixedPosition = false, isMutable = true, init
 
             widget.dragDrawing = e.pointerType === "touch";
 
-            console.log(x, y)
-
             const button = e.button;
             widget.mouseClicked(x, y, button);
 
-            app.stage.removeChildren();
             widget.render(app.stage, x, y, 0, app.canvas.height, textures);
         });
 
@@ -95,7 +97,6 @@ function SpellDisplay({ spellPart, fixedPosition = false, isMutable = true, init
                 pinchZooming = false;
             }
 
-            app.stage.removeChildren();
             widget.render(app.stage, x, y, 0, app.canvas.height, textures);
         });
 
@@ -151,12 +152,13 @@ function SpellDisplay({ spellPart, fixedPosition = false, isMutable = true, init
 
             widget.mouseMoved(x, y);
 
-            app.stage.removeChildren();
             widget.render(app.stage, x, y, 0, app.canvas.height, textures);
         });
     })
 
-    return <div ref={container!} {...rest}>
+
+
+    return <div ref={container!} {...other}>
         <canvas ref={canvas!} />
     </div>;
 }

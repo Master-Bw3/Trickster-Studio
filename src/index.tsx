@@ -24,20 +24,26 @@ import "./fragment/VoidFragment";
 import "./fragment/ZalgoFragment";
 import { SpellDisplay } from "./SpellDisplay";
 import { render } from "solid-js/web";
+import { createSignal } from "solid-js";
 
 
 const params = new URLSearchParams(window.location.search);
 const encoded = params.get("spell");
 const decoded = encoded === null ? new SpellPart() : decodeSpell(encoded);
 
-const App = () => (
-    <>
+const App = () => {
+
+    const [spellPart, setSpellPart] = createSignal(decoded)
+
+
+    return <>
         <div id="editor">
-            <SpellDisplay spellPart={decoded} fixedPosition={true} class="spell_name"></SpellDisplay>
-            <SpellDisplay spellPart={new SpellPart()} initialScale={0.5} class="spell"></SpellDisplay>
+            <SpellDisplay spellPart={() => new SpellPart()} setSpellPart={() => {}} fixedPosition={true} class="spell_name"></SpellDisplay>
+            <SpellDisplay spellPart={spellPart} initialScale={0.5} setSpellPart={setSpellPart} class="spell"></SpellDisplay>
         </div>
     </>
-);
+
+};
 
 render(App, document.body);
 

@@ -21,8 +21,8 @@ body {
 
 .spell_name {
     position: absolute;
-    height: 35vh;
-    width: 35vh;
+    height: 30vh;
+    width: 30vh;
     right: 5vh;
     top: 5vh;
 }

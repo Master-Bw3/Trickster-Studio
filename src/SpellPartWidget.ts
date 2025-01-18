@@ -6,6 +6,7 @@ import SpellCircleRenderer, { getPatternDotPosition, isInsideHitbox, PART_PIXEL_
 import PatternGlyph from "./fragment/PatternGlyph";
 import Pattern, { patternOf } from "./fragment/Pattern";
 import * as revision from "./revision";
+import { Setter } from "solid-js";
 
 const PRECISION_OFFSET = Math.pow(2, 50);
 
@@ -35,8 +36,12 @@ export default class SpellPartWidget {
 
     renderer: SpellCircleRenderer;
 
+    spellPartChangeCallback: (spell: SpellPart) => void;
+
+
     constructor(
         spellPart: SpellPart,
+        spellPartChangeCallback: (spell: SpellPart) => void,
         x: number,
         y: number,
         size: number,
@@ -46,6 +51,7 @@ export default class SpellPartWidget {
         isMutable: boolean
     ) {
         this.rootSpellPart = spellPart;
+        this.spellPartChangeCallback = spellPartChangeCallback;
         this.spellPart = spellPart;
         this.originalPosition = new Point(this.toScaledSpace(x), this.toScaledSpace(y));
         this.x = this.toScaledSpace(x);
@@ -64,6 +70,8 @@ export default class SpellPartWidget {
     }
 
     setSpell(spellPart: SpellPart) {
+        this.spellPartChangeCallback(spellPart)
+
         const newParents: Array<SpellPart> = [];
         const newAngleOffsets: Array<number> = [];
         newParents.push(spellPart);
@@ -119,6 +127,8 @@ export default class SpellPartWidget {
     }
 
     render(container: Container, mouseX: number, mouseY: number, delta: number, height: number, textures: Map<string, Texture>) {
+        container.removeChildren();
+
         if (this.isMutable) {
             this.renderer.setMousePosition(mouseX, mouseY);
         }
