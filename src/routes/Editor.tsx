@@ -5,6 +5,8 @@ import SpellPart from "~/fragment/SpellPart";
 import { decodeSpell } from "~/serialization";
 import "../style.css"
 
+import { Button } from "@/components/ui/button"
+
 export default function Editor() {
   const params = new URLSearchParams(window.location.search);
   const encoded = params.get("spell");
@@ -15,6 +17,8 @@ export default function Editor() {
 
 
   return <>
+        <Button>Click me</Button>
+
       <div id="editor">
           <SpellDisplay spellPart={() => new SpellPart()} setSpellPart={() => {}} fixedPosition={true} class="spell_name"></SpellDisplay>
           <SpellDisplay spellPart={spellPart} initialScale={0.5} setSpellPart={setSpellPart} class="spell"></SpellDisplay>
