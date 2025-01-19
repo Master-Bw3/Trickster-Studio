@@ -127,12 +127,8 @@ export default class SpellPartWidget {
         this.angleOffsets.push(...newAngleOffsets);
     }
 
-    render(container: Container, mouseX: number, mouseY: number, delta: number, height: number, textures: Map<string, Texture>) {
+    render(container: Container, delta: number, height: number, textures: Map<string, Texture>) {
         container.removeChildren();
-
-        if (this.isMutable) {
-            this.renderer.setMousePosition(mouseX, mouseY);
-        }
 
         this.renderer.renderPart(
             //
@@ -163,6 +159,9 @@ export default class SpellPartWidget {
     }
 
     mouseScrolled(mouseX: number, mouseY: number, verticalAmount: number) {
+        this.renderer.setMousePosition(mouseX, mouseY)
+
+
         if (this.fixedPosition) return;
 
         this.size += (verticalAmount * this.size) / 10;
@@ -259,6 +258,8 @@ export default class SpellPartWidget {
     }
 
     mouseDragged(mouseX: number, mouseY: number, button: number, deltaX: number, deltaY: number): boolean {
+        this.renderer.setMousePosition(mouseX, mouseY)
+
         if (!this.isDrawing() && !this.fixedPosition) {
             this.x += this.toScaledSpace(deltaX);
             this.y += this.toScaledSpace(deltaY);
@@ -267,10 +268,14 @@ export default class SpellPartWidget {
             return true;
         }
 
+        
+
         return false;
     }
 
     mouseClicked(mouseX: number, mouseY: number, button: number) {
+        this.renderer.setMousePosition(mouseX, mouseY)
+
         if (this.isMutable || this.isDrawing()) {
             if (this.dragDrawing && button == 0 && !this.isDrawing()) {
                 if (
@@ -310,6 +315,8 @@ export default class SpellPartWidget {
     }
 
     mouseReleased(mouseX: number, mouseY: number, button: number): boolean {
+        this.renderer.setMousePosition(mouseX, mouseY)
+
         if (this.isMutable || this.isDrawing()) {
             let dragged = this.amountDragged;
             this.amountDragged = 0;
@@ -345,6 +352,9 @@ export default class SpellPartWidget {
     }
 
     mouseMoved(mouseX: number, mouseY: number) {
+        this.renderer.setMousePosition(mouseX, mouseY)
+
+
         if (this.isDrawing()) {
             this.propagateMouseEvent(
                 this.spellPart,

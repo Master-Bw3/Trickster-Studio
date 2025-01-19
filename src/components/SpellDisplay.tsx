@@ -1,4 +1,4 @@
-import { Application, Assets, Texture } from "pixi.js";
+import { Application, Assets, Texture, Ticker } from "pixi.js";
 import SpellPartWidget from "./spellDisplay/SpellPartWidget";
 import RevisionContext from "../RevisionContext";
 import SpellPart from "../fragment/SpellPart";
@@ -11,7 +11,7 @@ function SpellDisplay(props: Props) {
 
     let container: HTMLDivElement;
     let canvas: HTMLCanvasElement;
-   
+
 
     onMount(async () => {
         const app = new Application();
@@ -32,7 +32,7 @@ function SpellDisplay(props: Props) {
             },
         });
 
-   
+
         const textures: Map<string, Texture> = new Map();
 
         textures.set("circle_48", await Assets.load("./circle_48.png"));
@@ -43,7 +43,18 @@ function SpellDisplay(props: Props) {
         const widget = new SpellPartWidget(local.spellPart(), local.setSpellPart, app.canvas.width / 2, app.canvas.height / 2, app.canvas.height * (local.initialScale ?? 1), new RevisionContext(), true, (local.fixedPosition ?? false), (local.isMutable ?? true));
 
 
-        widget.render(app.stage, 0, 0, 0, app.canvas.height, textures);
+        app.ticker.add(() => {
+            if (widget.fixedPosition) {
+                widget.size = widget.toScaledSpace(app.canvas.height * (local.initialScale ?? 1))
+                widget.x = widget.toScaledSpace(app.canvas.width / 2);
+                widget.y = widget.toScaledSpace(app.canvas.height / 2);
+            }
+
+            widget.render(app.stage, 0, app.canvas.height, textures);
+
+        })
+
+
 
         let pinchZooming = false;
         let lastPinchDistance = 0;
@@ -55,7 +66,6 @@ function SpellDisplay(props: Props) {
             widget.mouseScrolled(x, y, -e.deltaY / 100);
 
             app.stage.removeChildren();
-            widget.render(app.stage, x, y, 0, app.canvas.height, textures);
         });
 
         const activeTouches = new Map();
@@ -79,8 +89,6 @@ function SpellDisplay(props: Props) {
 
             const button = e.button;
             widget.mouseClicked(x, y, button);
-
-            widget.render(app.stage, x, y, 0, app.canvas.height, textures);
         });
 
         window.addEventListener("pointerup", (e) => {
@@ -96,8 +104,6 @@ function SpellDisplay(props: Props) {
             if (activeTouches.size < 2) {
                 pinchZooming = false;
             }
-
-            widget.render(app.stage, x, y, 0, app.canvas.height, textures);
         });
 
         window.addEventListener("pointermove", (e) => {
@@ -151,8 +157,6 @@ function SpellDisplay(props: Props) {
             }
 
             widget.mouseMoved(x, y);
-
-            widget.render(app.stage, x, y, 0, app.canvas.height, textures);
         });
     })
 
