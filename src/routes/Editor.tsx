@@ -4,11 +4,12 @@ import { SpellDisplay } from "~/components/SpellDisplay";
 import SpellPart from "~/fragment/SpellPart";
 import { decodeSpell } from "~/serialization";
 import "../style.css"
-import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarHeader, SidebarProvider, SidebarTrigger } from "~/components/ui/sidebar";
+import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarHeader, SidebarProvider, SidebarTrigger, useSideBar } from "~/components/ui/sidebar";
 import { SpellSidebar } from "~/components/EditorSidebar";
 import { FilesIcon } from "~/components/icon/FilesIcon";
 import { SettingsIcon } from "~/components/icon/SettingsIcon";
 import { SaveIcon } from "~/components/icon/SaveIcon";
+import { Button } from "~/components/ui/button";
 
 
 export default function Editor() {
@@ -19,24 +20,26 @@ export default function Editor() {
 
   const [spellPart, setSpellPart] = createSignal(decoded)
 
+  const [toggleSidebar, setToggleSidebar] = createSignal(() => { })
 
   return <div class="flex">
-  <div class="w-16 flex flex-col items-center gap-10 p-5">
-    <FilesIcon/>
-    <SettingsIcon/>
-    <SaveIcon/>
+    <div class="w-16 flex flex-col items-center gap-10 p-5">
+      <button onClick={() => toggleSidebar()()}>
+        <FilesIcon />
+      </button>
+      <SettingsIcon />
+      <SaveIcon />
 
-  </div>
-  <SidebarProvider>
-    <SpellSidebar />
-    <main class="w-full">
-    <SidebarTrigger />
+    </div>
+    <SidebarProvider>
+      <SpellSidebar setToggleSidebar={setToggleSidebar}/>
+      <main class="w-full">
 
-      <div id="editor" class="w-full">
-        <SpellDisplay spellPart={() => new SpellPart()} setSpellPart={() => { }} fixedPosition={true} class="spell_name"></SpellDisplay>
-        <SpellDisplay spellPart={spellPart} initialScale={0.5} setSpellPart={setSpellPart} class="spell"></SpellDisplay>
-      </div>
-    </main>
-  </SidebarProvider>
+        <div id="editor" class="w-full">
+          <SpellDisplay spellPart={() => new SpellPart()} setSpellPart={() => { }} fixedPosition={true} class="spell_name"></SpellDisplay>
+          <SpellDisplay spellPart={spellPart} initialScale={0.5} setSpellPart={setSpellPart} class="spell"></SpellDisplay>
+        </div>
+      </main>
+    </SidebarProvider>
   </div>
 }
