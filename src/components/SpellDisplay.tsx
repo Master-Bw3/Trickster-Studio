@@ -40,7 +40,7 @@ function SpellDisplay(props: Props) {
         textures.set("overlay", await Assets.load("./pattern_literal.png"));
         textures.get("overlay")!.source.scaleMode = "nearest";
 
-        const widget = new SpellPartWidget(local.spellPart(), local.setSpellPart, app.canvas.width / 2, app.canvas.height / 2, app.canvas.height * (local.initialScale ?? 1), new RevisionContext(), true, (local.fixedPosition ?? false), (local.isMutable ?? true));
+        const widget = new SpellPartWidget(local.spellPart, local.setSpellPart, app.canvas.width / 2, app.canvas.height / 2, app.canvas.height * (local.initialScale ?? 1), new RevisionContext(), true, (local.fixedPosition ?? false), (local.isMutable ?? true));
 
 
         app.ticker.add(() => {

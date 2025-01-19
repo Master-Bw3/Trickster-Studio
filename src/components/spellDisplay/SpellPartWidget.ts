@@ -14,7 +14,7 @@ const PRECISION_OFFSET = Math.pow(2, 50);
 export default class SpellPartWidget {
     dragDrawing = false;
 
-    rootSpellPart: SpellPart;
+    getRootSpellPart: () => SpellPart;
     spellPart: SpellPart;
     parents: Array<SpellPart> = [];
     angleOffsets: Array<number> = [];
@@ -41,7 +41,7 @@ export default class SpellPartWidget {
 
 
     constructor(
-        spellPart: SpellPart,
+        getSpellPart: () => SpellPart,
         spellPartChangeCallback: (spell: SpellPart) => void,
         x: number,
         y: number,
@@ -51,9 +51,9 @@ export default class SpellPartWidget {
         fixedPosition: boolean,
         isMutable: boolean
     ) {
-        this.rootSpellPart = spellPart;
+        this.getRootSpellPart = getSpellPart;
         this.spellPartChangeCallback = spellPartChangeCallback;
-        this.spellPart = spellPart;
+        this.spellPart = getSpellPart();
         this.originalPosition = new Point(this.toScaledSpace(x), this.toScaledSpace(y));
         this.x = this.toScaledSpace(x);
         this.y = this.toScaledSpace(y);
@@ -119,7 +119,6 @@ export default class SpellPartWidget {
             newAngleOffsets.push(currentAngleOffsets.shift()!);
         }
 
-        this.rootSpellPart = spellPart;
         this.spellPart = newParents.pop()!;
         this.parents = [];
         this.angleOffsets = [];
@@ -446,8 +445,8 @@ export default class SpellPartWidget {
                     }
                 }
 
-                if (this.spellPart == this.rootSpellPart) {
-                    this.rootSpellPart = result;
+                if (this.spellPart == this.getRootSpellPart()) {
+                    this.spellPartChangeCallback(result);
                 }
 
                 this.spellPart = result;
@@ -465,7 +464,7 @@ export default class SpellPartWidget {
 
         this.drawingPart = null;
         this.drawingPattern = null;
-        this.revisionContext.updateSpell(this.rootSpellPart);
+        this.revisionContext.updateSpell(this.getRootSpellPart());
 
         // MinecraftClient.getInstance().player.playSoundToPlayer(
         //         ModSounds.COMPLETE, SoundCategory.MASTER,
@@ -477,7 +476,7 @@ export default class SpellPartWidget {
         if (this.toBeReplaced != null) {
             this.toBeReplaced.glyph = fragment;
             this.toBeReplaced = null;
-            this.revisionContext.updateSpell(this.rootSpellPart);
+            this.revisionContext.updateSpell(this.getRootSpellPart());
         }
     }
 
@@ -489,7 +488,7 @@ export default class SpellPartWidget {
             }
 
             this.toBeReplaced = null;
-            this.revisionContext.updateSpell(this.rootSpellPart);
+            this.revisionContext.updateSpell(this.getRootSpellPart());
         }
     }
 
