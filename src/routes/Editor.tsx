@@ -10,6 +10,7 @@ import { FilesIcon } from "~/components/icon/FilesIcon";
 import { SettingsIcon } from "~/components/icon/SettingsIcon";
 import { SaveIcon } from "~/components/icon/SaveIcon";
 import { Button } from "~/components/ui/button";
+import { EditorToolbar } from "~/components/EditorToolbar";
 
 
 export default function Editor() {
@@ -23,7 +24,7 @@ export default function Editor() {
   const [toggleSidebar, setToggleSidebar] = createSignal(() => { })
 
   return <div class="flex">
-    <div class="w-16 flex flex-col items-center gap-10 p-5">
+    <div class="w-12 flex flex-col items-center gap-8 p-5">
       <button onClick={() => toggleSidebar()()}>
         <FilesIcon />
       </button>
@@ -32,12 +33,13 @@ export default function Editor() {
 
     </div>
     <SidebarProvider>
-      <SpellSidebar setToggleSidebar={setToggleSidebar}/>
+      <SpellSidebar setToggleSidebar={setToggleSidebar} />
       <main class="w-full">
 
-        <div id="editor" class="w-full">
+        <div id="editor" class="w-full flex flex-col items-center">
           <SpellDisplay spellPart={() => new SpellPart()} setSpellPart={() => { }} fixedPosition={true} class="spell_name"></SpellDisplay>
           <SpellDisplay spellPart={spellPart} initialScale={0.5} setSpellPart={setSpellPart} class="spell"></SpellDisplay>
+          <EditorToolbar class="relative" style="top: -8rem"></EditorToolbar>
         </div>
       </main>
     </SidebarProvider>
