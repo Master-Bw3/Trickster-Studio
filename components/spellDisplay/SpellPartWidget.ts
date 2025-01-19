@@ -1,12 +1,13 @@
-import SpellPart from "./fragment/SpellPart";
+import SpellPart from "../../fragment/SpellPart";
 import { Container, Point, Texture } from "pixi.js";
-import RevisionContext from "./RevisionContext";
-import Fragment from "./fragment/Fragment";
+import RevisionContext from "../../RevisionContext";
+import Fragment from "../../fragment/Fragment";
 import SpellCircleRenderer, { getPatternDotPosition, isInsideHitbox, PART_PIXEL_RADIUS, PATTERN_TO_PART_RATIO } from "./SpellCircleRenderer";
-import PatternGlyph from "./fragment/PatternGlyph";
-import Pattern, { patternOf } from "./fragment/Pattern";
-import * as revision from "./revision";
+import PatternGlyph from "../../fragment/PatternGlyph";
+import Pattern, { patternOf } from "../../fragment/Pattern";
+import * as revision from "../../revision";
 import { Setter } from "solid-js";
+import { isCircleClickable } from "./spellRenderingUtils";
 
 const PRECISION_OFFSET = Math.pow(2, 50);
 
@@ -577,10 +578,7 @@ export default class SpellPartWidget {
     }
 }
 
-function isCircleClickable(size: number) {
-    return size >= 16 * 5 && size <= 256 * 5;
-}
 
 type MouseEventHandler = (part: SpellPart, x: number, y: number, size: number) => boolean;
 
-export { MouseEventHandler, isCircleClickable };
+export { type MouseEventHandler };

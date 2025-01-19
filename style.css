@@ -12,7 +12,9 @@ body {
     height: 100%;
 }
 
-
+#editor {
+    height: 100vh;
+}
 
 .spell {
     height: 100%;

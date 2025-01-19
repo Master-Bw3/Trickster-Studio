@@ -1,7 +1,7 @@
 import { Application, Assets, Texture } from "pixi.js";
-import SpellPartWidget from "./SpellPartWidget";
-import RevisionContext from "./RevisionContext";
-import SpellPart from "./fragment/SpellPart";
+import SpellPartWidget from "./spellDisplay/SpellPartWidget";
+import RevisionContext from "../RevisionContext";
+import SpellPart from "../fragment/SpellPart";
 import { Accessor, createEffect, createUniqueId, JSX, onMount, Setter, splitProps } from "solid-js";
 
 type Props = { spellPart: Accessor<SpellPart>; setSpellPart: Setter<SpellPart>; fixedPosition?: boolean; isMutable?: boolean; initialScale?: number } & JSX.HTMLAttributes<HTMLDivElement>
