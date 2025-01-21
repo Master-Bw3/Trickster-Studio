@@ -7,5 +7,8 @@ export default defineConfig({
   plugins: [
     wasm(),
     topLevelAwait(),
-  ]
+  ],
+  build: {
+    outDir: 'dist'
+  }
 });
