@@ -14,6 +14,7 @@ const BLOCK_TYPE = register("trickster:block_type", 0x44aa33, (object: any) => {
 });
 
 export default class BlockTypeFragment extends Fragment {
+
     blockType: string;
 
     constructor(blockType: string) {
@@ -28,5 +29,9 @@ export default class BlockTypeFragment extends Fragment {
 
     override type(): FragmentType {
         return BLOCK_TYPE;
+    }
+
+    encode() {
+        return wasm.BlockTypeFragment(this.blockType)
     }
 }

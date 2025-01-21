@@ -8,10 +8,18 @@ import PatternGlyph from "./fragment/PatternGlyph";
 import { Point } from "pixi.js";
 import Pattern from "./fragment/Pattern";
 
+
 function decodeSpell(encodedString: string): SpellPart {
     const decoded = wasm.decodeBase64Spell(encodedString);
+
+    const x = wasm.NumberFragment(1.0)
+
+    console.log(x)
 
     return decode(decoded)
 }
 
+
+
 export { decodeSpell };
+

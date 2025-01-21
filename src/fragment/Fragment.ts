@@ -23,6 +23,8 @@ export default abstract class Fragment {
     abstract toString(): string;
 
     abstract type(): FragmentType;
+
+   // abstract encode(): any
 }
 
 export abstract class FragmentType {
