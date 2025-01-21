@@ -52,6 +52,8 @@ function SpellDisplay(props: Props) {
 
             widget.render(app.stage, 0, app.canvas.height, textures);
 
+            app.queueResize()
+
         })
 
 

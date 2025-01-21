@@ -34,7 +34,7 @@ export default function Editor() {
     </div>
     <SidebarProvider>
       <SpellSidebar setToggleSidebar={setToggleSidebar} />
-      <main class="w-full">
+      <main class="w-full overflow-hidden">
 
         <div id="editor" class="w-full flex flex-col items-center">
           <SpellDisplay spellPart={() => new SpellPart()} setSpellPart={() => { }} fixedPosition={true} class="spell_name"></SpellDisplay>
