@@ -1,32 +1,31 @@
 import { Text } from "pixi.js";
-import Fragment, { decode, FragmentType, fragmentTypes, getKeyByValue, register } from "./Fragment";
-
-//@ts-ignore
-import * as wasm from "../WasmEndec-1.0-SNAPSHOT/js/endec";
-
-
-
-const TYPE = register("trickster:type", 0x66cc00, (object: any) => {
-    if (object instanceof wasm.TypeFragment) {
-        return new TypeFragment(object.id);
-    }
-    return null;
-});
+import Fragment, { FragmentType, fragmentTypes, getKeyByValue, register } from "./Fragment";
+import { StructEndecBuilder, PrimitiveEndecs } from 'KEndec';
+import { Identifier } from "~/util";
+import { lazy } from "~/endecTomfoolery";
 
 export default class TypeFragment extends Fragment {
-    typeType: FragmentType;
+    typeType: FragmentType<Fragment>;
 
-    constructor(id: string) {
+    constructor(typeType: FragmentType<Fragment>) {
         super();
 
-        this.typeType = fragmentTypes.get(id)!;
+        this.typeType = typeType;
     }
 
     override toString(): string {
-        return getKeyByValue(fragmentTypes, this.typeType)!;
+        return getKeyByValue(fragmentTypes, this.typeType)!.toString();
     }
 
-    override type(): FragmentType {
+    override type(): FragmentType<Fragment> {
         return TYPE;
     }
 }
+
+const TYPE = register("type", 0x66cc00, 
+    lazy(() => StructEndecBuilder.of1(
+        Identifier.ENDEC.xmap((id) => fragmentTypes.get(id)!, (type: FragmentType<Fragment>) => type.getId())
+        .fieldOf("of_type", (fragment: TypeFragment) => fragment.typeType),
+        (type) => new TypeFragment(type)
+    ))
+);

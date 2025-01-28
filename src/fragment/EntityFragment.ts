@@ -1,17 +1,7 @@
 import { Text } from "pixi.js";
-import Fragment, { decode, FragmentType, register } from "./Fragment";
+import Fragment, { FragmentType, register } from "./Fragment";
+import { StructEndecBuilder, BuiltInEndecs, uuidToString, uuidFromString, PrimitiveEndecs } from 'KEndec';
 
-//@ts-ignore
-import * as wasm from "../WasmEndec-1.0-SNAPSHOT/js/endec";
-
-
-
-const ENTITY = register("trickster:entity", 0x338888, (object: any) => {
-    if (object instanceof wasm.EntityFragment) {
-        return new EntityFragment(object.uuid, object.name);
-    }
-    return null;
-});
 
 export default class EntityFragment extends Fragment {
     uuid: string;
@@ -31,7 +21,17 @@ export default class EntityFragment extends Fragment {
         return name;
     }
 
-    override type(): FragmentType {
+    override type(): FragmentType<EntityFragment> {
         return ENTITY;
     }
 }
+
+const ENTITY = register("entity", 0x338888, 
+    StructEndecBuilder.of2(
+        BuiltInEndecs.Uuid
+            .xmap(uuidToString, uuidFromString)
+            .fieldOf("uuid", (fragment: EntityFragment) => fragment.uuid),
+        PrimitiveEndecs.STRING.fieldOf("name", (fragment: EntityFragment) => fragment.name),
+        (uuid, name) => new EntityFragment(uuid, name)
+    )
+);

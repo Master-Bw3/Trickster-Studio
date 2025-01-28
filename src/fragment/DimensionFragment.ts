@@ -1,17 +1,9 @@
 import { Text } from "pixi.js";
-import Fragment, { decode, FragmentType, register } from "./Fragment";
-
-//@ts-ignore
-import * as wasm from "../WasmEndec-1.0-SNAPSHOT/js/endec";
-
+import Fragment, { FragmentType, register } from "./Fragment";
+import { StructEndecBuilder, PrimitiveEndecs } from 'KEndec';
+import { Identifier } from "~/util";
 
 
-const DIMENSION = register("trickster:dimension", 0xdd55bb, (object: any) => {
-    if (object instanceof wasm.DimensionFragment) {
-        return new DimensionFragment(object.world);
-    }
-    return null;
-});
 
 export default class DimensionFragment extends Fragment {
     world: string;
@@ -26,7 +18,16 @@ export default class DimensionFragment extends Fragment {
         return this.world.replace(/^[^a-zA-Z0-9]+/, "");
     }
 
-    override type(): FragmentType {
+    override type(): FragmentType<DimensionFragment> {
         return DIMENSION;
     }
 }
+
+const DIMENSION = register("dimension", 0xdd55bb, 
+    StructEndecBuilder.of1(
+        Identifier.ENDEC
+            .xmap((ident) => ident.toString(), Identifier.of)
+            .fieldOf("block", (fragment: DimensionFragment) => fragment.world),
+        (str) => new DimensionFragment(str) 
+    )
+);

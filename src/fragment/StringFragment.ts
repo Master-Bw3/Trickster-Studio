@@ -1,17 +1,6 @@
-import { Text } from "pixi.js";
-import Fragment, { decode, FragmentType, register } from "./Fragment";
-
-//@ts-ignore
-import * as wasm from "../WasmEndec-1.0-SNAPSHOT/js/endec";
-
-
-
-const SLOT = register("trickster:string", 0xaabb77, (object: any) => {
-    if (object instanceof wasm.StringFragment) {
-        return new StringFragment(object.value);
-    }
-    return null;
-});
+import { Text } from 'pixi.js';
+import Fragment, { FragmentType, register } from './Fragment';
+import { StructEndecBuilder, PrimitiveEndecs } from 'KEndec';
 
 export default class StringFragment extends Fragment {
     string: string;
@@ -26,7 +15,16 @@ export default class StringFragment extends Fragment {
         return this.string;
     }
 
-    override type(): FragmentType {
+    override type(): FragmentType<StringFragment> {
         return SLOT;
     }
 }
+
+const SLOT = register(
+    'string',
+    0xaabb77,
+    StructEndecBuilder.of1(
+        PrimitiveEndecs.STRING.fieldOf('value', (fragment: StringFragment) => fragment.string),
+        (str) => new StringFragment(str)
+    )
+);

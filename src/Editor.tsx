@@ -1,15 +1,12 @@
-import { Title } from '@solidjs/meta';
 import { createSignal } from 'solid-js';
 import { SpellDisplay } from '~/components/SpellDisplay';
 import SpellPart from '~/fragment/SpellPart';
-import { decodeSpell } from '~/serialization';
 import './style.css';
-import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarHeader, SidebarProvider, SidebarTrigger, useSideBar } from '~/components/ui/sidebar';
+import { SidebarProvider } from '~/components/ui/sidebar';
 import { SpellSidebar } from '~/components/EditorSidebar';
 import { FilesIcon } from '~/components/icon/FilesIcon';
 import { SettingsIcon } from '~/components/icon/SettingsIcon';
 import { SaveIcon } from '~/components/icon/SaveIcon';
-import { Button } from '~/components/ui/button';
 import { EditorToolbar } from '~/components/EditorToolbar';
 import Pattern from './fragment/Pattern';
 

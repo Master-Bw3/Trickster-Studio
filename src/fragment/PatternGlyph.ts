@@ -1,21 +1,8 @@
 import { Text } from "pixi.js";
-import Pattern, { patternOf } from "./Pattern";
-import Fragment, { decode, FragmentType, register } from "./Fragment";
+import Pattern, { PATTERN_ENDEC, patternOf } from "./Pattern";
+import Fragment, {FragmentType, register } from "./Fragment";
+import { StructEndecBuilder, PrimitiveEndecs } from 'KEndec';
 
-//@ts-ignore
-import * as wasm from "../WasmEndec-1.0-SNAPSHOT/js/endec";
-
-
-
-const PATTERN_GLYPH = register("trickster:pattern_glyph", 0x6644aa, (object: any) => {
-    if (object instanceof wasm.PatternGlyph) {
-        const pattern = decode(object.pattern);
-        if (pattern instanceof Pattern) {
-            return new PatternGlyph(pattern);
-        }
-    }
-    return null;
-});
 
 export default class PatternGlyph extends Fragment {
     pattern: Pattern;
@@ -37,7 +24,14 @@ export default class PatternGlyph extends Fragment {
         return "pattern glyph";
     }
 
-    override type(): FragmentType {
+    override type(): FragmentType<PatternGlyph> {
         return PATTERN_GLYPH;
     }
 }
+
+const PATTERN_GLYPH = register("pattern_glyph", 0x6644aa, 
+    StructEndecBuilder.of1(
+        PATTERN_ENDEC.fieldOf("pattern", (fragment: PatternGlyph) => fragment.pattern),
+        pattern => new PatternGlyph(pattern)
+    )
+);

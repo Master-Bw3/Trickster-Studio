@@ -1,30 +1,12 @@
 import { Point, Text } from "pixi.js";
 import Fragment, { FragmentType, register } from "./Fragment";
-
-//@ts-ignore
-import * as wasm from "../WasmEndec-1.0-SNAPSHOT/js/endec";
-
-
-
-const PATTERN = register("trickster:pattern", 0xffffff, (object: any) => {
-    if (object instanceof wasm.Pattern) {
-        const entries: Array<Point | null> = object.entries.map((entry: any) => {
-            if (entry instanceof wasm.PatternEntry) {
-                return new Point(entry.p1, entry.p2);
-            } else return null;
-        });
-
-        if (entries.every((x) => x != null)) {
-            return new Pattern(entries);
-        }
-    }
-    return null;
-});
+import { Endec, StructEndecBuilder, PrimitiveEndecs, ifAttr, KtList } from 'KEndec';
+import { funnyFieldOf, POINT, UBER_COMPACT_ATTRIBUTE } from "~/endecTomfoolery";
 
 export default class Pattern extends Fragment {
-    entries: Array<Point>;
+    entries: ReadonlyArray<Point>;
 
-    constructor(entries: Array<Point>) {
+    constructor(entries: ReadonlyArray<Point>) {
         super();
         this.entries = entries;
     }
@@ -55,11 +37,21 @@ export default class Pattern extends Fragment {
         return equal;
     }
 
+    toInt(): number {
+        let result = 0;
+        for (let i = 0; i < 32; i++) {
+            if (this.entries.includes(possibleLines[i])) {
+                result |= 1 << i;
+            }
+        }
+        return result;
+    }
+
     override toString(): string {
         return "pattern";
     }
 
-    override type(): FragmentType {
+    override type(): FragmentType<Pattern> {
         return PATTERN;
     }
 }
@@ -114,6 +106,16 @@ function patternFrom(pattern: Array<number>): Pattern {
     return new Pattern([...list]);
 }
 
+function patternFromInt(pattern: number) {
+    var list = [];
+    for (let i = 0; i < 32; i++) {
+        if ((pattern >> i & 0x1) == 1) {
+            list.push(possibleLines[i]);
+        }
+    }
+    return new Pattern(list);
+}
+
 function compareTo(a: Point, b: Point): number {
     const p1Compare = compareNumbers(a.x, b.x);
     return p1Compare == 0 ? compareNumbers(a.y, b.y) : p1Compare;
@@ -129,4 +131,10 @@ function compareNumbers(a: number, b: number): number {
     }
 }
 
-export { patternOf, patternFrom };
+const PATTERN_ENDEC: Endec<Pattern> = ifAttr(UBER_COMPACT_ATTRIBUTE, 
+    PrimitiveEndecs.INT.xmap((int) => patternFromInt(int), (pattern) => pattern.toInt())
+).orElse(POINT.listOf().xmap(entries => new Pattern(entries.asJsReadonlyArrayView()), pattern => KtList.getInstance().fromJsArray(pattern.entries)))
+
+const PATTERN = register("pattern", 0xffffff, funnyFieldOf(PATTERN_ENDEC, "pattern"));
+
+export { patternOf, patternFrom, patternFromInt, PATTERN_ENDEC };

@@ -1,26 +1,12 @@
 import { HTMLText, Text } from "pixi.js";
-import Fragment, { decode, FragmentType, register } from "./Fragment";
+import Fragment, { FragmentType, register } from "./Fragment";
+import { StructEndecBuilder, PrimitiveEndecs, KtList } from 'KEndec';
 
-//@ts-ignore
-import * as wasm from "../WasmEndec-1.0-SNAPSHOT/js/endec";
-
-
-
-const LIST = register("trickster:list", 0xffffff, (object: any) => {
-    if (object instanceof wasm.ListFragment) {
-        const fragments: Array<Fragment | null> = object.fragments.map(decode);
-
-        if (fragments.every((x) => x instanceof Fragment)) {
-            return new ListFragment(fragments);
-        }
-    }
-    return null;
-});
 
 export default class ListFragment extends Fragment {
-    fragments: Array<Fragment>;
+    readonly fragments: ReadonlyArray<Fragment>;
 
-    constructor(fragments: Array<Fragment>) {
+    constructor(fragments: ReadonlyArray<Fragment>) {
         super();
 
         this.fragments = fragments;
@@ -60,7 +46,14 @@ export default class ListFragment extends Fragment {
         return result;
     }
 
-    override type(): FragmentType {
+    override type(): FragmentType<ListFragment> {
         return LIST;
     }
 }
+
+const LIST = register("list", 0xffffff, 
+    StructEndecBuilder.of1(
+        Fragment.ENDEC.listOf().fieldOf("fragments", (fragment: ListFragment) => KtList.getInstance().fromJsArray(fragment.fragments)),
+        (list) => new ListFragment(list.asJsReadonlyArrayView())
+    )
+);

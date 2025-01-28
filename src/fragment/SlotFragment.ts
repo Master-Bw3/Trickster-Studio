@@ -1,26 +1,16 @@
-import { HTMLText, Text } from "pixi.js";
-import Fragment, { decode, FragmentType, fragmentTypes, register } from "./Fragment";
-
-//@ts-ignore
-import * as wasm from "../WasmEndec-1.0-SNAPSHOT/js/endec";
-
-
-import NumberFragment from "./NumberFragment";
-
-const SLOT = register("trickster:slot", 0x77aaee, (object: any) => {
-    if (object instanceof wasm.SlotFragment) {
-        return new SlotFragment(object.slot, object.source);
-    }
-    return null;
-});
+import { HTMLText, Text } from 'pixi.js';
+import Fragment, { FragmentType, fragmentTypes, register } from './Fragment';
+import { StructEndecBuilder, PrimitiveEndecs, Optional } from 'KEndec';
+import { Either, EitherEndec, Identifier } from '~/util';
+import { ALWAYS_READABLE_BLOCK_POS, safeOptionalOf, UUID, VectorI } from '~/endecTomfoolery';
 
 type Vector = { x: number; y: number; z: number };
 
 export default class SlotFragment extends Fragment {
     slot: number;
-    source: string | Vector | null;
+    source: Optional<Either<VectorI, any /*UUID*/>>;
 
-    constructor(slot: number, source: string | Vector | null) {
+    constructor(slot: number, source: Optional<Either<VectorI, any /*UUID*/>>) {
         super();
 
         this.slot = slot;
@@ -28,38 +18,60 @@ export default class SlotFragment extends Fragment {
     }
 
     override asFormattedText(): HTMLText {
-        const entityColor = fragmentTypes.get("trickster:entity")!.color;
-        const numColor = fragmentTypes.get("trickster:number")!.color;
-        const coloredInt = (value: number) => `<span style="color: #${numColor.toString(16)}">${value}</span>`;
+        const entityColor = fragmentTypes.get(new Identifier('trickster', 'entity'))!.color;
+        const numColor = fragmentTypes.get(new Identifier('trickster', 'number'))!.color;
+        const coloredInt = (value: number) =>
+            `<span style="color: #${numColor.toString(16)}">${value}</span>`;
 
         var sourceText;
-        if (typeof this.source === "string") {
-            sourceText = `<span style="color: #${entityColor.toString(16)}">${this.source}</span>`;
-        } else if (this.source != null) {
-            sourceText = `(${coloredInt(this.source.x)}, ${coloredInt(this.source.y)}, ${coloredInt(this.source.z)})`;
-        } else {
+        if (this.source.isEmpty()) {
             sourceText = `<span style="color: #${entityColor.toString(16)}">Caster</span>`;
+        } else if (this.source.get().left().isPresent()) {
+            const source = this.source.get().left().get();
+            sourceText = `(${coloredInt(source.x)}, ${coloredInt(source.y)}, ${coloredInt(source.z)})`;
+        } else if (this.source.get().right().isPresent()) {
+            const source = this.source.get().right().get();
+            sourceText = `<span style="color: #${entityColor.toString(16)}">${source}</span>`;
         }
 
         const slotText = coloredInt(this.slot);
 
         return new HTMLText({
-            text: `<span style="color: #${this.type().color.toString(16)}">slot ${slotText} at ${sourceText}</span>`,
+            text: `<span style="color: #${this.type().color.toString(
+                16
+            )}">slot ${slotText} at ${sourceText}</span>`,
         });
     }
 
     override toString(): string {
-        var sourceText = "Caster";
-        if (typeof this.source === "string") {
-            sourceText = this.source;
-        } else if (this.source != null) {
-            sourceText = `(${this.source.x}, ${this.source.y}, ${this.source.z})`;
+        var sourceText = 'Caster';
+        if (this.source.isPresent()) {
+            if (this.source.get().right().isPresent()) {
+                sourceText = this.source.get().right().get();
+            } else if (this.source.get().left().isPresent()) {
+                const source = this.source.get().right().get();
+
+                sourceText = `(${source.x}, ${source.y}, ${source.z})`;
+            }
         }
 
         return `slot ${this.slot} at ${sourceText}`;
     }
 
-    override type(): FragmentType {
+    override type(): FragmentType<SlotFragment> {
         return SLOT;
     }
 }
+
+const SLOT = register(
+    'slot',
+    0x77aaee,
+    StructEndecBuilder.of2(
+        PrimitiveEndecs.INT.fieldOf('slot', (framgent: SlotFragment) => framgent.slot),
+        safeOptionalOf(new EitherEndec(ALWAYS_READABLE_BLOCK_POS, UUID, true)).fieldOf(
+            'source',
+            (fragment: SlotFragment) => fragment.source
+        ),
+        (slot, source) => new SlotFragment(slot, source)
+    )
+);

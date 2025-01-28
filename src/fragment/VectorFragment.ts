@@ -1,20 +1,11 @@
 import { HTMLText, Text } from "pixi.js";
-import Fragment, { decode, FragmentType, register } from "./Fragment";
+import Fragment, { FragmentType, register } from "./Fragment";
+import { StructEndecBuilder, PrimitiveEndecs } from 'KEndec';
 
-//@ts-ignore
-import * as wasm from "../WasmEndec-1.0-SNAPSHOT/js/endec";
 
 
 import NumberFragment from "./NumberFragment";
-
-const VECTOR = register("trickster:vector", 0xffffff, (object: any) => {
-    if (object instanceof wasm.VectorFragment) {
-        return new VectorFragment(object.vector);
-    }
-    return null;
-});
-
-type Vector = { x: number; y: number; z: number };
+import { Vector, vectorEndec } from "~/endecTomfoolery";
 
 export default class VectorFragment extends Fragment {
     vector: Vector;
@@ -44,7 +35,16 @@ export default class VectorFragment extends Fragment {
         return "(" + this.vector.x + ", " + this.vector.y + ", " + this.vector.z + ")";
     }
 
-    override type(): FragmentType {
+    override type(): FragmentType<VectorFragment> {
         return VECTOR;
     }
 }
+
+
+const VECTOR = register("vector", 0xffffff, 
+    StructEndecBuilder.of1(
+        vectorEndec(PrimitiveEndecs.DOUBLE, (x, y, z) => new Vector(x, y, z), (vec) => vec.x, (vec) => vec.y, (vec) => vec.z)
+        .fieldOf("vector", (fragment: VectorFragment) => fragment.vector),
+        (vector) => new VectorFragment(vector)
+    )
+);

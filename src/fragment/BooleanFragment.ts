@@ -1,20 +1,9 @@
-import { Text } from "pixi.js";
-import Fragment, { decode, FragmentType, register } from "./Fragment";
-
-//@ts-ignore
-import * as wasm from "../WasmEndec-1.0-SNAPSHOT/js/endec";
-
-
-
-const BOOLEAN = register("trickster:boolean", 0xaa3355, (object: any) => {
-    if (object instanceof wasm.BooleanFragment) {
-        return new BooleanFragment(object.bool)
-    }
-    return null;
-});
+import { Text } from 'pixi.js';
+import Fragment, { FragmentType, register } from './Fragment';
+import { StructEndecBuilder, PrimitiveEndecs } from 'KEndec';
 
 export default class BooleanFragment extends Fragment {
-    bool: boolean
+    bool: boolean;
 
     constructor(bool: boolean) {
         super();
@@ -22,10 +11,19 @@ export default class BooleanFragment extends Fragment {
     }
 
     override toString(): string {
-        return this.bool ? "True" : "False";
+        return this.bool ? 'True' : 'False';
     }
 
-    override type(): FragmentType {
+    override type(): FragmentType<BooleanFragment> {
         return BOOLEAN;
     }
 }
+
+const BOOLEAN = register(
+    'boolean',
+    0xaa3355,
+    StructEndecBuilder.of1(
+        PrimitiveEndecs.BOOLEAN.fieldOf('bool', (fragment: BooleanFragment) => fragment.bool),
+        (bool) => new BooleanFragment(bool)
+    )
+);
