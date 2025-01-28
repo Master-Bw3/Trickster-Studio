@@ -1,3 +1,4 @@
+import { Endec } from "KEndec";
 import { HTMLText, Point, Text } from "pixi.js";
 
 export default abstract class Fragment {
@@ -22,25 +23,25 @@ export default abstract class Fragment {
 
     abstract toString(): string;
 
-    abstract type(): FragmentType;
+    abstract type<T>(): FragmentType<any>;
 
    // abstract encode(): any
 }
 
-export abstract class FragmentType {
+export class FragmentType<T extends Fragment> {
+    endec: Endec<T>;
     color: number;
 
-    constructor(color: number) {
+    constructor(endec: Endec<T>, color: number) {
+        this.endec = endec
         this.color = color;
     }
-
-    abstract decode(object: any): Fragment | null;
 }
 
-const fragmentTypes: Map<string, FragmentType> = new Map();
+const fragmentTypes: Map<string, FragmentType<any>> = new Map();
 
-function register(id: string, color: number, decode: (object: any) => Fragment | null): FragmentType {
-    const type: FragmentType = { color: color, decode: decode };
+function register<T extends Fragment>(id: string, endec: Endec<T>, color: number): FragmentType<any> {
+    const type = new FragmentType<T>(endec, color)
     fragmentTypes.set(id, type);
     return type;
 }
@@ -54,15 +55,5 @@ function getKeyByValue<T, U>(map: Map<T, U>, value: U): T | null {
     return null;
 }
 
-function decode(object: any): Fragment | null {
-    let decoded: Fragment | null = null;
 
-    for (const type of fragmentTypes.values()) {
-        decoded = type.decode(object);
-        if (decoded != null) break;
-    }
-
-    return decoded;
-}
-
-export { fragmentTypes, getKeyByValue, decode, register };
+export { fragmentTypes, getKeyByValue, register };

@@ -6,7 +6,7 @@
     "build": "vinxi build",
     "start": "vinxi start",
     "version": "vinxi version",
-    "build-wasm-endec": "cd ./WasmEndec && ./gradlew build && rm -rf ../src/WasmEndec-1.0-SNAPSHOT && mkdir -p ../src/WasmEndec-1.0-SNAPSHOT && unzip -o ./build/libs/WasmEndec-1.0-SNAPSHOT.war -d ../src/WasmEndec-1.0-SNAPSHOT"
+    "build-kendec": "cd ./KEndec && ./gradlew build"
   },
   "dependencies": {
     "@corvu/drawer": "^0.2.2",
@@ -16,6 +16,7 @@
     "@solidjs/start": "^1.0.11",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "KEndec": "file:KEndec/build/js/packages/KEndec",
     "pixi.js": "^8.6.6",
     "solid-js": "^1.9.2",
     "tailwind-merge": "^2.6.0",

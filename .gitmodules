@@ -1,3 +1,3 @@
-[submodule "WasmEndec"]
-	path = WasmEndec
-	url = https://github.com/Master-Bw3/WasmEndec
+[submodule "KEndec"]
+	path = KEndec
+	url = https://github.com/Master-Bw3/KEndec
