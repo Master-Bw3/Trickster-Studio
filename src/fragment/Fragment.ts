@@ -18,8 +18,6 @@ import {
     SpellInstruction,
     SpellInstructionType,
 } from '~/spellInstruction';
-import { gunzipSync, gzipSync } from 'zlib';
-import SpellPart from './SpellPart';
 
 const GZIP_HEADER = new Uint8Array([0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff]);
 
@@ -69,7 +67,7 @@ export default abstract class Fragment extends SpellInstruction {
     }
 
     toBase64(): string {
-        return Buffer.from(this.toBytes()).toString('base64');
+        return btoa(String.fromCharCode.apply(null, [...this.toBytes()]));
     }
 
     toBytes(): Uint8Array {
@@ -87,22 +85,22 @@ export default abstract class Fragment extends SpellInstruction {
         );
 
         const bytes = toBytes(buf)
-        const gzippedBytes = gzipSync(bytes);
+        const gzippedBytes = window.zlib.gzip(bytes);
 
         return gzippedBytes.subarray(10, gzippedBytes.length)
     }
 
     static fromBase64(string: string): Fragment {
-        return Fragment.fromBytes(Buffer.from(string, 'base64'));
+        return Fragment.fromBytes(new Uint8Array(atob(string).split('').map(char => char.charCodeAt(0))));
     }
 
     static fromBytes(bytes: Uint8Array): Fragment {
-        const unzippedBytes = new Int8Array(gunzipSync(new Uint8Array([...GZIP_HEADER, ...bytes])))
+        const unzippedBytes = new Int8Array(window.zlib.ungzip(new Uint8Array([...GZIP_HEADER, ...bytes])))
         const buf = createBuffer(unzippedBytes);
 
         const protocalVersion = readByte(buf);
         if (protocalVersion < 3) {
-            return SpellPart.fromBytesOld(protocalVersion, buf);
+            return this.fromBytesOld(protocalVersion, buf);
         } else {
             return Fragment.ENDEC.decode(
                 SerializationContext.empty().withAttributes([
@@ -112,6 +110,16 @@ export default abstract class Fragment extends SpellInstruction {
                 new BufferDeserializer(buf)
             );
         }
+    }
+
+    static fromBytesOld(protocolVersion: number, buf: any /*Buffer*/): Fragment {
+        return fragmentTypes.get(new Identifier("trickster", "spell_partt"))!!.endec.decode(
+            SerializationContext.empty().withAttributes([
+                UBER_COMPACT_ATTRIBUTE,
+                PROTOCOL_VERSION_ATTRIBUTE.instance(protocolVersion),
+            ]),
+            new BufferDeserializer(buf)
+        );
     }
 
     abstract toString(): string;
@@ -176,4 +184,25 @@ function getFragmentTypeFromInt(intId: number): FragmentType<Fragment> {
     return fragmentTypes.get(id)!;
 }
 
-export { fragmentTypes, fragmentTypesIntLookup, getKeyByValue, register };
+async function registerAllFragmentTypes() {
+    await import("./BlockTypeFragment")
+    await import("./BooleanFragment")
+    await import("./DimensionFragment")
+    await import("./EntityFragment")
+    await import("./EntityTypeFragment")
+    await import("./ItemTypeFragment")
+    await import("./ListFragment")
+    await import("./MapFragment")
+    await import("./NumberFragment")
+    await import("./Pattern")
+    await import("./PatternGlyph")
+    await import("./SlotFragment")
+    await import("./SpellPart")
+    await import("./StringFragment")
+    await import("./TypeFragment")
+    await import("./VectorFragment")
+    await import("./VoidFragment")
+    await import("./ZalgoFragment")
+}
+
+export { fragmentTypes, fragmentTypesIntLookup, getKeyByValue, register, registerAllFragmentTypes };

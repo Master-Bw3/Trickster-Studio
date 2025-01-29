@@ -9,6 +9,7 @@ import { SettingsIcon } from '~/components/icon/SettingsIcon';
 import { SaveIcon } from '~/components/icon/SaveIcon';
 import { EditorToolbar } from '~/components/EditorToolbar';
 import Pattern from './fragment/Pattern';
+import Fragment, { registerAllFragmentTypes } from './fragment/Fragment';
 
 type SpellFolder = {
     [path: string]: SpellData | SpellFolder;
@@ -26,11 +27,14 @@ type ProgramData = {
 };
 
 export default function Editor() {
+    registerAllFragmentTypes()
+
     const params = new URLSearchParams(window.location.search);
     const encoded = params.get('spell');
-    const decoded = encoded === null ? new SpellPart() : decodeSpell(encoded);
+    const decoded = encoded !== null ? Fragment.fromBase64(encoded) : new SpellPart()
+    const decodedSpellPart = decoded instanceof SpellPart ? decoded : new SpellPart()
 
-    const [spellPart, setSpellPart] = createSignal(decoded);
+    const [spellPart, setSpellPart] = createSignal(decodedSpellPart);
 
     const [toggleSidebar, setToggleSidebar] = createSignal(() => {});
 

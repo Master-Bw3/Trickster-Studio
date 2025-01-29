@@ -7,7 +7,8 @@
     "build": "vinxi build",
     "start": "vinxi start",
     "version": "vinxi version",
-    "build-kendec": "cd ./KEndec && ./gradlew build"
+    "build-kendec": "cd ./KEndec && ./gradlew build",
+    "test:browser": "vitest --workspace=vitest.workspace.ts"
   },
   "dependencies": {
     "@corvu/drawer": "^0.2.2",
@@ -35,12 +36,16 @@
     "node": ">=18"
   },
   "devDependencies": {
+    "@solidjs/testing-library": "^0.8.10",
+    "@vitest/browser": "^3.0.4",
     "autoprefixer": "^10.4.20",
     "jsdom": "^26.0.0",
+    "playwright": "^1.50.0",
     "postcss": "^8.5.1",
     "tailwindcss": "^3.4.17",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3",
+    "vite-plugin-solid": "^2.11.0",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.0.4"
   }

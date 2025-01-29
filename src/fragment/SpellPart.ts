@@ -44,16 +44,6 @@ export default class SpellPart extends Fragment {
     getSubParts(): ReadonlyArray<SpellPart> {
         return this.subParts;
     }
-
-    static fromBytesOld(protocolVersion: number, buf: Buffer): SpellPart {
-        return SPELL_PART.endec.decode(
-            SerializationContext.empty().withAttributes([
-                UBER_COMPACT_ATTRIBUTE,
-                PROTOCOL_VERSION_ATTRIBUTE.instance(protocolVersion),
-            ]),
-            new BufferDeserializer(buf)
-        );
-    }
 }
 
 const SPELL_PART = register(
