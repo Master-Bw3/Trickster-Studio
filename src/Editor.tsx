@@ -1,4 +1,4 @@
-import { createSignal } from 'solid-js';
+import { createSignal, onMount } from 'solid-js';
 import { SpellDisplay } from '~/components/SpellDisplay';
 import SpellPart from '~/fragment/SpellPart';
 import './style.css';
@@ -29,14 +29,24 @@ type ProgramData = {
 export default function Editor() {
     registerAllFragmentTypes()
 
-    const params = new URLSearchParams(window.location.search);
-    const encoded = params.get('spell');
-    const decoded = encoded !== null ? Fragment.fromBase64(encoded) : new SpellPart()
-    const decodedSpellPart = decoded instanceof SpellPart ? decoded : new SpellPart()
 
-    const [spellPart, setSpellPart] = createSignal(decodedSpellPart);
+    const [spellPart, setSpellPart] = createSignal(new SpellPart());
 
     const [toggleSidebar, setToggleSidebar] = createSignal(() => {});
+
+    const [loaded, setLoaded] = createSignal(false)
+
+    onMount(async () => {
+        await registerAllFragmentTypes()
+        const params = new URLSearchParams(window.location.search);
+        const encoded = params.get('spell');
+        const decoded = encoded !== null ? Fragment.fromBase64(encoded) : new SpellPart()
+        const decodedSpellPart = decoded instanceof SpellPart ? decoded : new SpellPart()
+        setSpellPart(decodedSpellPart)
+        console.log(spellPart())
+
+        setLoaded(true)
+    })
 
     return (
         <div class="flex">

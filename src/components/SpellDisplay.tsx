@@ -50,6 +50,7 @@ function SpellDisplay(props: Props) {
                 widget.y = widget.toScaledSpace(app.canvas.height / 2);
             }
 
+            widget.setSpell(local.spellPart())
             widget.render(app.stage, 0, app.canvas.height, textures);
 
             app.queueResize()
