@@ -1,13 +1,11 @@
 import { AbstractEndec } from "KEndec"
 import { gunzipSync, gzipSync } from "zlib"
-import { registerFragments } from "~/fragment/registerFragments"
 import SpellPart from "~/fragment/SpellPart"
 import StringFragment from "~/fragment/StringFragment"
 
 
 test("simpleBase64", () => {
 
-    registerFragments()
 
     const spellPart = new SpellPart(new StringFragment(":3"))
     

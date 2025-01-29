@@ -125,7 +125,7 @@ export class FragmentType<T extends Fragment> {
     }
 
     getIntId(): number {
-        return hashCodeOf(this.getId());
+        return this.getId().hashCode();
     }
 
     getId(): Identifier {

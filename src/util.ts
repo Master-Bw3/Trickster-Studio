@@ -8,7 +8,6 @@ import {
     SelfDescribedDeserializer,
     SelfDescribedSerializer,
     Optional,
-    hashCodeOf,
 } from 'KEndec';
 
 export class Identifier {
@@ -42,8 +41,7 @@ export class Identifier {
     }
 
     public hashCode(): number {
-        return 31 * hashCodeOf(this.namespace) + hashCodeOf(this.path);
-        
+        return ((31 * hashCodeOfString(this.namespace)) | 0) + hashCodeOfString(this.path) | 0;
     }
 
     public equals(obj: any): boolean {
@@ -56,6 +54,14 @@ export class Identifier {
         return this.namespace + ':' + this.path;
     }
 }
+
+function hashCodeOfString(s: string): number {
+    let hash = 0;
+    for (let i = 0; i < s.length; i++) {
+      hash = (hash * 31 + s.charCodeAt(i)) | 0;
+    }
+    return hash;
+  }
 
 export abstract class Either<L, R> {
     static left<L, R>(value: L): Either<L, R> {
