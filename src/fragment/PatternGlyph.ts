@@ -29,7 +29,7 @@ export default class PatternGlyph extends Fragment {
     }
 }
 
-const PATTERN_GLYPH = register("pattern_glyph", 0x6644aa, 
+const PATTERN_GLYPH = register("pattern", 0x6644aa, 
     StructEndecBuilder.of1(
         PATTERN_ENDEC.fieldOf("pattern", (fragment: PatternGlyph) => fragment.pattern),
         pattern => new PatternGlyph(pattern)

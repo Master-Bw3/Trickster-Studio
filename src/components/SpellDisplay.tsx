@@ -62,7 +62,10 @@ function SpellDisplay(props: Props) {
             local.isMutable ?? true
         );
 
-        createEffect(() => widget.setSpell(local.spellPart()));
+        createEffect(() => {
+            widget.setSpell(local.spellPart());
+            console.log('changed');
+        });
 
         app.ticker.add(() => {
             if (widget.fixedPosition) {

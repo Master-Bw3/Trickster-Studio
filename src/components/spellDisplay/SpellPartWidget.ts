@@ -440,7 +440,9 @@ export default class SpellPartWidget {
 
                     for (let i = 0; i < parent.subParts.length; i++) {
                         if (parent.subParts[i] == this.spellPart) {
-                            parent.subParts[i] = result;
+                            const temp = [...parent.subParts]
+                            temp[0] = result;
+                            parent.subParts = temp
                         }
                     }
                 }

@@ -113,7 +113,7 @@ export default abstract class Fragment extends SpellInstruction {
     }
 
     static fromBytesOld(protocolVersion: number, buf: any /*Buffer*/): Fragment {
-        return fragmentTypes.get(new Identifier("trickster", "spell_partt"))!!.endec.decode(
+        return getFragmentType(new Identifier("trickster", "spell_part"))!.endec.decode(
             SerializationContext.empty().withAttributes([
                 UBER_COMPACT_ATTRIBUTE,
                 PROTOCOL_VERSION_ATTRIBUTE.instance(protocolVersion),
@@ -175,14 +175,19 @@ function getKeyByValue<T, U>(map: Map<T, U>, value: U): T | null {
     return null;
 }
 
+function getFragmentType(id: Identifier): FragmentType<any> | null {
+    return Array.from(fragmentTypes.entries()).find(([k, v]: [Identifier, FragmentType<any>]) => k.equals(id))?.[1] ?? null
+}
+
 function getFragmentTypeFromInt(intId: number): FragmentType<Fragment> {
     var id = fragmentTypesIntLookup.get(intId);
     if (id == null) {
         throw new Error('Not a valid int id for fragment type');
     }
-
+    console.table(Array.from(fragmentTypesIntLookup.entries().map(entry => [entry[0], entry[1].toString()])))
     return fragmentTypes.get(id)!;
 }
+
 
 async function registerAllFragmentTypes() {
     await import("./BlockTypeFragment")

@@ -135,6 +135,6 @@ const PATTERN_ENDEC: Endec<Pattern> = ifAttr(UBER_COMPACT_ATTRIBUTE,
     PrimitiveEndecs.INT.xmap((int) => patternFromInt(int), (pattern) => pattern.toInt())
 ).orElse(POINT.listOf().xmap(entries => new Pattern(entries.asJsReadonlyArrayView()), pattern => listOf([...pattern.entries])))
 
-const PATTERN = register("pattern", 0xffffff, funnyFieldOf(PATTERN_ENDEC, "pattern"));
+const PATTERN = register("pattern_literal", 0xffffff, funnyFieldOf(PATTERN_ENDEC, "pattern"));
 
 export { patternOf, patternFrom, patternFromInt, PATTERN_ENDEC };

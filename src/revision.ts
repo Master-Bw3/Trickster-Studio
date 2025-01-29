@@ -24,7 +24,7 @@ const CREATE_SUBCIRCLE: Revision = {
     },
 
     apply(ctx: RevisionContext, root: SpellPart, drawingPart: SpellPart): SpellPart {
-        drawingPart.subParts.push(new SpellPart());
+        drawingPart.subParts = [...drawingPart.subParts, new SpellPart()];
         return root;
     },
 };
