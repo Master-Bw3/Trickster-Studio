@@ -1,6 +1,6 @@
 import { HTMLText, Text } from "pixi.js";
 import Fragment, { FragmentType, register } from "./Fragment";
-import { StructEndecBuilder, PrimitiveEndecs, KtList } from 'KEndec';
+import { StructEndecBuilder, PrimitiveEndecs, listOf } from 'KEndec';
 
 
 export default class ListFragment extends Fragment {
@@ -53,7 +53,7 @@ export default class ListFragment extends Fragment {
 
 const LIST = register("list", 0xffffff, 
     StructEndecBuilder.of1(
-        Fragment.ENDEC.listOf().fieldOf("fragments", (fragment: ListFragment) => KtList.getInstance().fromJsArray(fragment.fragments)),
+        Fragment.ENDEC.listOf().fieldOf("fragments", (fragment: ListFragment) => listOf([...fragment.fragments])),
         (list) => new ListFragment(list.asJsReadonlyArrayView())
     )
 );

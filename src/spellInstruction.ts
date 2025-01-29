@@ -1,6 +1,6 @@
 import {
     Endec,
-    KtList,
+    listOf,
     Nullable,
     Optional,
     PrimitiveEndecs,
@@ -61,7 +61,7 @@ export abstract class SpellInstruction {
                         .map((instr: SerializedSpellInstruction) => instr.toDeserialized());
                 },
                 (s: Array<SpellInstruction>) =>
-                    KtList.getInstance().fromJsArray(
+                    listOf(
                         s.map((instr: SpellInstruction) => instr.asSerialized())
                     )
             )

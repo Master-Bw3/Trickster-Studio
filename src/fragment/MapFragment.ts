@@ -1,6 +1,6 @@
 import { HTMLText, Text } from "pixi.js";
 import Fragment, { FragmentType, register } from "./Fragment";
-import { StructEndecBuilder, PrimitiveEndecs, KtList, mapEndecOf, KtMap } from 'KEndec';
+import { StructEndecBuilder, PrimitiveEndecs, mapEndecOf, mapOf } from 'KEndec';
 
 
 export default class MapFragment extends Fragment {
@@ -65,7 +65,7 @@ export default class MapFragment extends Fragment {
 
 const MAP = register("map", 0xffffff, 
     StructEndecBuilder.of1(
-        mapEndecOf(Fragment.ENDEC, Fragment.ENDEC).fieldOf("entries", (fragment: MapFragment) => KtMap.getInstance().fromJsMap(fragment.map)),
+        mapEndecOf(Fragment.ENDEC, Fragment.ENDEC).fieldOf("entries", (fragment: MapFragment) => mapOf(Array.from(fragment.map.entries()))),
         (map) => new MapFragment(map.asJsReadonlyMapView())
     )
 );

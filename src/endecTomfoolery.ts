@@ -5,7 +5,6 @@ import {
     uuidFromString,
     uuidToString,
     SerializationAttribute,
-    KtList,
     ifAttr,
     endecOf,
     Optional,
@@ -17,6 +16,7 @@ import {
     AbstractStructEndec,
     StructDeserializer,
     StructSerializer,
+    listOf,
 } from 'KEndec';
 import { Either, EitherEndec, memoize } from './util';
 import { Point } from 'pixi.js';
@@ -128,7 +128,7 @@ export function vectorEndec<C, V>(
                     components.asJsReadonlyArrayView()[2]
                 ),
             (vector) =>
-                KtList.getInstance().fromJsArray([
+                listOf([
                     xGetter(vector),
                     yGetter(vector),
                     zGetter(vector),

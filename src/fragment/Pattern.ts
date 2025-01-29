@@ -1,6 +1,6 @@
 import { Point, Text } from "pixi.js";
 import Fragment, { FragmentType, register } from "./Fragment";
-import { Endec, StructEndecBuilder, PrimitiveEndecs, ifAttr, KtList } from 'KEndec';
+import { Endec, StructEndecBuilder, PrimitiveEndecs, ifAttr, listOf } from 'KEndec';
 import { funnyFieldOf, POINT, UBER_COMPACT_ATTRIBUTE } from "~/endecTomfoolery";
 
 export default class Pattern extends Fragment {
@@ -133,7 +133,7 @@ function compareNumbers(a: number, b: number): number {
 
 const PATTERN_ENDEC: Endec<Pattern> = ifAttr(UBER_COMPACT_ATTRIBUTE, 
     PrimitiveEndecs.INT.xmap((int) => patternFromInt(int), (pattern) => pattern.toInt())
-).orElse(POINT.listOf().xmap(entries => new Pattern(entries.asJsReadonlyArrayView()), pattern => KtList.getInstance().fromJsArray(pattern.entries)))
+).orElse(POINT.listOf().xmap(entries => new Pattern(entries.asJsReadonlyArrayView()), pattern => listOf([...pattern.entries])))
 
 const PATTERN = register("pattern", 0xffffff, funnyFieldOf(PATTERN_ENDEC, "pattern"));
 
