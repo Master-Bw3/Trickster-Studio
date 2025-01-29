@@ -3,7 +3,6 @@ import {
     BufferSerializer,
     createBuffer,
     dispatchedStructEndecOf,
-    hashCodeOf,
     ifAttr,
     readByte,
     SerializationContext,
@@ -21,6 +20,9 @@ import {
 } from '~/spellInstruction';
 import { gunzipSync, gzipSync } from 'zlib';
 import SpellPart from './SpellPart';
+
+const GZIP_HEADER = new Uint8Array([0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff]);
+
 
 export default abstract class Fragment extends SpellInstruction {
     _formattedText: HTMLText | null = null;
@@ -85,8 +87,9 @@ export default abstract class Fragment extends SpellInstruction {
         );
 
         const bytes = toBytes(buf)
+        const gzippedBytes = gzipSync(bytes);
 
-        return gzipSync(bytes);
+        return gzippedBytes.subarray(10, gzippedBytes.length)
     }
 
     static fromBase64(string: string): Fragment {
@@ -94,7 +97,8 @@ export default abstract class Fragment extends SpellInstruction {
     }
 
     static fromBytes(bytes: Uint8Array): Fragment {
-        const buf = createBuffer(new Int8Array(gunzipSync(bytes)));
+        const unzippedBytes = new Int8Array(gunzipSync(new Uint8Array([...GZIP_HEADER, ...bytes])))
+        const buf = createBuffer(unzippedBytes);
 
         const protocalVersion = readByte(buf);
         if (protocalVersion < 3) {
