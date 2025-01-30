@@ -6,13 +6,13 @@ export default defineWorkspace([
   {
     extends: 'vite.config.js',
     test: {
-      browser: {
-        enabled: true,
-        provider: 'preview',
-        instances: [
-          { browser: 'firefox' },
-        ],
-      },
+      // browser: {
+      //   enabled: true,
+      //   provider: 'preview',
+      //   instances: [
+      //     { browser: 'firefox' },
+      //   ],
+      // },
     },
   },
 ])

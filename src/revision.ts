@@ -1,5 +1,5 @@
-import SpellPart from "./fragment/SpellPart";
-import Pattern, { patternOf } from "./fragment/Pattern";
+import SpellPart from "./fragment/old-garbage/SpellPart";
+import Pattern, { patternOf } from "./fragment/old-garbage/Pattern";
 import RevisionContext from "./RevisionContext";
 
 interface Revision {

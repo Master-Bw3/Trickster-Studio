@@ -10,6 +10,15 @@ import {
     Optional,
 } from 'KEndec';
 
+export function getKeyByValue<T, U>(map: Map<T, U>, value: U): T | null {
+    for (let [key, val] of map.entries()) {
+        if (val === value) {
+            return key;
+        }
+    }
+    return null;
+}
+
 export class Identifier {
     public static ENDEC: Endec<Identifier> = PrimitiveEndecs.STRING.xmap(
         (str) => Identifier.of(str),

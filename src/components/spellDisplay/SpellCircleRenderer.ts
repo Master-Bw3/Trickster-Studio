@@ -1,8 +1,8 @@
 import { Assets, Color, Container, Graphics, Point, Sprite, Texture } from "pixi.js";
-import SpellPart from "../../fragment/SpellPart";
-import Fragment, { fragmentTypes, getKeyByValue } from "../../fragment/Fragment";
-import PatternGlyph from "../../fragment/PatternGlyph";
-import Pattern, { patternOf } from "../../fragment/Pattern";
+import SpellPart from "../../fragment/old-garbage/SpellPart";
+import Fragment, { fragmentTypes, getKeyByValue } from "../../fragment/old-garbage/Fragment";
+import PatternGlyph from "../../fragment/old-garbage/PatternGlyph";
+import Pattern, { patternOf } from "../../fragment/old-garbage/Pattern";
 import { fragmentRenderers } from "../../FragmentRenderer";
 import { isCircleClickable } from "./spellRenderingUtils";
 

@@ -1,10 +1,10 @@
-import SpellPart from "../../fragment/SpellPart";
+import SpellPart from "../../fragment/old-garbage/SpellPart";
 import { Container, Point, Texture } from "pixi.js";
 import RevisionContext from "../../RevisionContext";
-import Fragment from "../../fragment/Fragment";
+import Fragment from "../../fragment/old-garbage/Fragment";
 import SpellCircleRenderer, { getPatternDotPosition, isInsideHitbox, PART_PIXEL_RADIUS, PATTERN_TO_PART_RATIO } from "./SpellCircleRenderer";
-import PatternGlyph from "../../fragment/PatternGlyph";
-import Pattern, { patternOf } from "../../fragment/Pattern";
+import PatternGlyph from "../../fragment/old-garbage/PatternGlyph";
+import Pattern, { patternOf } from "../../fragment/old-garbage/Pattern";
 import * as revision from "../../revision";
 import { Setter } from "solid-js";
 import { isCircleClickable } from "./spellRenderingUtils";

@@ -1,7 +1,7 @@
 import { Application, Assets, Texture, Ticker } from 'pixi.js';
 import SpellPartWidget from './spellDisplay/SpellPartWidget';
 import RevisionContext from '../RevisionContext';
-import SpellPart from '../fragment/SpellPart';
+import SpellPart from '../fragment/old-garbage/SpellPart';
 import { Accessor, createEffect, createUniqueId, JSX, onMount, Setter, splitProps } from 'solid-js';
 
 type Props = {

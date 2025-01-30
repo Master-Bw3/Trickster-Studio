@@ -1,6 +1,6 @@
 import { createSignal, onMount } from 'solid-js';
 import { SpellDisplay } from '~/components/SpellDisplay';
-import SpellPart from '~/fragment/SpellPart';
+import SpellPart from '~/fragment/old-garbage/SpellPart';
 import './style.css';
 import { SidebarProvider } from '~/components/ui/sidebar';
 import { SpellSidebar } from '~/components/EditorSidebar';
@@ -8,8 +8,8 @@ import { FilesIcon } from '~/components/icon/FilesIcon';
 import { SettingsIcon } from '~/components/icon/SettingsIcon';
 import { SaveIcon } from '~/components/icon/SaveIcon';
 import { EditorToolbar } from '~/components/EditorToolbar';
-import Pattern from './fragment/Pattern';
-import Fragment, { registerAllFragmentTypes } from './fragment/Fragment';
+import Pattern from './fragment/old-garbage/Pattern';
+import Fragment, { registerAllFragmentTypes } from './fragment/old-garbage/Fragment';
 
 type SpellFolder = {
     [path: string]: SpellData | SpellFolder;

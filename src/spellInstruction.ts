@@ -7,25 +7,28 @@ import {
     StructEndec,
     StructEndecBuilder,
 } from 'KEndec';
-import Fragment from './fragment/Fragment';
 import { safeOptionalOf } from './endecTomfoolery';
-import { memoize } from './util';
+import { Identifier } from './util';
+import { Fragment } from './fragment/fragment';
+import * as fragment from './fragment/fragment';
 
 export class SerializedSpellInstruction {
     type: SpellInstructionType;
-    fragment: Fragment | null;
+    fragment: Fragment<unknown> | null;
 
-    constructor(type: SpellInstructionType, fragment: Fragment | null) {
+    constructor(type: SpellInstructionType, fragment: Fragment<unknown> | null) {
         this.type = type;
         this.fragment = fragment;
     }
 
-    public static readonly endec = memoize(() =>
+    public static readonly endec = (
+        fragmentEndecs: Map<Identifier, StructEndec<Fragment<unknown>>>
+    ) =>
         StructEndecBuilder.of2(
             PrimitiveEndecs.INT.fieldOf('instruction_id', (s: SerializedSpellInstruction) =>
                 SpellInstructionType.getId(s.type)
             ),
-            safeOptionalOf(Fragment.ENDEC.nullableOf()).optionalFieldOf(
+            safeOptionalOf(fragment.endec(fragmentEndecs).nullableOf()).optionalFieldOf(
                 'fragment',
                 (s: SerializedSpellInstruction) => Optional.ofNullable(s.fragment),
                 Optional.empty
@@ -35,8 +38,7 @@ export class SerializedSpellInstruction {
                     SpellInstructionType.fromId(id),
                     optionalFragment?.orElse(null) ?? null
                 )
-        )
-    );
+        );
 
     public toDeserialized(): SpellInstruction {
         switch (this.type) {
@@ -50,34 +52,35 @@ export class SerializedSpellInstruction {
     }
 }
 
-export abstract class SpellInstruction {
-    public static readonly stackEndec = memoize(() =>
-        SerializedSpellInstruction.endec()
-            .listOf()
-            .xmap(
-                (l) => {
-                    return l
-                        .asJsReadonlyArrayView()
-                        .map((instr: SerializedSpellInstruction) => instr.toDeserialized());
-                },
-                (s: Array<SpellInstruction>) =>
-                    listOf(
-                        s.map((instr: SpellInstruction) => instr.asSerialized())
-                    )
-            )
-    );
+export type SpellInstruction = EnterScopeInstruction | ExitScopeInstruction | Fragment<unknown>;
 
-    abstract asSerialized(): SerializedSpellInstruction;
+export function serialize(instruction: SpellInstruction) {
+    if ("asSerialized" in instruction) {
+        return instruction.asSerialized()
+    } else {
+        return new SerializedSpellInstruction(SpellInstructionType.FRAGMENT, instruction);
+    }
 }
 
-export class EnterScopeInstruction extends SpellInstruction {
-    override asSerialized(): SerializedSpellInstruction {
+export const stackEndec = (fragmentEndecs: Map<Identifier, StructEndec<Fragment<unknown>>>) =>
+    SerializedSpellInstruction.endec(fragmentEndecs).listOf().xmap(
+        (l) => {
+            return l
+                .asJsReadonlyArrayView()
+                .map((instr: SerializedSpellInstruction) => instr.toDeserialized());
+        },
+        (s: Array<SpellInstruction>) =>
+            listOf(s.map((instr: SpellInstruction) => serialize(instr)))
+    );
+
+export class EnterScopeInstruction {
+    asSerialized(): SerializedSpellInstruction {
         return new SerializedSpellInstruction(SpellInstructionType.ENTER_SCOPE, null);
     }
 }
 
-export class ExitScopeInstruction extends SpellInstruction {
-    override asSerialized(): SerializedSpellInstruction {
+export class ExitScopeInstruction {
+    asSerialized(): SerializedSpellInstruction {
         return new SerializedSpellInstruction(SpellInstructionType.EXIT_SCOPE, null);
     }
 }

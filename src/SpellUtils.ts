@@ -1,16 +1,17 @@
 import { Optional } from "KEndec";
-import Fragment from "./fragment/Fragment";
 import { EnterScopeInstruction, ExitScopeInstruction, SpellInstruction } from "./spellInstruction";
-import SpellPart from "./fragment/SpellPart";
+import { Fragment } from "./fragment/fragment";
+import { SpellPartData } from "./fragment/trickster/spellPart";
+import * as spellPart from "./fragment/trickster/spellPart";
 
 export class SpellUtils {
-    static decodeInstructions(instructions: Array<SpellInstruction>, scope: Array<number>, inputs: Array<Fragment>, overrideReturnValue: Optional<Fragment>): SpellPart {
-        var children: Array<SpellPart> = [];
+    static decodeInstructions(instructions: Array<SpellInstruction>, scope: Array<number>, inputs: Array<Fragment<unknown>>, overrideReturnValue: Optional<Fragment>): SpellPart {
+        var children: Array<Fragment<SpellPartData>> = [];
         instructions = [...instructions];
         scope = [...scope];
 
         for (const input of inputs) {
-            children.push(new SpellPart(input));
+            children.push(spellPart.of(input, []));
         }
 
         while (instructions.length > 0) {
@@ -26,40 +27,40 @@ export class SpellUtils {
             } else {
                 let args;
                 {
-                    let _args: Array<SpellPart> = [];
+                    let _args: Array<Fragment<SpellPartData>> = [];
                     for (let i = scope[scope.length - 1]; i > 0; i--)
-                        _args.push(children.pop() as SpellPart);
+                        _args.push(children.pop() as Fragment<SpellPartData>);
                     args = _args.toReversed();
                 }
 
-                children.push(new SpellPart(inst as Fragment, args));
+                children.push(spellPart.of(inst as Fragment<unknown>, args));
             }
         }
 
-        return overrideReturnValue.map(fragment => new SpellPart(fragment, children.toReversed())).orElse(children.pop())!;
+        return overrideReturnValue.map(fragment => spellPart.of(fragment, children.toReversed())).orElse(children.pop())!;
     }
 
-    static flattenNode(head: SpellPart): Array<SpellInstruction> {
+    static flattenNode(head: Fragment<SpellPartData>): Array<SpellInstruction> {
         const instructions: Array<SpellInstruction>  = [];
-        const headStack: Array<SpellPart> = [];
+        const headStack: Array<Fragment<SpellPartData>> = [];
         const indexStack: Array<number> = [];
 
         headStack.push(head);
         indexStack.push(-1);
 
         while (headStack.length != 0) {
-            let currentNode: SpellPart = headStack[headStack.length - 1];
+            let currentNode: Fragment<SpellPartData> = headStack[headStack.length - 1];
             let currentIndex = indexStack.pop()!;
 
             if (currentIndex == -1) {
                 instructions.push(new ExitScopeInstruction());
-                instructions.push(currentNode.glyph);
+                instructions.push(currentNode.data.glyph);
             }
 
             currentIndex++;
 
-            if (currentIndex < currentNode.subParts.length) {
-                headStack.push(currentNode.subParts.toReversed()[currentIndex]);
+            if (currentIndex < currentNode.data.subParts.length) {
+                headStack.push(currentNode.data.subParts.toReversed()[currentIndex]);
                 indexStack.push(currentIndex);
                 indexStack.push(-1);
             } else {

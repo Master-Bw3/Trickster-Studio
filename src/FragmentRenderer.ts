@@ -1,9 +1,9 @@
 import { Container, Sprite, Texture } from "pixi.js";
 import SpellCircleRenderer from "./components/spellDisplay/SpellCircleRenderer";
-import Fragment from "./fragment/Fragment";
-import Pattern from "./fragment/Pattern";
-import SpellPart from "./fragment/SpellPart";
-import PatternGlyph from "./fragment/PatternGlyph";
+import Fragment from "./fragment/old-garbage/Fragment";
+import Pattern from "./fragment/old-garbage/Pattern";
+import SpellPart from "./fragment/old-garbage/SpellPart";
+import PatternGlyph from "./fragment/old-garbage/PatternGlyph";
 
 export default interface FragmentRenderer<T extends Fragment> {
     render(
