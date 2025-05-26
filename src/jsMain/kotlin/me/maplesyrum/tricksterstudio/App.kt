@@ -9,6 +9,7 @@ import io.kvision.i18n.I18n
 import io.kvision.panel.root
 import io.kvision.startApplication
 import io.kvision.utils.useModule
+import me.maplesyrum.tricksterstudio.spell.fragment.FragmentType
 
 @JsModule("/kotlin/modules/css/kvapp.css")
 external val kvappCss: dynamic
@@ -25,6 +26,8 @@ class App : Application() {
     }
 
     override fun start() {
+        FragmentType.register()
+
         I18n.manager = DefaultI18nManager(
             mapOf(
                 "en" to messagesEn, "pl" to messagesPl

@@ -12,6 +12,9 @@ group = "me.maplesyrum"
 repositories {
     mavenCentral()
     mavenLocal()
+    flatDir {
+        dirs("KEndec/build/libs")
+    }
 }
 
 // Versions
@@ -41,6 +44,10 @@ kotlin {
         implementation("io.kvision:kvision-tailwindcss:$kvisionVersion")
         implementation("io.kvision:kvision-i18n:$kvisionVersion")
         implementation("io.kvision:kvision-state:$kvisionVersion")
+        implementation(npm("pixi.js", "8.6.6"))
+        implementation(files("KEndec/build/libs/KEndec-js-1.0-SNAPSHOT.klib"))
+        implementation(("com.benasher44:uuid:0.8.4"))
+        implementation("com.squareup.okio:okio:3.10.2")
     }
     sourceSets["jsTest"].dependencies {
         implementation(kotlin("test-js"))
