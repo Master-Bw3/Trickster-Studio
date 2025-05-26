@@ -1,14 +1,11 @@
-package com.example
+package me.maplesyrum.tricksterstudio
 
 import io.kvision.Application
-import io.kvision.BootstrapCssModule
-import io.kvision.BootstrapModule
 import io.kvision.CoreModule
 import io.kvision.Hot
-import io.kvision.html.div
+import io.kvision.TailwindcssModule
 import io.kvision.i18n.DefaultI18nManager
 import io.kvision.i18n.I18n
-import io.kvision.i18n.I18n.tr
 import io.kvision.panel.root
 import io.kvision.startApplication
 import io.kvision.utils.useModule
@@ -28,20 +25,18 @@ class App : Application() {
     }
 
     override fun start() {
-        I18n.manager =
-            DefaultI18nManager(
-                mapOf(
-                    "en" to messagesEn,
-                    "pl" to messagesPl
-                )
+        I18n.manager = DefaultI18nManager(
+            mapOf(
+                "en" to messagesEn, "pl" to messagesPl
             )
+        )
 
         root("kvapp") {
-            div(tr("This is a localized message."))
+            editor()
         }
     }
 }
 
 fun main() {
-    startApplication(::App, js("import.meta.webpackHot").unsafeCast<Hot?>(), BootstrapModule, BootstrapCssModule, CoreModule)
+    startApplication(::App, js("import.meta.webpackHot").unsafeCast<Hot?>(), TailwindcssModule, CoreModule)
 }

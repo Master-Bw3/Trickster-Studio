@@ -1,4 +1,4 @@
-package test.com.example
+package test.me.maplesyrum.tricksterstudio
 
 import io.kvision.test.SimpleSpec
 import kotlin.test.Test
