@@ -1,43 +1,24 @@
-package dev.enjarai.trickster.spell.fragment
+package me.maplesyrum.tricksterstudio.spell.fragment
 
-import dev.enjarai.trickster.EndecTomfoolery
-import dev.enjarai.trickster.spell.Fragment
+import me.maplesyrum.tricksterstudio.endec.lazyEndec
 import tree.maple.kendec.StructEndec
 import tree.maple.kendec.impl.StructEndecBuilder
-import io.wispforest.owo.serialization.endec.MinecraftEndecs
-import me.maplesyrum.tricksterstudio.spell.fragment.Fragment
-import me.maplesyrum.tricksterstudio.spell.fragment.FragmentType
-import net.minecraft.text.Text
 
-class TypeFragment(typeType: FragmentType<*>?) : Fragment {
-    @Override
-    fun type(): FragmentType<*> {
+class TypeFragment(val typeType: FragmentType<Fragment>) : Fragment() {
+    override fun type(): FragmentType<*> {
         return FragmentType.TYPE
     }
 
-    @Override
-    fun asText(): Text {
-        return typeType.getName()
-    }
-
-    @get:Override
-    val weight: Int
-        get() = 16
-    val typeType: FragmentType<*>?
-
-    init {
-        this.typeType = typeType
+    override fun toString(): String {
+        return typeType.getId()!!.toString()
     }
 
     companion object {
-        val ENDEC: StructEndec<TypeFragment> = EndecTomfoolery.lazy(
-            {
-                StructEndecBuilder.of(
-                    MinecraftEndecs.ofRegistry(FragmentType.REGISTRY)
-                        .fieldOf("of_type", dev.enjarai.trickster.spell.fragment.TypeFragment::typeType),
-                    { typeType: FragmentType<*>? -> TypeFragment(typeType) }
-                )
-            }
-        )
+        val ENDEC: StructEndec<TypeFragment> = lazyEndec {
+            StructEndecBuilder.of(
+                Identifier.ENDEC.xmap({ id -> fragmentTypes[id]!! }, { type -> type.getId()!! })
+                    .fieldOf("of_type") { fragment -> fragment.typeType }
+            ) { type -> TypeFragment(type) }
+        }
     }
 }

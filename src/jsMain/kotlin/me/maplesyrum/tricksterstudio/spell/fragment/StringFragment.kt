@@ -1,31 +1,22 @@
-package dev.enjarai.trickster.spell.fragment
+package me.maplesyrum.tricksterstudio.spell.fragment
 
-import dev.enjarai.trickster.spell.Fragment
-import me.maplesyrum.tricksterstudio.spell.fragment.FragmentType
+import tree.maple.kendec.PrimitiveEndecs
 import tree.maple.kendec.StructEndec
 import tree.maple.kendec.impl.StructEndecBuilder
-import net.minecraft.text.Text
 
-@kotlin.jvm.JvmRecord
-data class StringFragment(val value: String?) : Fragment {
-    @Override
-    fun type(): FragmentType<*> {
+data class StringFragment(val value: String) : Fragment() {
+    override fun type(): FragmentType<*> {
         return FragmentType.STRING
     }
 
-    @Override
-    fun asText(): Text {
-        return Text.literal("\"").append(value).append("\"")
+    override fun toString(): String {
+        return value
     }
 
-    @get:Override
-    val weight: Int
-        get() = value.length() * 2
-
     companion object {
-        val ENDEC: StructEndec<dev.enjarai.trickster.spell.fragment.StringFragment?>? = StructEndecBuilder.of(
-            StructEndec.STRING.fieldOf("value", dev.enjarai.trickster.spell.fragment.StringFragment::value),
-            { value: String? -> StringFragment(value) }
+        val ENDEC: StructEndec<StringFragment> = StructEndecBuilder.of(
+            PrimitiveEndecs.STRING.fieldOf("value", StringFragment::value),
+            { value: String -> StringFragment(value) }
         )
     }
 }

@@ -2,99 +2,20 @@ package me.maplesyrum.tricksterstudio.spell.fragment
 
 
 import Identifier
-import dev.enjarai.trickster.spell.fragment.*
+import me.maplesyrum.tricksterstudio.endec.funnyFieldOf
 import tree.maple.kendec.Endec
 import tree.maple.kendec.PrimitiveEndecs
 import tree.maple.kendec.StructEndec
 import tree.maple.kendec.util.Optional
 
-class FragmentType<T : Fragment>(endec: StructEndec<T>, color: Optional<Int>) {
-    val name: String
-        get() {
-            val id: Unit /* TODO: class org.jetbrains.kotlin.nj2k.types.JKJavaNullPrimitiveType */? =
-                REGISTRY.getId(this)
-            if (id == null) {
-                return Text.literal("Unregistered")
-            }
-            var text: Unit /* TODO: class org.jetbrains.kotlin.nj2k.types.JKJavaNullPrimitiveType */? =
-                Text.translatable(Trickster.MOD_ID + ".fragment." + id.getNamespace() + "." + id.getPath())
-            if (color.isPresent()) {
-                text = text.withColor(color.getAsInt())
-            }
-            return text
-        }
+class FragmentType<T : Fragment>(val endec: StructEndec<T>, val color: Optional<Int>) {
+    val intId: Int = getId().hashCode()
 
-    @Override
-    fun asText(): MutableText? {
-        return this.name
-    }
-
-    val intId: Int
-        get() = REGISTRY.getId(this).hashCode()
-
-    @Override
-    fun argc(fragments: List<Fragment?>?): Int {
-        return 1
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    fun compose(trick: Trick<*>?, ctx: SpellContext?, fragments: List<Fragment?>): T? {
-        return fragments.get(0) as T?
-    }
-
-//    @Override
-//    fun match(fragments: List<Fragment?>): Boolean {
-//        return fragments.get(0).type() == this
-//    }
-
-    @Override
-    fun wardOf(): ArgType<T?>? {
-        return object : ArgType() {
-            @Override
-            fun argc(fragments: List<Fragment?>?): Int {
-                return this@FragmentType.argc(fragments)
-            }
-
-            @Override
-            fun compose(trick: Trick<*>?, ctx: SpellContext?, fragments: List<Fragment?>): T? {
-                val result = this@FragmentType.compose(trick, ctx, fragments)
-
-                if (result is EntityFragment) {
-                    ArgType.tryWard(trick, ctx, result, fragments)
-                }
-
-                return result
-            }
-
-            @Override
-            fun match(fragments: List<Fragment?>): Boolean {
-                return this@FragmentType.match(fragments)
-            }
-
-            @Override
-            fun wardOf(): ArgType<T?>? {
-                return this
-            }
-
-            @Override
-            fun asText(): MutableText? {
-                return this@FragmentType.asText()
-            }
-        }
-    }
-
-    val endec: StructEndec<T>
-    val color: OptionalInt?
-
-    init {
-        this.endec = endec
-        this.color = color
+    fun getId(): Identifier? {
+        return REGISTRY.entries.firstOrNull { it.value == this }?.key
     }
 
     companion object {
-        val REGISTRY_KEY: RegistryKey<Registry<FragmentType<*>?>?>? =
-            RegistryKey.ofRegistry(Trickster.id("fragment_type"))
         val INT_ID_FALLBACK = object : HashMap<Int, Identifier>() {
             init {
                 put(-777274987, Identifier("trickster", "entity_type"))
@@ -118,11 +39,13 @@ class FragmentType<T : Fragment>(endec: StructEndec<T>, color: Optional<Int>) {
             }
         }
         val INT_ID_LOOKUP: MutableMap<Int, Identifier> = HashMap()
+
         val INT_ID_ENDEC: Endec<FragmentType<*>?>? =
             PrimitiveEndecs.INT.xmap({ intId: Int ->
                 getFromInt(intId)
             }, { obj: FragmentType<*>? -> obj!!.intId })
-        val REGISTRY: MutableMap<Identifier, FragmentType<*>> = HashMap()
+        val REGISTRY = HashMap<Identifier, FragmentType<*>>()
+
 
         val TYPE: FragmentType<TypeFragment> =
             register<TypeFragment>(
@@ -130,98 +53,101 @@ class FragmentType<T : Fragment>(endec: StructEndec<T>, color: Optional<Int>) {
                 TypeFragment.ENDEC,
                 0x66cc00
             )
-        val NUMBER: FragmentType<NumberFragment?> =
-            Companion.register<NumberFragment?>(
+        val NUMBER: FragmentType<NumberFragment> =
+            register<NumberFragment>(
                 "number",
-                NumberFragment.Companion.ENDEC,
+                NumberFragment.ENDEC,
                 0xddaa00
             )
-        val BOOLEAN: FragmentType<BooleanFragment?> =
-            Companion.register<BooleanFragment?>(
+        val BOOLEAN: FragmentType<BooleanFragment> =
+            register<BooleanFragment>(
                 "boolean",
                 BooleanFragment.Companion.ENDEC,
                 0xaa3355
             )
-        val VECTOR: FragmentType<VectorFragment?> =
-            Companion.register<VectorFragment?>(
+        val VECTOR: FragmentType<VectorFragment> =
+            register<VectorFragment>(
                 "vector",
                 VectorFragment.Companion.ENDEC,
                 0xaa7711
             )
-        val LIST: FragmentType<ListFragment?> =
-            Companion.register<ListFragment?>(
+        val LIST: FragmentType<ListFragment> =
+            register<ListFragment>(
                 "list",
                 ListFragment.Companion.ENDEC
             )
-        val VOID: FragmentType<VoidFragment?> =
-            Companion.register<VoidFragment?>(
+        val VOID: FragmentType<VoidFragment> =
+            register<VoidFragment>(
                 "void",
                 VoidFragment.Companion.ENDEC,
                 0x4400aa
             )
-        val PATTERN: FragmentType<PatternGlyph?> =
-            Companion.register<PatternGlyph?>(
+        val PATTERN: FragmentType<PatternGlyph> =
+            register<PatternGlyph>(
                 "pattern",
                 PatternGlyph.ENDEC,
                 0x6644aa
             )
-        val PATTERN_LITERAL: FragmentType<Pattern?> =
-            Companion.register<T?>(
+        val PATTERN_LITERAL: FragmentType<Pattern> =
+            register(
                 "pattern_literal",
-                EndecTomfoolery.funnyFieldOf(Pattern.ENDEC, "pattern"), 0xbbbbaa
+                funnyFieldOf(Pattern.ENDEC, "pattern"), 0xbbbbaa
             )
-        val SPELL_PART: FragmentType<SpellPart?> =
-            Companion.register<SpellPart?>(
+        val SPELL_PART: FragmentType<SpellPart> =
+            Companion.register<SpellPart>(
                 "spell_part",
                 SpellPart.ENDEC,
                 0xaa44aa
             )
-        val ENTITY: FragmentType<EntityFragment?> =
-            Companion.register<EntityFragment?>(
+        val ENTITY: FragmentType<EntityFragment> =
+            register<EntityFragment>(
                 "entity",
-                EntityFragment.Companion.ENDEC,
+                EntityFragment.ENDEC,
                 0x338888
             )
-        val ZALGO: FragmentType<ZalgoFragment?> =
-            Companion.register<ZalgoFragment?>(
+        val ZALGO: FragmentType<ZalgoFragment> =
+            register<ZalgoFragment>(
                 "zalgo",
-                ZalgoFragment.Companion.ENDEC,
+                ZalgoFragment.ENDEC,
                 0x444444
             )
-        val ITEM_TYPE: FragmentType<ItemTypeFragment?> =
-            Companion.register<ItemTypeFragment?>(
-                "item_type", ItemTypeFragment.Companion.ENDEC,
+        val ITEM_TYPE: FragmentType<ItemTypeFragment> =
+            register<ItemTypeFragment>(
+                "item_type", ItemTypeFragment.ENDEC,
                 0x2266aa
             )
-        val SLOT: FragmentType<SlotFragment?> =
-            Companion.register<SlotFragment?>(
+        val SLOT: FragmentType<SlotFragment> =
+            register<SlotFragment>(
                 "slot",
-                SlotFragment.Companion.ENDEC,
+                SlotFragment.ENDEC,
                 0x77aaee
             )
         val BLOCK_TYPE: FragmentType<BlockTypeFragment> =
-            register<BlockTypeFragment?>(
+            register<BlockTypeFragment>(
                 "block_type", BlockTypeFragment.ENDEC,
                 0x44aa33
             )
-        val ENTITY_TYPE: FragmentType<EntityTypeFragment?> =
-            Companion.register<EntityTypeFragment?>(
-                "entity_type", EntityTypeFragment.Companion.ENDEC,
+        val ENTITY_TYPE: FragmentType<EntityTypeFragment> =
+            register<EntityTypeFragment>(
+                "entity_type", EntityTypeFragment.ENDEC,
                 0x8877bb
             )
-        val DIMENSION: FragmentType<DimensionFragment?> =
-            Companion.register<DimensionFragment?>(
-                "dimension", DimensionFragment.Companion.ENDEC,
+        val DIMENSION: FragmentType<DimensionFragment> =
+            register<DimensionFragment>(
+                "dimension", DimensionFragment.ENDEC,
                 0xdd55bb
             )
-        val STRING: FragmentType<StringFragment?> =
-            Companion.register<StringFragment?>(
+        val STRING: FragmentType<StringFragment> =
+            register<StringFragment>(
                 "string",
-                StringFragment.Companion.ENDEC,
+                StringFragment.ENDEC,
                 0xaabb77
             )
-        val MAP: FragmentType<MapFragment?> =
-            Companion.register<MapFragment?>("map", MapFragment.Companion.ENDEC)
+        val MAP: FragmentType<MapFragment> =
+            register<MapFragment>(
+                "map",
+                MapFragment.ENDEC
+            )
 
         private fun <T : Fragment> register(
             name: String,
@@ -241,15 +167,14 @@ class FragmentType<T : Fragment>(endec: StructEndec<T>, color: Optional<Int>) {
         }
 
         fun getFromInt(intId: Int): FragmentType<*> {
-            var id: Unit /* TODO: class org.jetbrains.kotlin.nj2k.types.JKJavaNullPrimitiveType */? =
-                INT_ID_LOOKUP.get(intId)
+            var id = INT_ID_LOOKUP[intId]
             if (id == null) {
-                id = INT_ID_FALLBACK.get(intId)
+                id = INT_ID_FALLBACK[intId]
 
-                requireNotNull(id) { "Not a valid int id for fragment type: " + intId }
+                requireNotNull(id) { "Not a valid int id for fragment type: $intId" }
             }
 
-            return REGISTRY.get(id)
+            return REGISTRY[id]!!
         }
     }
 }

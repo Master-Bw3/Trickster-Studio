@@ -16,6 +16,14 @@ external class Graphics : Container {
 
 external class StrokeOptions (width: Double, color: Array<Double>)
 
+external class Sprite(value: dynamic) : Container {
+    var x: Double
+    var y: Double
+    var width: Double
+    var height: Double
+    var alpha: Double
+}
+
 external class Texture
 
 external class Point(var x: Double, var y: Double) {}
@@ -28,4 +36,6 @@ external class HTMLText(options: dynamic) : Container {
     var x: Double
     var y: Double
     var scale: Double
+    var width: Double
+    val text: String
 }

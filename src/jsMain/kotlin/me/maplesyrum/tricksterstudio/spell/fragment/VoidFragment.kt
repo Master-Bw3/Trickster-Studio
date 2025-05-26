@@ -1,35 +1,20 @@
-package dev.enjarai.trickster.spell.fragment
+package me.maplesyrum.tricksterstudio.spell.fragment
 
-import dev.enjarai.trickster.EndecTomfoolery
-import dev.enjarai.trickster.spell.Fragment
-import me.maplesyrum.tricksterstudio.spell.fragment.FragmentType
+import me.maplesyrum.tricksterstudio.endec.unit
 import tree.maple.kendec.StructEndec
-import net.minecraft.text.Text
 
-class VoidFragment : Fragment {
-    @Override
-    fun type(): FragmentType<*> {
+class VoidFragment : Fragment() {
+    override fun type(): FragmentType<*> {
         return FragmentType.VOID
     }
 
-    @Override
-    fun asText(): Text {
-        return Text.literal("void")
+    override fun toString(): String {
+        return "Void";
     }
-
-    @Override
-    fun asBoolean(): kotlin.Boolean {
-        return false
-    }
-
-    @get:Override
-    val weight: Int
-        get() = 1
 
     companion object {
-        val INSTANCE: dev.enjarai.trickster.spell.fragment.VoidFragment =
-            dev.enjarai.trickster.spell.fragment.VoidFragment()
-        val ENDEC: StructEndec<dev.enjarai.trickster.spell.fragment.VoidFragment?>? =
-            EndecTomfoolery.unit(dev.enjarai.trickster.spell.fragment.VoidFragment.Companion.INSTANCE)
+        val INSTANCE: VoidFragment = VoidFragment()
+
+        val ENDEC: StructEndec<VoidFragment> = unit(INSTANCE)
     }
 }

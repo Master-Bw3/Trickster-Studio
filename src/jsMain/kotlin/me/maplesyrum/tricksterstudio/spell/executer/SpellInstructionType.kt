@@ -1,4 +1,4 @@
-package dev.enjarai.trickster.spell.execution
+package me.maplesyrum.tricksterstudio.spell.executer
 
 enum class SpellInstructionType(val id: Int) {
     FRAGMENT(1), ENTER_SCOPE(2), EXIT_SCOPE(3);

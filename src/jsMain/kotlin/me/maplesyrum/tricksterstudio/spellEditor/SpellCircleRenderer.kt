@@ -1,15 +1,18 @@
 package me.maplesyrum.tricksterstudio.spellEditor
 
-import me.maplesyrum.tricksterstudio.external.pixi.*;
-import me.maplesyrum.tricksterstudio.fragment.SpellPart
-import me.maplesyrum.tricksterstudio.fragment.Fragment
-import me.maplesyrum.tricksterstudio.fragment.PatternGlyph
-import me.maplesyrum.tricksterstudio.fragment.Pattern
-import me.maplesyrum.tricksterstudio.fragment.fragmentTypes
-import me.maplesyrum.tricksterstudio.fragment.getKeyByValue
-import me.maplesyrum.tricksterstudio.fragment.patternOf
-import me.maplesyrum.tricksterstudio.FragmentRenderer.fragmentRenderers
-import me.maplesyrum.tricksterstudio.spellEditor.spellRenderingUtils.isCircleClickable
+import me.maplesyrum.tricksterstudio.external.pixi.Container
+import me.maplesyrum.tricksterstudio.external.pixi.Graphics
+import me.maplesyrum.tricksterstudio.external.pixi.HTMLText
+import me.maplesyrum.tricksterstudio.external.pixi.Point
+import me.maplesyrum.tricksterstudio.external.pixi.Sprite
+import me.maplesyrum.tricksterstudio.external.pixi.StrokeOptions
+import me.maplesyrum.tricksterstudio.external.pixi.Texture
+import me.maplesyrum.tricksterstudio.spell.fragment.Fragment
+import me.maplesyrum.tricksterstudio.spell.fragment.Pattern
+import me.maplesyrum.tricksterstudio.spell.fragment.PatternGlyph
+import me.maplesyrum.tricksterstudio.spell.fragment.SpellPart
+import kotlin.math.PI
+
 
 const val PATTERN_TO_PART_RATIO = 2.5
 const val PART_PIXEL_RADIUS = 48
@@ -72,8 +75,8 @@ class SpellCircleRenderer(
 
         drawDivider(container, toLocalSpace(x), toLocalSpace(y), startingAngle, toLocalSpace(size), partCount, alpha)
 
-        entry.getSubParts().forEachIndexed { i, child ->
-            val angle = startingAngle + ((2 * Math.PI) / partCount) * i - Math.PI / 2
+        entry.subParts.forEachIndexed { i, child ->
+            val angle = startingAngle + ((2 * PI) / partCount) * i - PI / 2
             val nextX = x + size * kotlin.math.cos(angle) * 0.5
             val nextY = y + size * kotlin.math.sin(angle) * 0.5
             val nextSize = minOf(size / 2, size / ((partCount + 1) / 2.0))
@@ -91,7 +94,7 @@ class SpellCircleRenderer(
         alpha: Double
     ) {
         val pixelSize = size / PART_PIXEL_RADIUS
-        val lineAngle = startingAngle + ((2 * Math.PI) / partCount) * -0.5 - Math.PI / 2
+        val lineAngle = startingAngle + ((2 * PI) / partCount) * -0.5 - PI / 2
 
         val lineX = x + size * kotlin.math.cos(lineAngle) * 0.55
         val lineY = y + size * kotlin.math.sin(lineAngle) * 0.55
@@ -103,7 +106,7 @@ class SpellCircleRenderer(
 
         val g = Graphics()
         g.poly(arrayOf(Point(lineX, lineY), lineEnd))
-        g.stroke(StrokeOptions(width = 1 * pixelSize, color = arrayOf(0.5 * r, 0.5 * g, 1 * b, alpha * 0.2)))
+        g.stroke(StrokeOptions(width = 1 * pixelSize, color = arrayOf(0.5 * r, 0.5 * this.g, 1 * b, alpha * 0.2)))
         container.addChild(g)
     }
 
@@ -157,7 +160,7 @@ class SpellCircleRenderer(
 
             val isDrawing = inEditor && drawingPartGetter() == parent
             val drawingPattern = if (inEditor) drawingPatternGetter() else null
-            val patternList = if (isDrawing) patternOf(drawingPattern!!)!! else pattern
+            val patternList = if (isDrawing) Pattern.from(drawingPattern!!.map { it.toByte() }) else pattern
 
             for (i in 0 until 9) {
                 val pos = getPatternDotPosition(x, y, i, patternSize)
@@ -213,7 +216,7 @@ class SpellCircleRenderer(
                 val (text: HTMLText, width: Double) = glyph.asFormattedTextCached()
                 val scale = size / 2 / maxOf(width, 100.0)
                 text.anchor = js("{x: 0.5, y: 0.3}")
-                text.resolution = 20
+                text.resolution = 20.0
                 text.style.fontFamily = "slkscr"
                 text.alpha = alpha
                 text.x = x

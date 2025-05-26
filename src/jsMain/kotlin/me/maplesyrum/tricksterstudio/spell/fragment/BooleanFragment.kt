@@ -1,61 +1,31 @@
-package dev.enjarai.trickster.spell.fragment
+package me.maplesyrum.tricksterstudio.spell.fragment
 
-import dev.enjarai.trickster.spell.Fragment
-import me.maplesyrum.tricksterstudio.spell.fragment.FragmentType
-import tree.maple.kendec.Endec
+import tree.maple.kendec.PrimitiveEndecs
 import tree.maple.kendec.StructEndec
 import tree.maple.kendec.impl.StructEndecBuilder
-import net.minecraft.text.Text
 
-class BooleanFragment private constructor(val bool: kotlin.Boolean) : Fragment {
-    @Override
-    fun type(): FragmentType<*> {
+class BooleanFragment private constructor(val bool: Boolean) : Fragment() {
+
+    override fun type(): FragmentType<*> {
         return FragmentType.BOOLEAN
     }
 
-    @Override
-    fun asText(): Text {
-        return Text.literal("" + bool)
+    override fun toString(): String {
+        return bool.toString()
     }
-
-    @Override
-    fun asBoolean(): kotlin.Boolean {
-        return bool
-    }
-
-    @Override
-    fun hashCode(): kotlin.Int {
-        return if (bool) 1 else 0
-    }
-
-    @Override
-    fun equals(obj: Object?): kotlin.Boolean {
-        return obj is dev.enjarai.trickster.spell.fragment.BooleanFragment && obj.bool == bool
-    }
-
-    @Override
-    fun toString(): String? {
-        return "BooleanFragment[bool=" + bool + ']'
-    }
-
-    @get:Override
-    val weight: Int
-        get() = 1
 
     companion object {
-        val ENDEC: StructEndec<dev.enjarai.trickster.spell.fragment.BooleanFragment?>? = StructEndecBuilder.of(
-            Endec.BOOLEAN.fieldOf(
-                "bool",
-                { obj: dev.enjarai.trickster.spell.fragment.BooleanFragment? -> obj!!.asBoolean() }),
-            { bool: kotlin.Boolean -> dev.enjarai.trickster.spell.fragment.BooleanFragment.Companion.of(bool) }
-        )
-        val TRUE: dev.enjarai.trickster.spell.fragment.BooleanFragment =
-            dev.enjarai.trickster.spell.fragment.BooleanFragment(true)
-        val FALSE: dev.enjarai.trickster.spell.fragment.BooleanFragment =
-            dev.enjarai.trickster.spell.fragment.BooleanFragment(false)
+        val ENDEC: StructEndec<BooleanFragment> = StructEndecBuilder.of(
+            PrimitiveEndecs.BOOLEAN.fieldOf("bool") { obj: BooleanFragment -> obj.bool }
+        ) { bool: Boolean -> of(bool) }
 
-        fun of(bool: kotlin.Boolean): dev.enjarai.trickster.spell.fragment.BooleanFragment? {
-            return if (bool) dev.enjarai.trickster.spell.fragment.BooleanFragment.Companion.TRUE else dev.enjarai.trickster.spell.fragment.BooleanFragment.Companion.FALSE
+        val TRUE: BooleanFragment =
+            BooleanFragment(true)
+        val FALSE: BooleanFragment =
+            BooleanFragment(false)
+
+        fun of(bool: Boolean): BooleanFragment {
+            return if (bool) TRUE else FALSE
         }
     }
 }

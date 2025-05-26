@@ -1,53 +1,26 @@
-package dev.enjarai.trickster.spell.fragment
+package me.maplesyrum.tricksterstudio.spell.fragment
 
-import dev.enjarai.trickster.EndecTomfoolery
-import dev.enjarai.trickster.spell.Fragment
-import me.maplesyrum.tricksterstudio.spell.fragment.FragmentType
+import me.maplesyrum.tricksterstudio.endec.unit
+import me.maplesyrum.tricksterstudio.endec.unitFromSupplier
 import tree.maple.kendec.StructEndec
-import net.minecraft.text.Style
-import net.minecraft.text.Text
-import net.minecraft.util.math.random.LocalRandom
-import net.minecraft.util.math.random.Random
+import kotlin.invoke
+import kotlin.random.Random
 
-@kotlin.jvm.JvmRecord
-data class ZalgoFragment(val index: kotlin.Int) : Fragment {
-    constructor() : this(dev.enjarai.trickster.spell.fragment.ZalgoFragment.Companion.RANDOM.nextInt(dev.enjarai.trickster.spell.fragment.ZalgoFragment.Companion.SILLIES.size()))
 
-    @Override
-    fun type(): FragmentType<*> {
+data class ZalgoFragment(val index: Int) : Fragment() {
+    constructor() : this(Random.nextInt(SILLIES.size))
+
+    override fun type(): FragmentType<*> {
         return FragmentType.ZALGO
     }
 
-    @Override
-    fun asText(): Text {
-        return Text.literal(dev.enjarai.trickster.spell.fragment.ZalgoFragment.Companion.SILLIES.get(index))
-            .fillStyle(Style.EMPTY.withObfuscated(true))
-    }
-
-    @Override
-    fun asBoolean(): kotlin.Boolean {
-        return false
-    }
-
-    @get:Override
-    val weight: Int
-        get() = 4
-
-    @Override
-    fun hashCode(): kotlin.Int {
-        return dev.enjarai.trickster.spell.fragment.ZalgoFragment.Companion.RANDOM.nextInt()
-    }
-
-    @Override
-    fun equals(obj: Object?): kotlin.Boolean {
-        return false
+    override fun toString(): String {
+        return SILLIES[index]
     }
 
     companion object {
-        val ENDEC: StructEndec<dev.enjarai.trickster.spell.fragment.ZalgoFragment?>? =
-            EndecTomfoolery.unit({ ZalgoFragment() })
-        val RANDOM: Random = LocalRandom(0xABABABA)
-        val SILLIES: List<String?> = List.of(
+        val ENDEC: StructEndec<ZalgoFragment> = unitFromSupplier { ZalgoFragment() }
+        val SILLIES: List<String> = listOf(
             "amogus",
             "what should i put here",
             "mineblock lore",

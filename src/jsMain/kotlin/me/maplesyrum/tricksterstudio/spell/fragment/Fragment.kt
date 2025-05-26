@@ -2,13 +2,13 @@ package me.maplesyrum.tricksterstudio.spell.fragment
 
 
 import Identifier
-import PROTOCOL_VERSION_ATTRIBUTE
-import UBER_COMPACT_ATTRIBUTE
-import dev.enjarai.trickster.spell.execution.SerializedSpellInstruction
-import dev.enjarai.trickster.spell.execution.SpellInstructionType
-import io.kvision.utils.Object
+import me.maplesyrum.tricksterstudio.spell.executer.SerializedSpellInstruction
+import me.maplesyrum.tricksterstudio.spell.executer.SpellInstructionType
 import io.kvision.utils.obj
-import lazyEndec
+import me.maplesyrum.tricksterstudio.endec.PROTOCOL_VERSION_ATTRIBUTE
+import me.maplesyrum.tricksterstudio.endec.UBER_COMPACT_ATTRIBUTE
+import me.maplesyrum.tricksterstudio.endec.lazyEndec
+import me.maplesyrum.tricksterstudio.external.pixi.HTMLText
 import me.maplesyrum.tricksterstudio.spell.executer.SpellInstruction
 import tree.maple.kendec.*
 import tree.maple.kendec.format.buffer.BufferDeserializer
@@ -16,35 +16,29 @@ import tree.maple.kendec.format.buffer.BufferSerializer
 import tree.maple.kendec.util.createBuffer
 import tree.maple.kendec.util.writeByte
 
-// External declarations for JS interop
-external class HTMLText(options: Object) {
-    var width: Int
-}
 
-external object window {
-    val zlib: dynamic
-}
 
 abstract class Fragment : SpellInstruction {
-    private var _formattedText: HTMLText? = null
-    private var _formattedTextWidth: Int? = null
+    private var formattedText: HTMLText? = null
+    private var formattedTextWidth: Int? = null
 
     open fun asFormattedText(): HTMLText {
-        return HTMLText(obj{
-            text = """<span style="color: #${type().color.toString(16)}">${this@Fragment}</span>"""
+        return HTMLText(obj {
+            text = """<span style="color: #${type().color.map(::toInt).orElse(0xaaaaaa).toString(16)}">${this@Fragment}</span>"""
             style = jsObject { fill = 0xffffff }
         })
     }
 
-    abstract fun type(): FragmentType<Fragment>
-
     fun asFormattedTextCached(): Pair<HTMLText, Int> {
-        if (_formattedText == null) {
-            _formattedText = asFormattedText()
-            _formattedTextWidth = _formattedText!!.width
+        if (formattedText == null) {
+            formattedText = asFormattedText()
+            formattedTextWidth = formattedText!!.width
         }
-        return Pair(_formattedText!!, _formattedTextWidth!!)
+        return Pair(formattedText!!, formattedTextWidth!!)
     }
+
+    abstract fun type(): FragmentType<out Fragment>
+
 
     override fun asSerialized(): SerializedSpellInstruction {
         return SerializedSpellInstruction(SpellInstructionType.FRAGMENT, this)
@@ -59,7 +53,7 @@ abstract class Fragment : SpellInstruction {
         writeByte(buf, 4)
         ENDEC.encode(
             SerializationContext.empty().withAttributes(
-                    UBER_COMPACT_ATTRIBUTE,
+                UBER_COMPACT_ATTRIBUTE,
                     PROTOCOL_VERSION_ATTRIBUTE.instance(4)
 
             ),
@@ -77,14 +71,14 @@ abstract class Fragment : SpellInstruction {
             {
                 dispatchedEndecOf(
                     { it!!.endec },
-                    { obj: Fragment -> obj.type() },
+                    { obj: Fragment -> obj.type() as FragmentType<Fragment> },
                     ifAttr(
                         UBER_COMPACT_ATTRIBUTE,
-                        PrimitiveEndecs.INT.xmap (::getFragmentTypeFromInt) {
+                        PrimitiveEndecs.INT.xmap(::getFragmentTypeFromInt) {
                             it.intId
                         }
                     ).orElse(
-                        Identifier.ENDEC.xmap({ fragmentTypes[it]!!}, { it.id })
+                        Identifier.ENDEC.xmap({ fragmentTypes[it]!! }, { it.getId()!! })
                     )
                 )
             }
@@ -98,16 +92,14 @@ abstract class Fragment : SpellInstruction {
         fun fromBytes(bytes: ByteArray): Fragment {
             val unzippedBytes = window.zlib.ungzip(GZIP_HEADER + bytes)
             val buf = createBuffer(unzippedBytes)
-            val protocolVersion = buf.readByte()
+            val protocolVersion = buf.readByte().toInt()
             return if (protocolVersion < 3) {
                 fromBytesOld(protocolVersion, buf)
             } else {
                 ENDEC.decode(
                     SerializationContext.empty().withAttributes(
-                        listOf(
-                            UBER_COMPACT_ATTRIBUTE,
+                        UBER_COMPACT_ATTRIBUTE,
                             PROTOCOL_VERSION_ATTRIBUTE.instance(protocolVersion)
-                        )
                     ),
                     BufferDeserializer(buf)
                 )
@@ -115,12 +107,10 @@ abstract class Fragment : SpellInstruction {
         }
 
         fun fromBytesOld(protocolVersion: Int, buf: dynamic): Fragment {
-            return getFragmentType(Identifier("trickster", "spell_part"))!!.endec.decode(
+            return FragmentType.REGISTRY.get(Identifier("trickster", "spell_part"))!!.endec.decode(
                 SerializationContext.empty().withAttributes(
-                    listOf(
-                        UBER_COMPACT_ATTRIBUTE,
+                    UBER_COMPACT_ATTRIBUTE,
                         PROTOCOL_VERSION_ATTRIBUTE.instance(protocolVersion)
-                    )
                 ),
                 BufferDeserializer(buf)
             )

@@ -1,88 +1,47 @@
-package dev.enjarai.trickster.spell.fragment
+package me.maplesyrum.tricksterstudio.spell.fragment
 
-import com.google.common.collect.ImmutableList
-import dev.enjarai.trickster.spell.Fragment
-import dev.enjarai.trickster.spell.SpellContext
-import dev.enjarai.trickster.spell.SpellPart
-import dev.enjarai.trickster.spell.blunder.BlunderException
-import dev.enjarai.trickster.spell.execution.executor.FoldingSpellExecutor
-import me.maplesyrum.tricksterstudio.spell.fragment.FragmentType
+
+import io.kvision.utils.obj
+import me.maplesyrum.tricksterstudio.external.pixi.HTMLText
 import tree.maple.kendec.StructEndec
 import tree.maple.kendec.impl.StructEndecBuilder
-import net.minecraft.text.Text
-import java.util.Stack
 
-class ListFragment(fragments: List<Fragment?>?) : FoldableFragment {
-    @Override
-    fun type(): FragmentType<*> {
+
+class ListFragment(val fragments: List<Fragment>) : Fragment() {
+    override fun type(): FragmentType<*> {
         return FragmentType.LIST
     }
 
-    @Override
-    fun asText(): Text {
-        var result: Unit /* TODO: class org.jetbrains.kotlin.nj2k.types.JKJavaNullPrimitiveType */? = Text.literal("[")
-
-        for (i in 0..<this.fragments.size()) {
-            val frag: Unit /* TODO: class org.jetbrains.kotlin.nj2k.types.JKJavaNullPrimitiveType */? =
-                this.fragments!!.get(i)
-            if (i != 0) {
-                result = result.append(", ")
+    override fun asFormattedText(): HTMLText {
+        val result = buildString {
+            append("[")
+            for ((i, fragment) in fragments.withIndex()) {
+                if (i != 0) append(", ")
+                append(fragment.asFormattedText().text)
             }
-            result = result.append(frag.asFormattedText())
+            append("]")
         }
-
-        return result.append("]")
-    }
-
-    @Override
-    fun applyEphemeral(): Fragment? {
-        return dev.enjarai.trickster.spell.fragment.ListFragment(
-            fragments.stream().map(Fragment::applyEphemeral).toList()
+        return HTMLText(
+           obj {
+               text = "<span style=\"color: #${type().color.map(::toInt).orElse(0xaaaaaa).toString(16)}\">$result</span>"
+           }
         )
     }
 
-    @get:Override
-    val weight: Int
-        get() {
-            var weight = 16
-
-            for (fragment in fragments!!) {
-                weight += fragment.getWeight()
+    override fun toString(): String {
+        return buildString {
+            append("[")
+            for ((i, fragment) in fragments.withIndex()) {
+                if (i != 0) append(", ")
+                append(fragment.asFormattedText().text)
             }
-
-            return weight
+            append("]")
         }
-
-    @Throws(BlunderException::class)
-    fun addRange(other: dev.enjarai.trickster.spell.fragment.ListFragment): dev.enjarai.trickster.spell.fragment.ListFragment {
-        return dev.enjarai.trickster.spell.fragment.ListFragment(
-            ImmutableList.< Fragment > builder < Fragment ? > ().addAll(
-                fragments
-            ).addAll(other.fragments).build()
-        )
-    }
-
-    @Override
-    fun fold(ctx: SpellContext?, executable: SpellPart?, identity: Fragment?): FoldingSpellExecutor? {
-        val keys: Stack<Fragment?> = Stack<Fragment?>()
-        val values: Stack<Fragment?> = Stack<Fragment?>()
-
-        for (i in fragments.size() - 1 downTo 0) keys.push(NumberFragment(i))
-
-        values.addAll(fragments.reversed())
-        return FoldingSpellExecutor(ctx, executable, identity, values, keys, this)
-    }
-
-    val fragments: List<Fragment?>?
-
-    init {
-        this.fragments = fragments
     }
 
     companion object {
-        val ENDEC: StructEndec<dev.enjarai.trickster.spell.fragment.ListFragment?>? = StructEndecBuilder.of(
-            Fragment.ENDEC.listOf().fieldOf("fragments", dev.enjarai.trickster.spell.fragment.ListFragment::fragments),
-            { fragments: List<Fragment?>? -> ListFragment(fragments) }
-        )
+        val ENDEC: StructEndec<ListFragment> = StructEndecBuilder.of(
+            Fragment.ENDEC.listOf().fieldOf("fragments", ListFragment::fragments)
+        ) { fragments: List<Fragment> -> ListFragment(fragments) }
     }
 }

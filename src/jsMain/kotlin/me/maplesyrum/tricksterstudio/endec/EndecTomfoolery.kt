@@ -1,4 +1,9 @@
+package me.maplesyrum.tricksterstudio.endec
+
+
+import EitherEndec
 import me.maplesyrum.tricksterstudio.external.pixi.Point
+import memoize
 import tree.maple.kendec.AbstractStructEndec
 import tree.maple.kendec.Deserializer
 import tree.maple.kendec.Endec

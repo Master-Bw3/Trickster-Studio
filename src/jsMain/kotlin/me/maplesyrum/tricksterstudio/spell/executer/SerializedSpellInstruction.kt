@@ -1,17 +1,13 @@
-package dev.enjarai.trickster.spell.execution
+package me.maplesyrum.tricksterstudio.spell.executer
 
-import dev.enjarai.trickster.EndecTomfoolery
-import dev.enjarai.trickster.spell.EnterScopeInstruction
-import dev.enjarai.trickster.spell.ExitScopeInstruction
-import dev.enjarai.trickster.spell.Fragment
-import me.maplesyrum.tricksterstudio.spell.executer.SpellInstruction
-import tree.maple.kendec.Endec
+import me.maplesyrum.tricksterstudio.endec.safeOptionalOf
+import me.maplesyrum.tricksterstudio.spell.fragment.Fragment
 import tree.maple.kendec.PrimitiveEndecs
 import tree.maple.kendec.StructEndec
 import tree.maple.kendec.impl.StructEndecBuilder
 import tree.maple.kendec.util.Optional
 
-class SerializedSpellInstruction(val type: SpellInstructionType, fragment: Fragment?) {
+class SerializedSpellInstruction(val type: SpellInstructionType, val fragment: Fragment?) {
     fun toDeserialized(): SpellInstruction? {
         return when (type) {
             SpellInstructionType.FRAGMENT -> fragment
@@ -20,24 +16,17 @@ class SerializedSpellInstruction(val type: SpellInstructionType, fragment: Fragm
         }
     }
 
-    val fragment: Fragment?
-
-    init {
-        this.fragment = fragment
-    }
-
     companion object {
         val ENDEC: StructEndec<SerializedSpellInstruction> = StructEndecBuilder.of(
             PrimitiveEndecs.INT.fieldOf("instruction_id", { s -> s.type.getId() }),
-            EndecTomfoolery.forcedSafeOptionalOf(Fragment.ENDEC)
-                .fieldOf("fragment", { s -> Optional.ofNullable(s.fragment) }),
-            { id, optionalFragment ->
-                dev.enjarai.trickster.spell.execution.SerializedSpellInstruction(
-                    SpellInstructionType.fromId(id),
-                    optionalFragment.orElse(null)
-                )
-            }
-        )
+            safeOptionalOf(Fragment.ENDEC)
+                .fieldOf("fragment") { s -> Optional.ofNullable(s.fragment) }
+        ) { id, optionalFragment ->
+            SerializedSpellInstruction(
+                SpellInstructionType.Companion.fromId(id),
+                optionalFragment.orElse(null)
+            )
+        }
     }
 }
 

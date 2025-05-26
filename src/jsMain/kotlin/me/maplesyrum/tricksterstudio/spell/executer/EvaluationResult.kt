@@ -1,3 +1,3 @@
-package dev.enjarai.trickster.spell
+package me.maplesyrum.tricksterstudio.spell.executer
 
 interface EvaluationResult 
