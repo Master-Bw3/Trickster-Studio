@@ -30,7 +30,7 @@ kotlin {
             }
             testTask {
                 useKarma {
-                    useChromeHeadless()
+                    useFirefox()
                 }
             }
         }
@@ -40,6 +40,7 @@ kotlin {
         }
     }
     sourceSets["jsMain"].dependencies {
+        implementation("org.jetbrains.kotlin-wrappers:kotlin-node:2025.5.8-22.13.10")
         implementation("io.kvision:kvision:$kvisionVersion")
         implementation("io.kvision:kvision-tailwindcss:$kvisionVersion")
         implementation("io.kvision:kvision-i18n:$kvisionVersion")

@@ -12,7 +12,7 @@ data class Pattern(val entries: List<PatternEntry>) : Fragment() {
 
     fun contains(point: Int): Boolean {
         val realPoint = point.toByte()
-        for (entry in entries!!) {
+        for (entry in entries) {
             if (entry!!.p1 == realPoint || entry.p2 == realPoint) {
                 return true
             }

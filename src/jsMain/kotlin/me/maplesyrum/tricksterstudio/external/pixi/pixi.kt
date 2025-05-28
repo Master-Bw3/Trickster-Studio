@@ -3,18 +3,18 @@
 
 package me.maplesyrum.tricksterstudio.external.pixi
 
+import kotlin.js.Promise
+
 open external class Container {
     fun addChild(child: Container)
-
+    fun removeChildren()
 }
 
 external class Graphics : Container {
     fun poly(points: Array<Point>, d: Boolean = definedExternally): Graphics
     fun fill(rgba: Array<Double>)
-    fun stroke(options: StrokeOptions)
+    fun stroke(options: dynamic)
 }
-
-external class StrokeOptions (width: Double, color: Array<Double>)
 
 external class Sprite(value: dynamic) : Container {
     var x: Double
@@ -24,7 +24,9 @@ external class Sprite(value: dynamic) : Container {
     var alpha: Double
 }
 
-external class Texture
+external class Texture() {
+    var source: dynamic
+}
 
 external class Point(var x: Double, var y: Double) {}
 
@@ -38,4 +40,20 @@ external class HTMLText(options: dynamic) : Container {
     var scale: Double
     var width: Double
     val text: String
+}
+
+external class Application() {
+    fun init(settings: dynamic): Promise<Unit>
+    fun queueResize()
+    val canvas: dynamic
+    val ticker: Ticker
+    val stage: Container
+}
+
+external class Ticker {
+    fun add(fn: () -> Unit)
+}
+
+external object Assets {
+   fun <T> load(options: dynamic): Promise<T>
 }

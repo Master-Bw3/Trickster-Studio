@@ -48,7 +48,7 @@ import kotlin.text.set
 import kotlin.text.toList
 import kotlin.toList
 
-class SpellPart(val glyph: Fragment, val subParts: List<SpellPart>) : Fragment() {
+class SpellPart(var glyph: Fragment, var subParts: List<SpellPart>) : Fragment() {
 
     constructor(glyph: Fragment = PatternGlyph()) : this(glyph, ArrayList())
 

@@ -17,10 +17,9 @@ import tree.maple.kendec.util.createBuffer
 import tree.maple.kendec.util.writeByte
 
 
-
 abstract class Fragment : SpellInstruction {
     private var formattedText: HTMLText? = null
-    private var formattedTextWidth: Int? = null
+    private var formattedTextWidth: Double? = null
 
     open fun asFormattedText(): HTMLText {
         return HTMLText(obj {
@@ -29,7 +28,7 @@ abstract class Fragment : SpellInstruction {
         })
     }
 
-    fun asFormattedTextCached(): Pair<HTMLText, Int> {
+    fun asFormattedTextCached(): Pair<HTMLText, Double> {
         if (formattedText == null) {
             formattedText = asFormattedText()
             formattedTextWidth = formattedText!!.width
@@ -45,7 +44,7 @@ abstract class Fragment : SpellInstruction {
     }
 
     fun toBase64(): String {
-        return encodeBase64(toBytes())
+        return TODO(); //js("btoa(String.fromCharCode.apply(null, [...this.toBytes()]))");
     }
 
     fun toBytes(): ByteArray {
@@ -61,9 +60,9 @@ abstract class Fragment : SpellInstruction {
             this
         )
         val bytes = buf.readByteArray()
-        val gzippedBytes = window.zlib.gzip(bytes)
+        val gzippedBytes  = TODO(); //js("window.zlib.gzip(bytes)")
         // Remove GZIP header (first 10 bytes)
-        return gzippedBytes.unsafeCast<ByteArray>().copyOfRange(10, gzippedBytes.length)
+        return TODO(); // gzippedBytes.unsafeCast<ByteArray>().copyOfRange(10, gzippedBytes.length)
     }
 
     companion object {
@@ -86,11 +85,11 @@ abstract class Fragment : SpellInstruction {
 
 
         fun fromBase64(string: String): Fragment {
-            return fromBytes(decodeBase64(string))
+            return TODO(); //fromBytes(js("new Uint8Array(atob(string).split('').map(char => char.charCodeAt(0)))"));
         }
 
         fun fromBytes(bytes: ByteArray): Fragment {
-            val unzippedBytes = window.zlib.ungzip(GZIP_HEADER + bytes)
+            val unzippedBytes = TODO(); //js("window.zlib.ungzip(GZIP_HEADER + bytes)")
             val buf = createBuffer(unzippedBytes)
             val protocolVersion = buf.readByte().toInt()
             return if (protocolVersion < 3) {

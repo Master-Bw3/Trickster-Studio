@@ -1,11 +1,11 @@
 package me.maplesyrum.tricksterstudio.spellEditor
 
+import io.kvision.utils.obj
 import me.maplesyrum.tricksterstudio.external.pixi.Container
 import me.maplesyrum.tricksterstudio.external.pixi.Graphics
 import me.maplesyrum.tricksterstudio.external.pixi.HTMLText
 import me.maplesyrum.tricksterstudio.external.pixi.Point
 import me.maplesyrum.tricksterstudio.external.pixi.Sprite
-import me.maplesyrum.tricksterstudio.external.pixi.StrokeOptions
 import me.maplesyrum.tricksterstudio.external.pixi.Texture
 import me.maplesyrum.tricksterstudio.spell.fragment.Fragment
 import me.maplesyrum.tricksterstudio.spell.fragment.Pattern
@@ -104,10 +104,15 @@ class SpellCircleRenderer(
 
         val lineEnd = Point(lineX - toCenterScaled.x * 8 * pixelSize, lineY - toCenterScaled.y * 8 * pixelSize)
 
-        val g = Graphics()
-        g.poly(arrayOf(Point(lineX, lineY), lineEnd))
-        g.stroke(StrokeOptions(width = 1 * pixelSize, color = arrayOf(0.5 * r, 0.5 * this.g, 1 * b, alpha * 0.2)))
-        container.addChild(g)
+        val graphics = Graphics()
+        graphics.poly(arrayOf(Point(lineX, lineY), lineEnd))
+        graphics.stroke(obj {
+            width = 1 * pixelSize
+            color = arrayOf(
+                0.5 * r, 0.5 * g, 1 * b, alpha * 0.2
+            )
+        })
+        container.addChild(graphics)
     }
 
     fun drawGlyph(
@@ -124,7 +129,16 @@ class SpellCircleRenderer(
         val glyph = parent.glyph
         when (glyph) {
             is SpellPart -> renderPart(container, glyph, x, y, size / 3, startingAngle, delta, alphaGetter, textures)
-            else -> drawSide(container, parent, toLocalSpace(x), toLocalSpace(y), toLocalSpace(size), alphaGetter, textures, glyph)
+            else -> drawSide(
+                container,
+                parent,
+                toLocalSpace(x),
+                toLocalSpace(y),
+                toLocalSpace(size),
+                alphaGetter,
+                textures,
+                glyph
+            )
         }
     }
 
@@ -154,6 +168,7 @@ class SpellCircleRenderer(
                     container.addChild(overlay)
                     glyph
                 }
+
                 is PatternGlyph -> glyph.pattern
                 else -> null
             } ?: return
@@ -189,14 +204,21 @@ class SpellCircleRenderer(
                             Point(pos.x + dotSize, pos.y - dotSize)
                         )
                     )
-                    g.fill(arrayOf((if (isDrawing && isLinked) 0.8 else 1.0) * r, (if (isDrawing && isLinked) 0.5 else 1.0) * g, 1.0 * b, 0.7 * alpha))
+                    g.fill(
+                        arrayOf(
+                            (if (isDrawing && isLinked) 0.8 else 1.0) * r,
+                            (if (isDrawing && isLinked) 0.5 else 1.0) * this.g,
+                            1.0 * b,
+                            0.7 * alpha
+                        )
+                    )
                     container.addChild(g)
                 }
             }
 
             for (line in patternList.entries) {
-                val first = getPatternDotPosition(x, y, line.x, patternSize)
-                val second = getPatternDotPosition(x, y, line.y, patternSize)
+                val first = getPatternDotPosition(x, y, line.p1.toInt(), patternSize)
+                val second = getPatternDotPosition(x, y, line.p2.toInt(), patternSize)
                 drawGlyphLine(container, first, second, pixelSize, isDrawing, 1.0, r, g, b, 0.7 * alpha, animated)
             }
 
@@ -206,7 +228,7 @@ class SpellCircleRenderer(
                 drawGlyphLine(container, last, now, pixelSize, true, 1.0, r, g, b, 0.7 * alpha, animated)
             }
         } else {
-            val renderer = fragmentRenderers[getKeyByValue(fragmentTypes, glyph.type())!!]
+            val renderer: FragmentRenderer<Fragment>? = fragmentRenderers[glyph.type().getId()]
             var renderDots = true
 
             if (renderer != null) {
@@ -276,7 +298,17 @@ fun drawGlyphLine(
         val end = Point(now.x + unitDirectionVec.x * pixelSize * 4, now.y + unitDirectionVec.y * pixelSize * 4)
         val graphics = Graphics()
         graphics.poly(arrayOf(start, end), true)
-        graphics.stroke(StrokeOptions(width = pixelSize, color = arrayOf((if (isDrawing) 0.5 else tone) * r, (if (isDrawing) 0.5 else tone) * g, tone * b, opacity)))
+        graphics.stroke(
+            obj {
+                width = pixelSize
+                color = arrayOf(
+                    (if (isDrawing) 0.5 else tone) * r,
+                    (if (isDrawing) 0.5 else tone) * g,
+                    tone * b,
+                    opacity
+                )
+            }
+        )
         container.addChild(graphics)
     }
 }
@@ -315,3 +347,7 @@ fun normalize(point: Point): Point {
 
 fun multiplyScalar(point: Point, multiplier: Double): Point =
     Point(point.x * multiplier, point.y * multiplier)
+
+fun isCircleClickable(size: Double): Boolean {
+    return size >= 16 * 5 && size <= 256 * 5
+}
