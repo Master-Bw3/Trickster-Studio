@@ -126,7 +126,7 @@ class SpellPartWidget(
             delta,
             { size ->
                 val alpha = min(height / (size * 2) - 0.1, size.pow(1.2) / height + 0.1)
-                min(max(alpha, 0.0), 1.0)
+                min(max(alpha, 0.0), 0.9)
             },
             textures
         )

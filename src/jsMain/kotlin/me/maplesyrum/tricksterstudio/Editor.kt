@@ -15,6 +15,6 @@ fun Container.editor() {
         height = 100.vh
 
         sidePanel()
-        spellDisplay(spellPart)
+        spellDisplay(spellPart, isMutable = true)
     }
 }
