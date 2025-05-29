@@ -1,4 +1,4 @@
-package me.maplesyrum.tricksterstudio.spellEditor
+package me.maplesyrum.tricksterstudio.ui.spellEditor
 
 import io.kvision.utils.obj
 import me.maplesyrum.tricksterstudio.external.pixi.*
@@ -6,7 +6,11 @@ import me.maplesyrum.tricksterstudio.spell.fragment.Fragment
 import me.maplesyrum.tricksterstudio.spell.fragment.Pattern
 import me.maplesyrum.tricksterstudio.spell.fragment.PatternGlyph
 import me.maplesyrum.tricksterstudio.spell.fragment.SpellPart
+import kotlin.collections.get
 import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.math.sqrt
 
 
 const val PATTERN_TO_PART_RATIO = 2.5
@@ -72,8 +76,8 @@ class SpellCircleRenderer(
 
         entry.subParts.forEachIndexed { i, child ->
             val angle = startingAngle + ((2 * PI) / partCount) * i - PI / 2
-            val nextX = x + size * kotlin.math.cos(angle) * 0.5
-            val nextY = y + size * kotlin.math.sin(angle) * 0.5
+            val nextX = x + size * cos(angle) * 0.5
+            val nextY = y + size * sin(angle) * 0.5
             val nextSize = minOf(size / 2, size / ((partCount + 1) / 2.0))
             renderPart(container, child, nextX, nextY, nextSize, angle, delta, alphaGetter, textures)
         }
@@ -91,8 +95,8 @@ class SpellCircleRenderer(
         val pixelSize = size / PART_PIXEL_RADIUS
         val lineAngle = startingAngle + ((2 * PI) / partCount) * -0.5 - PI / 2
 
-        val lineX = x + size * kotlin.math.cos(lineAngle) * 0.55
-        val lineY = y + size * kotlin.math.sin(lineAngle) * 0.55
+        val lineX = x + size * cos(lineAngle) * 0.55
+        val lineY = y + size * sin(lineAngle) * 0.55
 
         val toCenter = Point(lineX - x, lineY - y)
         val toCenterScaled = normalize(toCenter)
@@ -332,7 +336,7 @@ fun perpendicular(point: Point): Point {
 }
 
 fun magnitude(point: Point): Double {
-    return kotlin.math.sqrt(point.x * point.x + point.y * point.y)
+    return sqrt(point.x * point.x + point.y * point.y)
 }
 
 fun normalize(point: Point): Point {

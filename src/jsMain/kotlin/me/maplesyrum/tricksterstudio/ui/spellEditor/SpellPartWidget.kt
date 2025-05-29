@@ -1,4 +1,4 @@
-package me.maplesyrum.tricksterstudio.spellEditor
+package me.maplesyrum.tricksterstudio.ui.spellEditor
 
 import me.maplesyrum.tricksterstudio.spell.fragment.SpellPart
 import me.maplesyrum.tricksterstudio.spell.fragment.Fragment

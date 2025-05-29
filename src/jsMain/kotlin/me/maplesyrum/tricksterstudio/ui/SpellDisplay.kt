@@ -1,7 +1,6 @@
-package me.maplesyrum.tricksterstudio
+package me.maplesyrum.tricksterstudio.ui
 
 import io.kvision.core.Container
-import io.kvision.core.onEvent
 import io.kvision.html.Canvas
 import io.kvision.html.div
 import io.kvision.state.ObservableValue
@@ -11,8 +10,8 @@ import me.maplesyrum.tricksterstudio.external.pixi.Application
 import me.maplesyrum.tricksterstudio.external.pixi.Assets
 import me.maplesyrum.tricksterstudio.external.pixi.Texture
 import me.maplesyrum.tricksterstudio.spell.fragment.SpellPart
-import me.maplesyrum.tricksterstudio.spellEditor.RevisionContext
-import me.maplesyrum.tricksterstudio.spellEditor.SpellPartWidget
+import me.maplesyrum.tricksterstudio.ui.spellEditor.RevisionContext
+import me.maplesyrum.tricksterstudio.ui.spellEditor.SpellPartWidget
 import org.w3c.dom.pointerevents.PointerEvent
 import kotlin.js.Promise
 import kotlin.math.hypot
@@ -23,8 +22,9 @@ fun Container.spellDisplay(
     fixedPosition: Boolean = false,
     isMutable: Boolean = false,
     initialScale: Double = 1.0,
+    className: String? = null
 ) {
-    val container = div()
+    val container = div(className = className)
     val canvas = coolerCanvas(100, 100)
 
     canvas.addAfterInsertHook {
@@ -48,11 +48,11 @@ fun Container.spellDisplay(
                 val textures = mutableMapOf<String, Texture>()
                 Promise.all(
                     arrayOf(
-                        Assets.load<Texture>("./circle_48.png").then {
+                        Assets.load<Texture>("circle_48.png").then {
                             textures.put("circle_48", it)
                             it.source.scaleMode = "nearest"
                         },
-                        Assets.load<Texture>("./pattern_literal.png").then {
+                        Assets.load<Texture>("pattern_literal.png").then {
                             textures.put("overlay", it)
                             it.source.scaleMode = "nearest"
                         })

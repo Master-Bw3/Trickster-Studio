@@ -10,6 +10,7 @@ import io.kvision.panel.root
 import io.kvision.startApplication
 import io.kvision.utils.useModule
 import me.maplesyrum.tricksterstudio.spell.fragment.FragmentType
+import me.maplesyrum.tricksterstudio.ui.editor
 
 @JsModule("/kotlin/modules/css/kvapp.css")
 external val kvappCss: dynamic

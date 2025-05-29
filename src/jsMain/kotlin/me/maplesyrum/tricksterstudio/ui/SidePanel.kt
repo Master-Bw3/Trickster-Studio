@@ -1,8 +1,6 @@
-package me.maplesyrum.tricksterstudio
+package me.maplesyrum.tricksterstudio.ui
 
-import io.kvision.core.Background
 import io.kvision.core.Container
-import io.kvision.html.ButtonStyle
 import io.kvision.html.button
 import io.kvision.html.div
 import io.kvision.html.image
@@ -12,8 +10,8 @@ import io.kvision.state.ObservableValue
 import io.kvision.utils.perc
 import io.kvision.utils.px
 import io.kvision.utils.vw
-import me.maplesyrum.tricksterstudio.panels.explorer
-import me.maplesyrum.tricksterstudio.panels.settings
+import me.maplesyrum.tricksterstudio.ui.panels.explorer
+import me.maplesyrum.tricksterstudio.ui.panels.settings
 import io.kvision.state.bind
 
 enum class Panel {
@@ -26,7 +24,7 @@ fun Container.sidePanel() {
     val openPanel = ObservableValue(Panel.EXPLORER)
 
     gridPanel(className = "bg-black text-white") {
-        width = 20.vw
+        width = 15.vw
         minWidth = 50.px
 
         gridTemplateColumns = "50px auto"
@@ -38,10 +36,10 @@ fun Container.sidePanel() {
                 button("", className = "bg-black text-white hover:bg-zinc-900") {
                     height = 50.px
                     width = 100.perc
-                    padding = 5.px
+                    padding = 10.px
 
 
-                    image("./modules/assets/icons/ExplorerIcon.svg", className = "invert")
+                    image("modules/assets/icons/ExplorerIcon.svg", className = "invert")
                 }.onClick {
                     openPanel.value = Panel.EXPLORER
                 }
@@ -49,11 +47,22 @@ fun Container.sidePanel() {
                 button("", className = "bg-black text-white hover:bg-zinc-900") {
                     height = 50.px
                     width = 100.perc
-                    padding = 5.px
+                    padding = 10.px
 
-                    image("./modules/assets/icons/DebugIcon.svg", className = "invert")
+                    image("modules/assets/icons/SettingsIcon.svg").setStyle("transform", "scale(1.5)")
                 }.onClick {
                     openPanel.value = Panel.SETTINGS
+                }
+
+                button("", className = "bg-black text-white hover:bg-zinc-900") {
+                    height = 50.px
+                    width = 100.perc
+                    padding = 10.px
+
+                    image("modules/assets/icons/SaveIcon.svg", className = "invert")
+                }.onClick {
+                    //openPanel.value = Panel.SETTINGS
+                    TODO()
                 }
             }
         }

@@ -1,4 +1,4 @@
-package me.maplesyrum.tricksterstudio.spellEditor
+package me.maplesyrum.tricksterstudio.ui.spellEditor
 
 import Identifier
 import me.maplesyrum.tricksterstudio.external.pixi.Container

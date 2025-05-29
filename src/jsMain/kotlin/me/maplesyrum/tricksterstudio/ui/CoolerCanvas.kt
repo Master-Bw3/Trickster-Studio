@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package me.maplesyrum.tricksterstudio
+package me.maplesyrum.tricksterstudio.ui
 
 import io.kvision.snabbdom.VNode
 import io.kvision.core.AttributeSetBuilder
