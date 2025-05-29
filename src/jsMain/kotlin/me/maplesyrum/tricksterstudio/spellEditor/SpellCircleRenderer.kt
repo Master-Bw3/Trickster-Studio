@@ -1,12 +1,7 @@
 package me.maplesyrum.tricksterstudio.spellEditor
 
 import io.kvision.utils.obj
-import me.maplesyrum.tricksterstudio.external.pixi.Container
-import me.maplesyrum.tricksterstudio.external.pixi.Graphics
-import me.maplesyrum.tricksterstudio.external.pixi.HTMLText
-import me.maplesyrum.tricksterstudio.external.pixi.Point
-import me.maplesyrum.tricksterstudio.external.pixi.Sprite
-import me.maplesyrum.tricksterstudio.external.pixi.Texture
+import me.maplesyrum.tricksterstudio.external.pixi.*
 import me.maplesyrum.tricksterstudio.spell.fragment.Fragment
 import me.maplesyrum.tricksterstudio.spell.fragment.Pattern
 import me.maplesyrum.tricksterstudio.spell.fragment.PatternGlyph
@@ -314,11 +309,12 @@ fun drawGlyphLine(
 }
 
 fun getPatternDotPosition(x: Double, y: Double, i: Int, size: Double): Point {
-    var xSign = (i % 3) - 1
-    var ySign = (i / 3) - 1
-    if (xSign != 0 && ySign != 0) {
-        xSign = (xSign * 0.7).toInt()
-        ySign = (ySign * 0.7).toInt()
+    var xSign = (i % 3 - 1).toFloat()
+    var ySign = (i / 3 - 1).toFloat()
+
+    if (xSign != 0f && ySign != 0f) {
+        xSign *= 0.7f
+        ySign *= 0.7f
     }
     return Point(x + xSign * size * 0.5, y + ySign * size * 0.5)
 }

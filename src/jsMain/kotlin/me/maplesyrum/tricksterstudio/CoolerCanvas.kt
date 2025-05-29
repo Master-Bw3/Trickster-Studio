@@ -19,12 +19,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.kvision.html
+package me.maplesyrum.tricksterstudio
 
 import io.kvision.snabbdom.VNode
 import io.kvision.core.AttributeSetBuilder
 import io.kvision.core.Container
 import io.kvision.core.Widget
+import io.kvision.html.TagMarker
 import org.w3c.dom.CanvasRenderingContext2D
 
 /**

@@ -63,7 +63,7 @@ class SpellPartWidget(
     }
 
     fun setSpell(spellPart: SpellPart) {
-        //spellPartChangeCallback(spellPart)
+        spellPartChangeCallback(spellPart)
 
         val newParents = mutableListOf<SpellPart>()
         val newAngleOffsets = mutableListOf<Double>()
@@ -113,6 +113,8 @@ class SpellPartWidget(
     }
 
     fun render(container: Container, delta: Double, height: Double, textures: Map<String, Texture>) {
+        spellPart = getRootSpellPart()
+
         container.removeChildren()
         renderer.renderPart(
             container,

@@ -1,25 +1,21 @@
 package me.maplesyrum.tricksterstudio
 
 import io.kvision.core.Container
-import io.kvision.html.canvas
-import io.kvision.html.coolerCanvas
+import io.kvision.core.onEvent
+import io.kvision.html.Canvas
 import io.kvision.html.div
-import io.kvision.state.MutableState
-import io.kvision.state.ObservableState
 import io.kvision.state.ObservableValue
 import io.kvision.utils.obj
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.launch
+import kotlinx.browser.window
 import me.maplesyrum.tricksterstudio.external.pixi.Application
 import me.maplesyrum.tricksterstudio.external.pixi.Assets
 import me.maplesyrum.tricksterstudio.external.pixi.Texture
 import me.maplesyrum.tricksterstudio.spell.fragment.SpellPart
 import me.maplesyrum.tricksterstudio.spellEditor.RevisionContext
 import me.maplesyrum.tricksterstudio.spellEditor.SpellPartWidget
-import org.w3c.dom.HTMLCanvasElement
-import tree.maple.kendec.util.mapOf
-import web.timers.setTimeout
+import org.w3c.dom.pointerevents.PointerEvent
 import kotlin.js.Promise
+import kotlin.math.hypot
 
 
 fun Container.spellDisplay(
@@ -73,8 +69,6 @@ fun Container.spellDisplay(
                         isMutable
                     )
 
-                    //spellPart.subscribe { widget.setSpell(it) }
-
                     app.ticker.add {
                         if (widget.fixedPosition) {
                             widget.size = widget.toScaledSpace(app.canvas.height * (initialScale));
@@ -86,6 +80,133 @@ fun Container.spellDisplay(
 
                         app.queueResize();
                     }
+
+                    var pinchZooming = false
+                    var lastPinchDistance = 0.0
+
+                    canvas.setEventListener<Canvas> {
+                        wheel = { e ->
+                            val rect = container.getElement()!!.getBoundingClientRect()
+                            val x = e.x - rect.left
+                            val y = e.y - rect.top
+
+                            widget.mouseScrolled(x, y, -e.deltaY / 100);
+
+                            app.stage.removeChildren();
+                        }
+                    }
+
+                    val activeTouches = mutableMapOf<Int, Pair<Double, Double>>()
+                    var mouseDown = activeTouches::isNotEmpty
+
+                    canvas.setEventListener<Canvas> {
+                        pointerdown = { e ->
+                            val rect = container.getElement()!!.getBoundingClientRect()
+                            val x = e.x as Double - rect.left
+                            val y = e.y as Double - rect.top
+
+                            activeTouches[e.pointerId] = Pair(x, y)
+
+                            if (e.pointerType == "touch" && activeTouches.size == 2) {
+                                pinchZooming = true;
+                                val touchPoints = activeTouches.values.toList()
+                                lastPinchDistance = hypot(
+                                    touchPoints[1].first - touchPoints[0].first,
+                                    touchPoints[1].second - touchPoints[0].second
+                                )
+                            } else {
+                                pinchZooming = false
+                            }
+
+                            widget.dragDrawing = e.pointerType == "touch"
+
+                            val button: Short = e.button;
+                            widget.mouseClicked(x, y, button.toInt());
+                        }
+                    }
+
+
+                    window.addEventListener("pointerup", {
+                        val e = it as PointerEvent
+
+                        val rect = container.getElement()!!.getBoundingClientRect()
+                        val x = e.x - rect.left
+                        val y = e.y - rect.top
+
+
+                        if (mouseDown()) {
+                            val button = e.button
+                            widget.mouseReleased(x, y, button.toInt());
+                        }
+
+                        activeTouches.remove(e.pointerId);
+                        if (activeTouches.size < 2) {
+                            pinchZooming = false;
+                        }
+                    });
+
+                    window.addEventListener("pointermove", {
+                        val e = it as PointerEvent
+
+                        val rect = container.getElement()!!.getBoundingClientRect()
+                        val x = e.x - rect.left
+                        val y = e.y - rect.top
+                        if (pinchZooming && activeTouches.size === 2) {
+                            widget.stopDrawing();
+
+                            val previousTouchPoints = activeTouches.toList().map {
+                                (id, touch) ->
+                                Pair(touch.first, touch.second)
+                            }
+
+                            if (activeTouches.containsKey(e.pointerId)) {
+                                activeTouches[e.pointerId] = Pair(x, y);
+                            }
+
+                            val touchPoints = activeTouches.values.toList()
+
+                            val currentPinchDistance = hypot(
+                                    touchPoints[1].first - touchPoints[0].first,
+                            touchPoints[1].second - touchPoints[0].second
+                            )
+
+                            val zoomFactor = currentPinchDistance / lastPinchDistance;
+                            val scrollDelta = (zoomFactor - 1) * 20;
+
+                            widget.mouseScrolled(
+                                (touchPoints[0].first + touchPoints[1].first) / 2,
+                                (touchPoints[0].second + touchPoints[1].second) / 2,
+                                scrollDelta
+                            );
+
+                            lastPinchDistance = currentPinchDistance;
+
+                            val prevMidX = (previousTouchPoints[0].first + previousTouchPoints[1].first) / 2;
+                            val prevMidY = (previousTouchPoints[0].second + previousTouchPoints[1].second) / 2;
+
+                            val currentMidX = (touchPoints[0].first + touchPoints[1].first) / 2;
+                            val currentMidY = (touchPoints[0].second + touchPoints[1].second) / 2;
+
+                            val dragX = currentMidX - prevMidX;
+                            val dragY = currentMidY - prevMidY;
+                            widget.mouseDragged(
+                                (touchPoints[0].first + touchPoints[1].first) / 2,
+                                (touchPoints[0].second + touchPoints[1].second) / 2,
+                                0,
+                                dragX,
+                                dragY
+                            );
+                        } else if (mouseDown()) {
+                            if (activeTouches.containsKey(e.pointerId)) {
+                                activeTouches[e.pointerId] = Pair(x, y);
+                            }
+
+                            val button = e.button;
+                            widget.mouseDragged(x, y, button.toInt(), e.asDynamic().movementX, e.asDynamic().movementY);
+                        }
+
+                        widget.mouseMoved(x, y);
+                    });
                 }
             }
         }
