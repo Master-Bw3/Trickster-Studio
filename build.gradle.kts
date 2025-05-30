@@ -40,7 +40,6 @@ kotlin {
         }
     }
     sourceSets["jsMain"].dependencies {
-        implementation("org.jetbrains.kotlin-wrappers:kotlin-node:2025.5.8-22.13.10")
         implementation("io.kvision:kvision:$kvisionVersion")
         implementation("io.kvision:kvision-tailwindcss:$kvisionVersion")
         implementation("io.kvision:kvision-i18n:$kvisionVersion")
@@ -49,9 +48,15 @@ kotlin {
         implementation(files("KEndec/build/libs/KEndec-js-1.0-SNAPSHOT.klib"))
         implementation(("com.benasher44:uuid:0.8.4"))
         implementation("com.squareup.okio:okio:3.10.2")
+        implementation(npm("pako", "2.1.0"))
+        implementation("org.jetbrains.kotlin-wrappers:kotlin-web:2025.5.8")
     }
     sourceSets["jsTest"].dependencies {
         implementation(kotlin("test-js"))
         implementation("io.kvision:kvision-testutils:$kvisionVersion")
     }
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.targets.js.ir.KotlinJsIrLink> {
+    incremental = false
 }

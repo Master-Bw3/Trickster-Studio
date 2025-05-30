@@ -23,8 +23,8 @@ class SlotFragment(val slot: Int, val source: Optional<Either<VectorI, Uuid>>) :
     }
 
     override fun asFormattedText(): HTMLText {
-        val entityColor = fragmentTypes[Identifier("trickster", "entity")]!!.color.get()
-        val numColor = fragmentTypes[Identifier("trickster", "number")]!!.color.get()
+        val entityColor = FragmentType.REGISTRY[Identifier("trickster", "entity")]!!.color.get()
+        val numColor = FragmentType.REGISTRY[Identifier("trickster", "number")]!!.color.get()
         fun coloredInt(value: Int) = "<span style=\"color: #${numColor.toString(16)}\">$value</span>"
 
         val sourceText = when {

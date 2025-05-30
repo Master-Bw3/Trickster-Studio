@@ -1,21 +1,11 @@
 package me.maplesyrum.tricksterstudio.endec
 
 
+import Either
 import EitherEndec
 import me.maplesyrum.tricksterstudio.external.pixi.Point
 import memoize
-import tree.maple.kendec.AbstractStructEndec
-import tree.maple.kendec.Deserializer
-import tree.maple.kendec.Endec
-import tree.maple.kendec.PrimitiveEndecs
-import tree.maple.kendec.SerializationAttribute
-import tree.maple.kendec.SerializationContext
-import tree.maple.kendec.Serializer
-import tree.maple.kendec.StructDeserializer
-import tree.maple.kendec.StructEndec
-import tree.maple.kendec.StructSerializer
-import tree.maple.kendec.endecOf
-import tree.maple.kendec.ifAttr
+import tree.maple.kendec.*
 import tree.maple.kendec.impl.StructEndecBuilder
 import tree.maple.kendec.impl.StructField
 import tree.maple.kendec.util.Optional
@@ -158,6 +148,14 @@ fun <T> lazyEndec(supplier: () -> StructEndec<T>): StructEndec<T> {
     return recursive { supplier() }
 }
 
+fun <T> recursiveStruct(wrapped: (StructEndec<T>) -> StructEndec<T>): StructEndec<T> {
+    return RecursiveStructEndec(wrapped)
+}
+
+fun <T> lazyStruct(supplier: () -> StructEndec<T>): StructEndec<T> {
+    return recursiveStruct{ e -> supplier() }
+}
+
 fun <T> unit(value: T): StructEndec<T> {
     return object : AbstractStructEndec<T>() {
         override fun encodeStruct(
@@ -225,29 +223,6 @@ fun <T> protocolVersionAlternatives(
     }
 }
 
-open class AbstractEndec<T> : Endec<T> {
-    override fun encode(ctx: SerializationContext, serializer: Serializer<*>, value: T) {
-        throw NotImplementedError()
-    }
-    override fun decode(ctx: SerializationContext, deserializer: Deserializer<*>): T {
-        throw NotImplementedError()
-    }
-    override fun <U> xmap(f: (T) -> U, g: (U) -> T): Endec<U> {
-        throw NotImplementedError()
-    }
-    override fun validate(validator: (T) -> Unit): Endec<T> {
-        throw NotImplementedError()
-    }
-    override fun optionalOf(): Endec<Optional<T & Any>> {
-        throw NotImplementedError()
-    }
-    override fun listOf(): Endec<List<T>> {
-        throw NotImplementedError()
-    }
-    override fun <S> fieldOf(key: String, getter: (S) -> T): StructField<S, T> {
-        throw NotImplementedError()
-    }
-}
 
 class RecursiveStructEndec<T>(
     wrapped: (StructEndec<T>) -> StructEndec<T>

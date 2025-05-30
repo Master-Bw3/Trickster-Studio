@@ -40,7 +40,7 @@ class FragmentType<T : Fragment>(val endec: StructEndec<T>, val color: Optional<
         }
         val INT_ID_LOOKUP: MutableMap<Int, Identifier> = HashMap()
 
-        val INT_ID_ENDEC: Endec<FragmentType<*>?>? =
+        val INT_ID_ENDEC: Endec<FragmentType<*>> =
             PrimitiveEndecs.INT.xmap({ intId: Int ->
                 getFromInt(intId)
             }, { obj: FragmentType<*>? -> obj!!.intId })
@@ -94,7 +94,7 @@ class FragmentType<T : Fragment>(val endec: StructEndec<T>, val color: Optional<
                 funnyFieldOf(Pattern.ENDEC, "pattern"), 0xbbbbaa
             )
         val SPELL_PART: FragmentType<SpellPart> =
-            Companion.register<SpellPart>(
+            register<SpellPart>(
                 "spell_part",
                 SpellPart.ENDEC,
                 0xaa44aa

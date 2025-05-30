@@ -4,7 +4,7 @@ import me.maplesyrum.tricksterstudio.endec.lazyEndec
 import tree.maple.kendec.StructEndec
 import tree.maple.kendec.impl.StructEndecBuilder
 
-class TypeFragment(val typeType: FragmentType<Fragment>) : Fragment() {
+class TypeFragment(val typeType: FragmentType<*>) : Fragment() {
     override fun type(): FragmentType<*> {
         return FragmentType.TYPE
     }
@@ -16,7 +16,7 @@ class TypeFragment(val typeType: FragmentType<Fragment>) : Fragment() {
     companion object {
         val ENDEC: StructEndec<TypeFragment> = lazyEndec {
             StructEndecBuilder.of(
-                Identifier.ENDEC.xmap({ id -> fragmentTypes[id]!! }, { type -> type.getId()!! })
+                Identifier.ENDEC.xmap({ id -> FragmentType.REGISTRY[id]!! }, { type -> type.getId()!! })
                     .fieldOf("of_type") { fragment -> fragment.typeType }
             ) { type -> TypeFragment(type) }
         }

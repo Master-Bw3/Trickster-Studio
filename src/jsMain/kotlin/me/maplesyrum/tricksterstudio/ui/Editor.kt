@@ -9,11 +9,12 @@ import io.kvision.state.ObservableValue
 import io.kvision.utils.asString
 import io.kvision.utils.rem
 import io.kvision.utils.vh
+import me.maplesyrum.tricksterstudio.spell.fragment.Fragment
 import me.maplesyrum.tricksterstudio.spell.fragment.SpellPart
 
 
 fun Container.editor() {
-    val spellPart = ObservableValue(SpellPart())
+    val spellPart = ObservableValue(Fragment.fromBase64("YxEpKcpMzi4uSS2yKi5IzcmJL0gsKhFECBYklgCpPAYGBgcmRmYgBcIMjIxYlYAAEwORygAQBIf+ewAAAA==") as SpellPart)
 
     splitPanel(className = "bg-black text-white") {
         height = 100.vh
