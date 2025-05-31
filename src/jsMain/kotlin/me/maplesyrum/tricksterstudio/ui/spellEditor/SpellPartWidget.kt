@@ -1,6 +1,7 @@
 package me.maplesyrum.tricksterstudio.ui.spellEditor
 
 import me.maplesyrum.tricksterstudio.external.pixi.Container
+import me.maplesyrum.tricksterstudio.external.pixi.Graphics
 import me.maplesyrum.tricksterstudio.external.pixi.Point
 import me.maplesyrum.tricksterstudio.external.pixi.Texture
 import me.maplesyrum.tricksterstudio.spell.fragment.Fragment
@@ -42,6 +43,8 @@ class SpellPartWidget(
     var drawingPart: SpellPart? = null
     var oldGlyph: Fragment? = null
     var drawingPattern: MutableList<Int>? = null
+
+    val graphicsObjects: MutableList<Graphics> = mutableListOf()
 
     init {
         angleOffsets.add(0.0)
@@ -106,6 +109,9 @@ class SpellPartWidget(
 
     fun render(container: Container, delta: Double, height: Double, textures: Map<String, Texture>) {
         container.removeChildren()
+        graphicsObjects.forEach { it.destroy() }
+        graphicsObjects.clear()
+
         renderer.renderPart(
             container,
             spellPart,
@@ -118,7 +124,8 @@ class SpellPartWidget(
                 val alpha = min(height / (size * 2) - 0.1, size.pow(1.2) / height + 0.1)
                 min(max(alpha, 0.0), 0.9)
             },
-            textures
+            textures,
+            graphicsObjects
         )
     }
 

@@ -55,7 +55,8 @@ class SpellCircleRenderer(
         startingAngle: Double,
         delta: Double,
         alphaGetter: (Double) -> Double,
-        textures: Map<String, Texture>
+        textures: Map<String, Texture>,
+        graphicsObjects: MutableList<Graphics>
     ) {
         val alpha = alphaGetter(toLocalSpace(size))
 
@@ -68,18 +69,18 @@ class SpellCircleRenderer(
 
         container.addChild(circle)
 
-        drawGlyph(container, entry, x, y, size, startingAngle, delta, alphaGetter, textures)
+        drawGlyph(container, entry, x, y, size, startingAngle, delta, alphaGetter, textures, graphicsObjects)
 
         val partCount = entry.subParts.size
 
-        drawDivider(container, toLocalSpace(x), toLocalSpace(y), startingAngle, toLocalSpace(size), partCount, alpha)
+        drawDivider(container, toLocalSpace(x), toLocalSpace(y), startingAngle, toLocalSpace(size), partCount, alpha, graphicsObjects)
 
         entry.subParts.forEachIndexed { i, child ->
             val angle = startingAngle + ((2 * PI) / partCount) * i - PI / 2
             val nextX = x + size * cos(angle) * 0.5
             val nextY = y + size * sin(angle) * 0.5
             val nextSize = minOf(size / 2, size / ((partCount + 1) / 2.0))
-            renderPart(container, child, nextX, nextY, nextSize, angle, delta, alphaGetter, textures)
+            renderPart(container, child, nextX, nextY, nextSize, angle, delta, alphaGetter, textures, graphicsObjects)
         }
     }
 
@@ -90,7 +91,8 @@ class SpellCircleRenderer(
         startingAngle: Double,
         size: Double,
         partCount: Int,
-        alpha: Double
+        alpha: Double,
+        graphicsObjects: MutableList<Graphics>
     ) {
         val pixelSize = size / PART_PIXEL_RADIUS
         val lineAngle = startingAngle + ((2 * PI) / partCount) * -0.5 - PI / 2
@@ -104,6 +106,7 @@ class SpellCircleRenderer(
         val lineEnd = Point(lineX - toCenterScaled.x * 8 * pixelSize, lineY - toCenterScaled.y * 8 * pixelSize)
 
         val graphics = Graphics()
+        graphicsObjects.add(graphics)
         graphics.poly(arrayOf(Point(lineX, lineY), lineEnd))
         graphics.stroke(obj {
             width = 1 * pixelSize
@@ -123,11 +126,12 @@ class SpellCircleRenderer(
         startingAngle: Double,
         delta: Double,
         alphaGetter: (Double) -> Double,
-        textures: Map<String, Texture>
+        textures: Map<String, Texture>,
+        graphicsObjects: MutableList<Graphics>
     ) {
         val glyph = parent.glyph
         when (glyph) {
-            is SpellPart -> renderPart(container, glyph, x, y, size / 3, startingAngle, delta, alphaGetter, textures)
+            is SpellPart -> renderPart(container, glyph, x, y, size / 3, startingAngle, delta, alphaGetter, textures, graphicsObjects)
             else -> drawSide(
                 container,
                 parent,
@@ -136,7 +140,8 @@ class SpellCircleRenderer(
                 toLocalSpace(size),
                 alphaGetter,
                 textures,
-                glyph
+                glyph,
+                graphicsObjects
             )
         }
     }
@@ -149,7 +154,8 @@ class SpellCircleRenderer(
         size: Double,
         alphaGetter: (Double) -> Double,
         textures: Map<String, Texture>,
-        glyph: Fragment
+        glyph: Fragment,
+        graphicsObjects: MutableList<Graphics>
     ) {
         val alpha = alphaGetter(size)
         val patternSize = size / PATTERN_TO_PART_RATIO
@@ -195,6 +201,7 @@ class SpellCircleRenderer(
                 val dotSize = pixelSize * dotScale
                 if (dotSize > 1) {
                     val g = Graphics()
+                    graphicsObjects.add(g)
                     g.poly(
                         arrayOf(
                             Point(pos.x - dotSize, pos.y - dotSize),
@@ -218,13 +225,13 @@ class SpellCircleRenderer(
             for (line in patternList.entries) {
                 val first = getPatternDotPosition(x, y, line.p1.toInt(), patternSize)
                 val second = getPatternDotPosition(x, y, line.p2.toInt(), patternSize)
-                drawGlyphLine(container, first, second, pixelSize, isDrawing, 1.0, r, g, b, 0.7 * alpha, animated)
+                drawGlyphLine(container, first, second, pixelSize, isDrawing, 1.0, r, g, b, 0.7 * alpha, animated, graphicsObjects)
             }
 
             if (inEditor && isDrawing) {
                 val last = getPatternDotPosition(x, y, drawingPattern!!.last(), patternSize)
                 val now = Point(mouseX, mouseY)
-                drawGlyphLine(container, last, now, pixelSize, true, 1.0, r, g, b, 0.7 * alpha, animated)
+                drawGlyphLine(container, last, now, pixelSize, true, 1.0, r, g, b, 0.7 * alpha, animated, graphicsObjects)
             }
         } else {
             val renderer: FragmentRenderer<Fragment>? = fragmentRenderers[glyph.type().getId()]
@@ -260,6 +267,7 @@ class SpellCircleRenderer(
                     val dotSize = pixelSize * dotScale
                     if (dotSize > 1) {
                         val g = Graphics()
+                        graphicsObjects.add(g)
                         g.poly(
                             arrayOf(
                                 Point(pos.x - dotSize, pos.y - dotSize),
@@ -288,7 +296,9 @@ fun drawGlyphLine(
     g: Double,
     b: Double,
     opacity: Double,
-    animated: Boolean
+    animated: Boolean,
+    graphicsObjects: MutableList<Graphics>
+
 ) {
     val directionVec = Point(last.x - now.x, last.y - now.y)
     if (magnitude(directionVec) >= pixelSize * 8) {
@@ -296,6 +306,7 @@ fun drawGlyphLine(
         val start = Point(last.x - unitDirectionVec.x * pixelSize * 4, last.y - unitDirectionVec.y * pixelSize * 4)
         val end = Point(now.x + unitDirectionVec.x * pixelSize * 4, now.y + unitDirectionVec.y * pixelSize * 4)
         val graphics = Graphics()
+        graphicsObjects.add(graphics)
         graphics.poly(arrayOf(start, end), true)
         graphics.stroke(
             obj {

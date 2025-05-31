@@ -14,6 +14,7 @@ external class Graphics : Container {
     fun poly(points: Array<Point>, d: Boolean = definedExternally): Graphics
     fun fill(rgba: Array<Double>)
     fun stroke(options: dynamic)
+    fun destroy()
 }
 
 external class Sprite(value: dynamic) : Container {
