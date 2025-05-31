@@ -1,22 +1,15 @@
 package me.maplesyrum.tricksterstudio.ui.spellEditor
 
-import me.maplesyrum.tricksterstudio.spell.fragment.SpellPart
-import me.maplesyrum.tricksterstudio.spell.fragment.Fragment
-import me.maplesyrum.tricksterstudio.spell.fragment.PatternGlyph
 import me.maplesyrum.tricksterstudio.external.pixi.Container
 import me.maplesyrum.tricksterstudio.external.pixi.Point
 import me.maplesyrum.tricksterstudio.external.pixi.Texture
+import me.maplesyrum.tricksterstudio.spell.fragment.Fragment
 import me.maplesyrum.tricksterstudio.spell.fragment.Pattern
-import kotlin.math.PI
-import kotlin.math.abs
-import kotlin.math.cos
-import kotlin.math.max
-import kotlin.math.min
-import kotlin.math.pow
-import kotlin.math.sin
-import kotlin.math.sqrt
+import me.maplesyrum.tricksterstudio.spell.fragment.PatternGlyph
+import me.maplesyrum.tricksterstudio.spell.fragment.SpellPart
+import kotlin.math.*
 
-const val PRECISION_OFFSET = 1.125899906842624e+15 // 2^50
+val PRECISION_OFFSET = 2.0.pow(50.0);
 
 typealias MouseEventHandler = (part: SpellPart, x: Double, y: Double, size: Double) -> Boolean
 
@@ -29,7 +22,7 @@ class SpellPartWidget(
     val revisionContext: RevisionContext,
     animated: Boolean,
     val fixedPosition: Boolean,
-    isMutable: Boolean
+    var isMutable: Boolean
 ) {
     var dragDrawing = false
 
@@ -42,7 +35,6 @@ class SpellPartWidget(
     var size: Double = toScaledSpace(size)
 
     var amountDragged: Double = 0.0
-    var isMutable: Boolean = isMutable
 
     var toBeReplaced: SpellPart? = null
 
@@ -51,6 +43,10 @@ class SpellPartWidget(
     var oldGlyph: Fragment? = null
     var drawingPattern: MutableList<Int>? = null
 
+    init {
+        angleOffsets.add(0.0)
+    }
+
     val renderer: SpellCircleRenderer = SpellCircleRenderer(
         { drawingPart },
         { drawingPattern },
@@ -58,12 +54,8 @@ class SpellPartWidget(
         animated
     )
 
-    init {
-        angleOffsets.add(0.0)
-    }
-
     fun setSpell(spellPart: SpellPart) {
-        spellPartChangeCallback(spellPart)
+        //spellPartChangeCallback(spellPart)
 
         val newParents = mutableListOf<SpellPart>()
         val newAngleOffsets = mutableListOf<Double>()
@@ -71,15 +63,15 @@ class SpellPartWidget(
 
         val currentParents = parents.toMutableList()
         val currentAngleOffsets = angleOffsets.toMutableList()
-        newAngleOffsets.add(angleOffsets.removeAt(0))
+        newAngleOffsets.add(currentAngleOffsets.removeFirst())
 
         for (i in currentParents.size - 1 downTo 0) {
-            val currentParent = currentParents.removeAt(0)
+            val currentParent = currentParents.removeFirst()
             val currentChild = if (currentParents.isNotEmpty()) currentParents[0] else this.spellPart
 
             val spellGlyph = currentParent.glyph
 
-            if (spellGlyph is SpellPart && spellGlyph == currentChild) {
+            if (spellGlyph == currentChild) {
                 val newSpellGlyph = newParents.last().glyph
                 if (newSpellGlyph is SpellPart) newParents.add(newSpellGlyph)
                 else break
@@ -102,7 +94,7 @@ class SpellPartWidget(
                     break
                 }
             }
-            newAngleOffsets.add(currentAngleOffsets.removeAt(0))
+            newAngleOffsets.add(currentAngleOffsets.removeFirst())
         }
 
         this.spellPart = newParents.removeLast()
@@ -113,8 +105,6 @@ class SpellPartWidget(
     }
 
     fun render(container: Container, delta: Double, height: Double, textures: Map<String, Texture>) {
-        spellPart = getRootSpellPart()
-
         container.removeChildren()
         renderer.renderPart(
             container,
@@ -147,9 +137,9 @@ class SpellPartWidget(
         renderer.setMousePosition(mouseX, mouseY)
         if (fixedPosition) return false;
 
-        size += (verticalAmount * size) / 10
-        x += (verticalAmount * (x - toScaledSpace(mouseX))) / 10
-        y += (verticalAmount * (y - toScaledSpace(mouseY))) / 10
+        size += (verticalAmount * size) / 10.0
+        x += (verticalAmount * (x - toScaledSpace(mouseX))) / 10.0
+        y += (verticalAmount * (y - toScaledSpace(mouseY))) / 10.0
 
         if (toLocalSpace(size) > 600 * 5) {
             pushNewRoot(toScaledSpace(mouseX), toScaledSpace(mouseY))
@@ -168,7 +158,7 @@ class SpellPartWidget(
         var i = 0
 
         val inner = result.glyph
-        if (!(inner is SpellPart && inner == spellPart)) {
+        if (inner != spellPart) {
             parentSize = max(size * 2, size * ((partCount + 1) / 2))
             for (child in result.subParts) {
                 if (child == spellPart) {
@@ -193,7 +183,7 @@ class SpellPartWidget(
         var closestSize = size / 3
 
         val partCount = spellPart.subParts.size
-        val nextSize = min(size / 2, size / ((partCount + 1) / 2))
+        val nextSize = min(size / 2.0, size / ((partCount + 1) / 2.0))
         var i = 0
 
         val inner = spellPart.glyph
@@ -206,7 +196,7 @@ class SpellPartWidget(
         }
 
         for (child in spellPart.subParts) {
-            val angle = angleOffsets.last() + ((2 * PI) / partCount) * i - PI / 2
+            val angle = angleOffsets.last() + ((2 * PI) / partCount) * i - PI / 2.0
             val nextX = x + size * cos(angle) * 0.5
             val nextY = y + size * sin(angle) * 0.5
             val diffX = nextX - x
