@@ -33,8 +33,8 @@ abstract class Fragment : SpellInstruction {
 
     open fun asFormattedText(): HTMLText {
         return HTMLText(obj {
-            text = """<span style="color: #${type().color.map(::toInt).orElse(0xaaaaaa).toString(16)}">${this@Fragment}</span>"""
-            style = jsObject { fill = 0xffffff }
+            text = """<span style="color: #${type().color.map{ it.toInt() }.orElseGet { 0xaaaaaa }.toString(16)}">${this@Fragment}</span>"""
+            style = obj { fill = 0xffffff }
         })
     }
 

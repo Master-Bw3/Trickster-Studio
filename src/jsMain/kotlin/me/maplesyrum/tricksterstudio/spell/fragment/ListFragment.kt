@@ -23,7 +23,7 @@ class ListFragment(val fragments: List<Fragment>) : Fragment() {
         }
         return HTMLText(
            obj {
-               text = "<span style=\"color: #${type().color.map(::toInt).orElse(0xaaaaaa).toString(16)}\">$result</span>"
+               text = "<span style=\"color: #${type().color.map{ it.toInt() }.orElseGet { 0xaaaaaa }.toString(16)}\">$result</span>"
            }
         )
     }

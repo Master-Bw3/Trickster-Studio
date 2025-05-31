@@ -40,9 +40,9 @@ data class Pattern(val entries: List<PatternEntry>) : Fragment() {
 
     data class PatternEntry(val p1: Byte, val p2: Byte) : Comparable<PatternEntry> {
 
-    override fun compareTo(o: PatternEntry): Int {
+        override fun compareTo(o: PatternEntry): Int {
             val p1Compare = p1.compareTo(o.p1)
-            return if (p1Compare == 0)  p2.compareTo(o.p2) else p1Compare
+            return if (p1Compare == 0) p2.compareTo(o.p2) else p1Compare
         }
 
         companion object {
@@ -54,18 +54,9 @@ data class Pattern(val entries: List<PatternEntry>) : Fragment() {
     }
 
     companion object {
-        val ENDEC: Endec<Pattern> = ifAttr(
-            UBER_COMPACT_ATTRIBUTE,
-            PrimitiveEndecs.INT.xmap(
-                Pattern::from
-            ) { obj: Pattern? -> obj!!.toInt() }
-        )
-            .orElse(
-                PatternEntry.Companion.ENDEC.listOf().xmap(
-                    { entries: List<PatternEntry> -> Pattern(entries) },
-                    Pattern::entries
-                )
-            )
+        val ENDEC = ifAttr(UBER_COMPACT_ATTRIBUTE, PrimitiveEndecs.INT.xmap(Pattern::from, Pattern::toInt))
+            .orElse(PatternEntry.ENDEC.listOf().xmap(::Pattern, Pattern::entries));
+
         val EMPTY: Pattern = of()
 
         private val possibleLines: Array<PatternEntry?> =

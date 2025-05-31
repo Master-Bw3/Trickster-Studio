@@ -236,7 +236,7 @@ class SpellCircleRenderer(
             } else {
                 val (text: HTMLText, width: Double) = glyph.asFormattedTextCached()
                 val scale = size / 2 / maxOf(width, 100.0)
-                text.anchor = js("{x: 0.5, y: 0.3}")
+                text.anchor = obj { this.x = 0.5; this.y = 0.3}
                 text.resolution = 20.0
                 text.style.fontFamily = "slkscr"
                 text.alpha = alpha

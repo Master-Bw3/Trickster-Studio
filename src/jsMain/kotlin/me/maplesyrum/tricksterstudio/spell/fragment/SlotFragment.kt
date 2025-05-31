@@ -46,7 +46,7 @@ class SlotFragment(val slot: Int, val source: Optional<Either<VectorI, Uuid>>) :
 
         return HTMLText(
             obj {
-                text = "<span style=\"color: #${type().color.map(::toInt).orElse(0xaaaaaa).toString(16)}\">slot $slotText at $sourceText</span>"
+                text = "<span style=\"color: #${type().color.map{ it.toInt() }.orElseGet { 0xaaaaaa }.toString(16)}\">slot $slotText at $sourceText</span>"
             }
         )
     }

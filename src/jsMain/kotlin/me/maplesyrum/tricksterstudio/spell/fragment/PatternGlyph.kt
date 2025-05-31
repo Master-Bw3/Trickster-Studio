@@ -21,7 +21,7 @@ class PatternGlyph(val pattern: Pattern) : Fragment() {
     companion object {
         val ENDEC: StructEndec<PatternGlyph> = StructEndecBuilder.of(
             Pattern.ENDEC.fieldOf("pattern", PatternGlyph::pattern),
-            { PatternGlyph() }
+            ::PatternGlyph
         )
     }
 }
