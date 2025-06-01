@@ -1,6 +1,6 @@
 package me.maplesyrum.tricksterstudio.ui.spellEditor
 
-import Identifier
+import me.maplesyrum.tricksterstudio.Identifier
 import me.maplesyrum.tricksterstudio.external.pixi.Container
 import me.maplesyrum.tricksterstudio.external.pixi.Texture
 import me.maplesyrum.tricksterstudio.spell.fragment.Fragment

@@ -1,3 +1,5 @@
+package me.maplesyrum.tricksterstudio
+
 import tree.maple.kendec.Endec
 import tree.maple.kendec.PrimitiveEndecs
 import tree.maple.kendec.Deserializer

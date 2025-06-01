@@ -1,5 +1,6 @@
 package me.maplesyrum.tricksterstudio.spell.fragment
 
+import me.maplesyrum.tricksterstudio.Identifier
 import tree.maple.kendec.StructEndec
 import tree.maple.kendec.impl.StructEndecBuilder
 

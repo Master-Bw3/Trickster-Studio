@@ -1,10 +1,10 @@
 package me.maplesyrum.tricksterstudio.endec
 
 
-import Either
-import EitherEndec
+import me.maplesyrum.tricksterstudio.Either
+import me.maplesyrum.tricksterstudio.EitherEndec
 import me.maplesyrum.tricksterstudio.external.pixi.Point
-import memoize
+import me.maplesyrum.tricksterstudio.memoize
 import tree.maple.kendec.*
 import tree.maple.kendec.impl.StructEndecBuilder
 import tree.maple.kendec.impl.StructField

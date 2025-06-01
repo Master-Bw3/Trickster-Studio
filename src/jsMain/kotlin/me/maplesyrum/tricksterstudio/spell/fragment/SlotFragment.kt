@@ -1,8 +1,8 @@
 package me.maplesyrum.tricksterstudio.spell.fragment
 
-import Either
-import EitherEndec
-import Identifier
+import me.maplesyrum.tricksterstudio.Either
+import me.maplesyrum.tricksterstudio.EitherEndec
+import me.maplesyrum.tricksterstudio.Identifier
 import com.benasher44.uuid.Uuid
 import io.kvision.utils.obj
 import me.maplesyrum.tricksterstudio.endec.ALWAYS_READABLE_BLOCK_POS

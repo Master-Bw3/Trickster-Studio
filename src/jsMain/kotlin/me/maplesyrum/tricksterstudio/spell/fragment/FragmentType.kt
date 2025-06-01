@@ -1,7 +1,7 @@
 package me.maplesyrum.tricksterstudio.spell.fragment
 
 
-import Identifier
+import me.maplesyrum.tricksterstudio.Identifier
 import me.maplesyrum.tricksterstudio.endec.funnyFieldOf
 import tree.maple.kendec.Endec
 import tree.maple.kendec.PrimitiveEndecs

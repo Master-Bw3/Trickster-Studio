@@ -1,7 +1,7 @@
 package me.maplesyrum.tricksterstudio.spell.fragment
 
 
-import Identifier
+import me.maplesyrum.tricksterstudio.Identifier
 import me.maplesyrum.tricksterstudio.spell.executer.SerializedSpellInstruction
 import me.maplesyrum.tricksterstudio.spell.executer.SpellInstructionType
 import io.kvision.utils.obj
