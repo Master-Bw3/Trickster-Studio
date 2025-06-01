@@ -59,10 +59,7 @@ kotlin {
     }
 
     tasks.named("compileKotlinJs") {
-        doFirst {
-            delete("build")
-            println("Deleted 'build' directory before building.")
-        }
+        dependsOn("clean")
     }
 }
 
