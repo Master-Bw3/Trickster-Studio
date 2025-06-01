@@ -20,6 +20,8 @@ repositories {
 // Versions
 val kvisionVersion: String by System.getProperties()
 
+
+
 kotlin {
     js(IR) {
         browser {
@@ -54,6 +56,13 @@ kotlin {
     sourceSets["jsTest"].dependencies {
         implementation(kotlin("test-js"))
         implementation("io.kvision:kvision-testutils:$kvisionVersion")
+    }
+
+    tasks.named("compileKotlinJs") {
+        doFirst {
+            delete("build")
+            println("Deleted 'build' directory before building.")
+        }
     }
 }
 
