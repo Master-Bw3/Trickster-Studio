@@ -37,6 +37,7 @@ fun Container.spellDisplay(
             width = container.width
             height = container.height
             resizeTo = container.getElement()
+            preference = "webgl"
 
         }).then<Unit> {
             Assets.load<dynamic>(obj {
