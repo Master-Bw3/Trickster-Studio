@@ -1,0 +1,3 @@
+[submodule "KEndec"]
+	path = KEndec
+	url = git@github.com:Master-Bw3/KEndec.git

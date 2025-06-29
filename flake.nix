@@ -35,6 +35,7 @@
             ncurses
             patchelf
             zlib
+            nodejs
           ];
         };
       });

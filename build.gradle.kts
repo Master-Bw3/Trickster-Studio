@@ -1,3 +1,6 @@
+import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsEnvSpec
+import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsPlugin
+
 plugins {
     val kotlinVersion: String by System.getProperties()
     kotlin("plugin.serialization") version kotlinVersion
@@ -40,6 +43,7 @@ kotlin {
         compilerOptions {
             target.set("es2015")
         }
+
     }
     sourceSets["jsMain"].dependencies {
         implementation("io.kvision:kvision:$kvisionVersion")
@@ -65,4 +69,8 @@ kotlin {
 
 tasks.withType<org.jetbrains.kotlin.gradle.targets.js.ir.KotlinJsIrLink> {
     incremental = false
+}
+
+extensions.configure(NodeJsEnvSpec::class.java) {
+    download.set(false)
 }
