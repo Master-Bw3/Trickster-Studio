@@ -1,0 +1,12 @@
+.invert {
+    filter: invert(1);
+}
+
+.splitter-vertical {
+    background: var(--color-zinc-900);
+    width: 2px !important;
+}
+
+button {
+    cursor: pointer;
+}
