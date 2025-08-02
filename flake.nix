@@ -3,6 +3,11 @@
 
   inputs.nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.1";
 
+  inputs.kobweb-cli = {
+        url = "github:dshatz/kobweb-cli-nix";
+        inputs.nixpkgs.follows = "nixpkgs";
+      };
+
   outputs = inputs:
     let
       javaVersion = 23; # Change this value to update the whole stack
@@ -29,6 +34,7 @@
       devShells = forEachSupportedSystem ({ pkgs }: {
         default = pkgs.mkShell {
           packages = with pkgs; [
+            inputs.kobweb-cli.packages.${system}.kobweb-cli
             gcc
             gradle
             kotlin
