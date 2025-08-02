@@ -1,4 +1,4 @@
-package me.maplesyrum.components.layouts
+package me.maplesyrum.tricksterStudio.components.layouts
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -23,9 +23,9 @@ import org.jetbrains.compose.web.css.fr
 import org.jetbrains.compose.web.css.percent
 import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.css.vh
-import me.maplesyrum.components.sections.Footer
-import me.maplesyrum.components.sections.NavHeader
-import me.maplesyrum.toSitePalette
+import me.maplesyrum.tricksterStudio.components.sections.Footer
+import me.maplesyrum.tricksterStudio.components.sections.NavHeader
+import me.maplesyrum.tricksterStudio.toSitePalette
 
 val PageContentStyle = CssStyle {
     base { Modifier.fillMaxSize().padding(leftRight = 2.cssRem, top = 4.cssRem) }

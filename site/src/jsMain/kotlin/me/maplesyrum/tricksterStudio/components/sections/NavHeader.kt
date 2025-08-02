@@ -1,4 +1,4 @@
-package me.maplesyrum.components.sections
+package me.maplesyrum.tricksterStudio.components.sections
 
 import androidx.compose.runtime.*
 import com.varabyte.kobweb.browser.dom.ElementTarget
@@ -32,8 +32,8 @@ import com.varabyte.kobweb.silk.style.breakpoint.displayUntil
 import com.varabyte.kobweb.silk.style.toModifier
 import com.varabyte.kobweb.silk.theme.colors.ColorMode
 import org.jetbrains.compose.web.css.*
-import me.maplesyrum.components.widgets.IconButton
-import me.maplesyrum.toSitePalette
+import me.maplesyrum.tricksterStudio.components.widgets.IconButton
+import me.maplesyrum.tricksterStudio.toSitePalette
 
 val NavHeaderStyle = CssStyle.base {
     Modifier.fillMaxWidth().padding(1.cssRem)

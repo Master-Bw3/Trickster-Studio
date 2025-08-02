@@ -1,4 +1,4 @@
-package me.maplesyrum.components.layouts
+package me.maplesyrum.tricksterStudio.components.layouts
 
 import androidx.compose.runtime.Composable
 import com.varabyte.kobweb.compose.css.FontWeight
@@ -20,7 +20,7 @@ import org.jetbrains.compose.web.css.LineStyle
 import org.jetbrains.compose.web.css.cssRem
 import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.dom.Div
-import me.maplesyrum.toSitePalette
+import me.maplesyrum.tricksterStudio.toSitePalette
 
 val MarkdownStyle = CssStyle {
     base { Modifier.fillMaxSize() }

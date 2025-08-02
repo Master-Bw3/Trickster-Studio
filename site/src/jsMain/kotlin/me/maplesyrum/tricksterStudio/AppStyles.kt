@@ -1,4 +1,4 @@
-package me.maplesyrum
+package me.maplesyrum.tricksterStudio
 
 import com.varabyte.kobweb.compose.css.ScrollBehavior
 import com.varabyte.kobweb.compose.css.TextAlign

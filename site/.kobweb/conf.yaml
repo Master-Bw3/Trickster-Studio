@@ -5,10 +5,10 @@ server:
   files:
     dev:
       contentRoot: "build/processedResources/js/main/public"
-      script: "build/kotlin-webpack/js/developmentExecutable/maplesyrum.js"
-      api: "build/libs/maplesyrum.jar"
+      script: "build/kotlin-webpack/js/developmentExecutable/tricksterStudio.js"
+      api: "build/libs/tricksterStudio.jar"
     prod:
-      script: "build/kotlin-webpack/js/productionExecutable/maplesyrum.js"
+      script: "build/kotlin-webpack/js/productionExecutable/tricksterStudio.js"
       siteRoot: ".kobweb/site"
 
   port: 8080

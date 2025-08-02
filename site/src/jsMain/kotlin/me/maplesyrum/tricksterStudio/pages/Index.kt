@@ -1,4 +1,4 @@
-package me.maplesyrum.pages
+package me.maplesyrum.tricksterStudio.pages
 
 import androidx.compose.runtime.Composable
 import com.varabyte.kobweb.compose.css.StyleVariable
@@ -33,10 +33,10 @@ import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.css.vh
 import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.Text
-import me.maplesyrum.HeadlineTextStyle
-import me.maplesyrum.SubheadlineTextStyle
-import me.maplesyrum.components.layouts.PageLayoutData
-import me.maplesyrum.toSitePalette
+import me.maplesyrum.tricksterStudio.HeadlineTextStyle
+import me.maplesyrum.tricksterStudio.SubheadlineTextStyle
+import me.maplesyrum.tricksterStudio.components.layouts.PageLayoutData
+import me.maplesyrum.tricksterStudio.toSitePalette
 
 // Container that has a tagline and grid on desktop, and just the tagline on mobile
 val HeroContainerStyle = CssStyle {
@@ -87,7 +87,7 @@ fun HomePage() {
             Column(Modifier.gap(2.cssRem)) {
                 Div(HeadlineTextStyle.toAttrs()) {
                     SpanText(
-                        "Use this template as your starting point for ", Modifier.color(
+                        "Use this template as your starting point for asdgkf", Modifier.color(
                             when (ColorMode.current) {
                                 ColorMode.LIGHT -> Colors.Black
                                 ColorMode.DARK -> Colors.White

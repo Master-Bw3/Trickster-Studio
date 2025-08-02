@@ -1,4 +1,4 @@
-package me.maplesyrum
+package me.maplesyrum.tricksterStudio
 
 import com.varabyte.kobweb.compose.ui.graphics.Color
 import com.varabyte.kobweb.compose.ui.graphics.Colors
