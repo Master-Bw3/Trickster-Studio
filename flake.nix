@@ -13,7 +13,7 @@
     {
       devShells = forEachSupportedSystem ({ pkgs }: {
         default = pkgs.mkShell {
-          packages = with pkgs; [ gleam nodejs ];
+          packages = with pkgs; [ gleam erlang rebar3 inotify-tools nodejs ];
         };
       });
     };
