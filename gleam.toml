@@ -15,10 +15,24 @@ target = "javascript"
 
 [dependencies]
 gleam_stdlib = ">= 0.44.0 and < 2.0.0"
-lustre = ">= 5.2.1 and < 6.0.0"
-paint = { path = "../paint/" }
 ieee_float = ">= 1.5.0 and < 2.0.0"
+tiramisu = ">= 7.0.0 and < 8.0.0"
+vec = ">= 3.0.3 and < 4.0.0"
+lustre = ">= 5.5.2 and < 6.0.0"
+gleam_time = ">= 1.6.0 and < 2.0.0"
 
 [dev-dependencies]
 gleeunit = ">= 1.0.0 and < 2.0.0"
-lustre_dev_tools = ">= 1.9.0 and < 2.0.0"
+mascarpone = ">= 3.0.0 and < 4.0.0"
+lustre_dev_tools = ">= 2.3.4 and < 3.0.0"
+
+[tools.lustre.html]
+scripts = [
+  { type = "importmap", content = "{ \"imports\": { \"three\": \"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js\", \"three/addons/\": \"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/\", \"@dimforge/rapier3d-compat\": \"https://cdn.jsdelivr.net/npm/@dimforge/rapier3d-compat@0.11.2/+esm\" } }" }
+]
+stylesheets = [
+  { content = "body { margin: 0; padding: 0; overflow: hidden; }" }
+]
+
+[tools.lustre.bin]
+bun = "system"

@@ -1,20 +1,31 @@
 {
-  description = "A Nix-flake-based Gleam development environment";
+  description = "Trickster Studio";
 
-  inputs.nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.1";
-
-  outputs = inputs:
-    let
-      supportedSystems = [ "x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin" ];
-      forEachSupportedSystem = f: inputs.nixpkgs.lib.genAttrs supportedSystems (system: f {
-        pkgs = import inputs.nixpkgs { inherit system; };
-      });
-    in
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+  inputs.flake-utils.url = "github:numtide/flake-utils";
+  outputs =
     {
-      devShells = forEachSupportedSystem ({ pkgs }: {
-        default = pkgs.mkShell {
-          packages = with pkgs; [ gleam erlang rebar3 inotify-tools nodejs ];
+      self,
+      nixpkgs,
+      flake-utils,
+    }:
+    (flake-utils.lib.eachDefaultSystem (
+      system:
+      let
+        pkgs = import nixpkgs {
+          inherit system;
         };
-      });
-    };
+      in
+      {
+        devShells.default = pkgs.mkShell {
+          buildInputs = with pkgs; [
+            gleam
+            erlang
+            nodejs
+            bun
+            rebar3
+          ];
+        };
+      }
+    ));
 }
