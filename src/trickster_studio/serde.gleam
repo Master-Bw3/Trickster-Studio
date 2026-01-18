@@ -1,6 +1,7 @@
 import gleam/bit_array
 import gleam/int
 import gleam/list
+import gleam/option
 import gleam/pair
 import gleam/result.{try}
 import gleam/string
@@ -58,6 +59,16 @@ pub fn encode_identifier(value: Identifier) -> BitArray {
   |> encode_string
 }
 
+pub fn encode_option(
+  value: option.Option(a),
+  encoder: fn(a) -> BitArray,
+) -> BitArray {
+  case value {
+    option.Some(thing) -> bit_array.append(encode_boolean(True), encoder(thing))
+    option.None -> encode_boolean(False)
+  }
+}
+
 pub fn encode_int(value: Int) -> BitArray {
   <<value:size(32)>>
 }
@@ -67,6 +78,10 @@ pub fn encode_boolean(bool: Bool) -> BitArray {
     True -> <<1:size(8)>>
     False -> <<0:size(8)>>
   }
+}
+
+pub fn encode_float(value: IEEEFloat) -> BitArray {
+  ieee_float.to_bytes_64_be(value)
 }
 
 pub type Decoder(a) =
@@ -83,7 +98,9 @@ pub fn decode_string(
       |> result.map(pair.new(_, rest))
       |> result.replace_error(Todo)
 
-    _ -> Error(Todo)
+    _ -> {
+      Error(Todo)
+    }
   }
 }
 
@@ -131,7 +148,9 @@ fn decode_var_int(
       }
     }
 
-    _ -> Error(Todo)
+    _ -> {
+      Error(Todo)
+    }
   }
 }
 
@@ -168,7 +187,9 @@ pub fn decode_int(
 ) -> Result(#(Int, BitArray), TricksterStudioError) {
   case bit_array {
     <<first:32, rest:bytes>> -> Ok(#(first, rest))
-    _ -> Error(Todo)
+    _ -> {
+      Error(Todo)
+    }
   }
 }
 
@@ -178,7 +199,9 @@ pub fn decode_float(
   case bit_array {
     <<first:64-bits, rest:bytes>> ->
       Ok(#(ieee_float.from_bytes_64_be(first), rest))
-    _ -> Error(Todo)
+    _ -> {
+      Error(Todo)
+    }
   }
 }
 
@@ -190,9 +213,13 @@ pub fn decode_boolean(
       case first {
         0 -> Ok(#(False, rest))
         1 -> Ok(#(True, rest))
-        _ -> Error(Todo)
+        _ -> {
+          Error(Todo)
+        }
       }
-    _ -> Error(Todo)
+    _ -> {
+      Error(Todo)
+    }
   }
 }
 

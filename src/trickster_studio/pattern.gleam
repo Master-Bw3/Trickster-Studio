@@ -24,15 +24,21 @@ pub fn from_int(pattern_int: Int) -> Result(Pattern, TricksterStudioError) {
 }
 
 pub fn to_int(pattern: Pattern) -> Int {
-  let reducer = fn(acc: Int, entry: PatternEntry) {
-    let index = entry.p1 * 9 + entry.p2
-    case list.contains(list.range(31, 0), index) {
-      False -> int.bitwise_or(acc, int.bitwise_shift_left(1, index))
-      True -> acc
-    }
-  }
+  echo possible_lines()
 
-  list.fold(pattern.entries, 0, reducer)
+  let lines = possible_lines()
+  list.index_map(lines, fn(line, i) {
+    case list.contains(pattern.entries, line) {
+      True -> int.bitwise_shift_left(1, i)
+      False -> 0
+    }
+  })
+  |> list.fold(0, fn(x, acc) { int.bitwise_or(x, acc) })
+}
+
+pub fn possible_lines() -> List(PatternEntry) {
+  list.range(0, 31)
+  |> list.filter_map(lookup_entry)
 }
 
 pub fn lookup_entry(i: Int) -> Result(PatternEntry, TricksterStudioError) {
@@ -69,6 +75,8 @@ pub fn lookup_entry(i: Int) -> Result(PatternEntry, TricksterStudioError) {
     29 -> Ok(PatternEntry(6, 7))
     30 -> Ok(PatternEntry(6, 8))
     31 -> Ok(PatternEntry(7, 8))
-    __ -> Error(Todo)
+    __ -> {
+      Error(Todo)
+    }
   }
 }

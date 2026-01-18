@@ -13,12 +13,12 @@ pub fn main() -> Nil {
 
 // gleeunit test functions end in `_test`
 pub fn hello_world_test() {
-  // echo {
+  //  {
   //   
   //   |> bit_array.append(bit_array.from_string("trickster:number"))
   // }
   // let x =
-  //   echo <<
+  //    <<
   //     4,
   //     20,
   //     116,
@@ -70,17 +70,16 @@ pub fn hello_world_test() {
   //   >>
 
   // fragment.from_bytes(x)
-  // |> echo
+  // |> 
   // |> result.map(fn(a) { fragment.to_bytes(a) })
-  // |> echo
+  // |> 
   // |> result.try(fn(a) { fragment.from_bytes(a) })
-  // |> echo
+  // |> 
 
-  fragment.SpellPartFragment(
-    fragment.SpellPart(fragment.PatternGlyphFragment(pattern.Pattern([])), []),
-  )
-  |> fragment.to_base64
-  |> echo
-  |> fragment.from_base64
-  |> echo
+  let str = ""
+  assert str
+    |> fragment.from_base64
+    |> echo
+    |> result.map(fn(x) { fragment.to_base64(x) })
+    == Ok(str)
 }
