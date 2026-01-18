@@ -4,9 +4,9 @@ import gleam/list
 import gleam/pair
 import gleam/result.{try}
 import gleam/string
-import identifier.{type Identifier}
 import ieee_float.{type IEEEFloat}
 import trickster_studio/error.{type TricksterStudioError, Todo}
+import trickster_studio/identifier.{type Identifier}
 
 const segment_bits: Int = 127
 
@@ -14,6 +14,18 @@ const continue_bit: Int = 128
 
 @external(javascript, "./js_utils_ffi.mjs", "ushr")
 fn ushr(value: Int, by: Int) -> Int
+
+@external(javascript, "./js_utils_ffi.mjs", "to_base64")
+pub fn to_base64(bit_array: BitArray) -> String
+
+@external(javascript, "./js_utils_ffi.mjs", "from_base64")
+pub fn from_base64(base64: String) -> BitArray
+
+@external(javascript, "./js_utils_ffi.mjs", "gzip")
+pub fn gzip(bit_array: BitArray) -> bit_array
+
+@external(javascript, "./js_utils_ffi.mjs", "ungzip")
+pub fn ungzip(bit_array: BitArray) -> bit_array
 
 pub fn encode_string(value: String) -> BitArray {
   encode_var_int(string.length(value))
@@ -25,7 +37,7 @@ fn encode_var_int(value: Int) -> BitArray {
     int.bitwise_and(value, segment_bits) == 0,
     int.bitwise_and(value, int.bitwise_not(segment_bits)) == 0
   {
-    True, _ -> <<>>
+    True, _ -> <<0:size(8)>>
     False, True -> <<value:size(8)>>
     False, False ->
       bit_array.append(
@@ -37,9 +49,24 @@ fn encode_var_int(value: Int) -> BitArray {
   }
 }
 
+pub fn encode_list(list: List(BitArray)) -> BitArray {
+  bit_array.concat([encode_var_int(list.length(list)), ..list])
+}
+
 pub fn encode_identifier(value: Identifier) -> BitArray {
   identifier.to_string(value)
   |> encode_string
+}
+
+pub fn encode_int(value: Int) -> BitArray {
+  <<value:size(32)>>
+}
+
+pub fn encode_boolean(bool: Bool) -> BitArray {
+  case bool {
+    True -> <<1:size(8)>>
+    False -> <<0:size(8)>>
+  }
 }
 
 pub type Decoder(a) =

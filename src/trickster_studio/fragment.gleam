@@ -4,9 +4,9 @@ import gleam/function
 import gleam/list
 import gleam/pair
 import gleam/result.{map}
-import identifier
 import ieee_float.{type IEEEFloat}
 import trickster_studio/error.{type TricksterStudioError, Todo}
+import trickster_studio/identifier
 import trickster_studio/pattern.{type Pattern}
 import trickster_studio/serde
 
@@ -28,24 +28,75 @@ type SpellInstruction {
 }
 
 // Identifiers
-const number_id = identifier.Identifier("trickster", "number")
+const number_id: identifier.Identifier = identifier.Identifier(
+  "trickster",
+  "number",
+)
 
-const pattern_glyph_id = identifier.Identifier("trickster", "pattern")
+const pattern_glyph_id: identifier.Identifier = identifier.Identifier(
+  "trickster",
+  "pattern",
+)
 
-const pattern_literal_id = identifier.Identifier("trickster", "pattern_literal")
+const pattern_literal_id: identifier.Identifier = identifier.Identifier(
+  "trickster",
+  "pattern_literal",
+)
 
-const spell_part_id = identifier.Identifier("trickster", "spell_part")
+const spell_part_id: identifier.Identifier = identifier.Identifier(
+  "trickster",
+  "spell_part",
+)
 
 // -----------
 
+const gzip_header: BitArray = <<31, -117, 8, 0, 0, 0, 0, 0, 0, -1>>
+
+pub fn to_base64(fragment: Fragment) -> String {
+  to_bytes(fragment)
+  |> serde.to_base64
+}
+
 pub fn to_bytes(fragment: Fragment) -> BitArray {
+  let bytes =
+    encode_bytes(fragment)
+    |> bit_array.append(<<4>>, _)
+    |> serde.gzip
+
+  case bytes {
+    <<_:bytes-size(10), rest:bytes>> -> rest
+    _ -> bytes
+  }
+}
+
+fn encode_bytes(fragment: Fragment) -> BitArray {
   case fragment {
     NumberFragment(number) ->
       encode_fragment_struct(number_id, ieee_float.to_bytes_64_be(number))
-    PatternGlyphFragment(_) -> todo
-    PatternLiteralFragment(_) -> todo
-    SpellPartFragment(SpellPart(glyph, children)) -> todo
+    PatternGlyphFragment(pattern) ->
+      encode_fragment_struct(
+        pattern_glyph_id,
+        serde.encode_int(pattern.to_int(pattern)),
+      )
+    PatternLiteralFragment(pattern) ->
+      encode_fragment_struct(
+        pattern_literal_id,
+        serde.encode_int(pattern.to_int(pattern)),
+      )
+    SpellPartFragment(SpellPart(glyph, children)) ->
+      encode_fragment_struct(
+        spell_part_id,
+        bit_array.concat([
+          encode_bytes(glyph),
+          serde.encode_list(list.map(children, encode_spell_part)),
+        ]),
+      )
   }
+}
+
+fn encode_spell_part(spell_part: SpellPart) -> BitArray {
+  let instructions = flatten_node(spell_part, [])
+  serde.encode_list(list.map(instructions, encode_spell_instruction))
 }
 
 fn encode_fragment_struct(
@@ -56,9 +107,53 @@ fn encode_fragment_struct(
   |> bit_array.append(value)
 }
 
+fn flatten_node(
+  node: SpellPart,
+  instructions: List(SpellInstruction),
+) -> List(SpellInstruction) {
+  let instructions = [
+    ExitScopeInstruction,
+    FragmentInstruction(node.glyph),
+    ..instructions
+  ]
+
+  list.flat_map(node.children, fn(child) { flatten_node(child, instructions) })
+
+  [EnterScopeInstruction, ..instructions]
+}
+
+fn encode_spell_instruction(spell_instruction: SpellInstruction) -> BitArray {
+  case spell_instruction {
+    FragmentInstruction(fragment) ->
+      bit_array.concat([
+        serde.encode_int(1),
+        serde.encode_boolean(True),
+        to_bytes(fragment),
+      ])
+
+    EnterScopeInstruction ->
+      bit_array.concat([serde.encode_int(2), serde.encode_boolean(False)])
+
+    ExitScopeInstruction ->
+      bit_array.concat([serde.encode_int(3), serde.encode_boolean(False)])
+  }
+}
+
+pub fn from_base64(base64: String) -> Result(Fragment, TricksterStudioError) {
+  serde.from_base64(base64)
+  |> from_bytes
+}
+
 pub fn from_bytes(bit_array: BitArray) -> Result(Fragment, TricksterStudioError) {
-  decode_bytes(bit_array)
-  |> result.map(pair.first)
+  let bytes = serde.ungzip(bit_array.append(gzip_header, bit_array))
+
+  case bytes {
+    <<4:size(8), rest:bytes>> ->
+      decode_bytes(rest)
+      |> result.map(pair.first)
+
+    _ -> Error(Todo)
+  }
 }
 
 fn decode_bytes(

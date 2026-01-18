@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="bc7a8e1d-89af-4a80-978d-5fcffbcd859f" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/src/hexcoord/hexcoord.gleam" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/trickster_studio.gleam" beforeDir="false" afterPath="$PROJECT_DIR$/src/trickster_studio.gleam" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/trickster_studio/fragment.gleam" beforeDir="false" afterPath="$PROJECT_DIR$/src/trickster_studio/fragment.gleam" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/trickster_studio/serde.gleam" beforeDir="false" afterPath="$PROJECT_DIR$/src/trickster_studio/serde.gleam" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/trickster_studio_test.gleam" beforeDir="false" afterPath="$PROJECT_DIR$/test/trickster_studio_test.gleam" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "Master-Bw3"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "git@github.com:Master-Bw3/Trickster-Studio.git",
+    "accountId": "3abb97f1-98ad-44f5-8f61-c9554b92df35"
+  }
+}]]></component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "customColor": "",
+  "associatedIndex": 2
+}]]></component>
+  <component name="ProjectId" id="38OmYa1lHYIIjVevO6cqctVlHAT" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/home/maple/Projects"
+  }
+}]]></component>
+  <component name="RunManager">
+    <configuration default="true" type="JetRunConfigurationType">
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <option name="filePath" />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="bc7a8e1d-89af-4a80-978d-5fcffbcd859f" name="Changes" comment="" />
+      <created>1768679040415</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1768679040415</updated>
+    </task>
+    <servers />
+  </component>
+</project>
