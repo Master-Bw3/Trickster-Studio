@@ -24,8 +24,6 @@ pub fn from_int(pattern_int: Int) -> Result(Pattern, TricksterStudioError) {
 }
 
 pub fn to_int(pattern: Pattern) -> Int {
-  echo possible_lines()
-
   let lines = possible_lines()
   list.index_map(lines, fn(line, i) {
     case list.contains(pattern.entries, line) {

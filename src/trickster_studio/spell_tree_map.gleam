@@ -15,13 +15,17 @@ import trickster_studio/fragment
 /// A 0 represents that the node is an inner circle. 
 /// Positive integers represent the node's index in its parent's list of children.
 /// A glyph can be any fragment other than a SpellPart.
+/// If the glyph is a SpellPart, it will be None instead.
 pub opaque type SpellTreeDepthMap {
   SpellTreeMap(data: MapData)
 }
 
 /// Glyph and number of siblings (including itself) per parent (ordered same as address)
 pub type Node {
-  Node(fragment: fragment.Fragment, sibling_count_stack: List(Int))
+  Node(
+    fragment: option.Option(fragment.Fragment),
+    sibling_count_stack: List(Int),
+  )
 }
 
 type MapData =
@@ -31,6 +35,14 @@ pub fn entries(
   spell_tree_depth_map map: SpellTreeDepthMap,
 ) -> List(#(Int, Dict(List(Int), Node))) {
   dict.to_list(map.data)
+}
+
+pub fn get(
+  spell_tree_depth_map: SpellTreeDepthMap,
+  depth: Int,
+) -> Result(Dict(List(Int), Node), Nil) {
+  spell_tree_depth_map.data
+  |> dict.get(depth)
 }
 
 pub fn to_spell_tree_depth_map(
@@ -49,24 +61,27 @@ fn to_spell_tree_depth_map_rec(
   let depth = list.length(address)
   let child_count = list.length(spell_part.children)
 
+  let insert_node = fn(node: option.Option(fragment.Fragment)) {
+    dict.upsert(map, depth, fn(val) {
+      let node = Node(fragment: node, sibling_count_stack:)
+
+      case val {
+        option.Some(addr_map) -> dict.insert(addr_map, address, node)
+        option.None -> dict.from_list([#(address, node)])
+      }
+    })
+  }
+
   let map_with_this_node = case spell_part.glyph {
     fragment.SpellPartFragment(inner_circle) ->
       to_spell_tree_depth_map_rec(
         inner_circle,
         [0, ..address],
         [0, ..sibling_count_stack],
-        map,
+        insert_node(option.None),
       )
 
-    glyph ->
-      dict.upsert(map, depth, fn(val) {
-        let node = Node(fragment: glyph, sibling_count_stack:)
-
-        case val {
-          option.Some(addr_map) -> dict.insert(addr_map, address, node)
-          option.None -> dict.from_list([#(address, node)])
-        }
-      })
+    glyph -> insert_node(option.Some(glyph))
   }
 
   list.index_fold(
@@ -112,8 +127,9 @@ fn get_glyph(
   let potential_glyph = dict.get(addr_map, address)
 
   case potential_glyph {
-    Ok(_) -> potential_glyph |> result.map(fn(x) { x.fragment })
-    Error(_) ->
+    Ok(Node(option.Some(fragment), _)) -> Ok(fragment)
+
+    _ ->
       to_spell_part_rec(map, [0, ..address], depth + 1)
       |> result.map(fragment.SpellPartFragment)
   }

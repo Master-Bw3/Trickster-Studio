@@ -267,7 +267,7 @@ fn encode_bytes(fragment: Fragment) -> BitArray {
 }
 
 fn encode_spell_part(spell_part: SpellPart) -> BitArray {
-  let instructions = flatten_node(spell_part, []) |> list.reverse |> echo
+  let instructions = flatten_node(spell_part, []) |> list.reverse
 
   serde.encode_boolean(True)
   |> bit_array.append(
