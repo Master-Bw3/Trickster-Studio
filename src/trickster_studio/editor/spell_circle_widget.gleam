@@ -16,26 +16,28 @@ import trickster_studio/spell_tree_map
 import vec/vec2
 import vec/vec3
 
-pub type ViewPort {
-  ViewPort(zoom: Float, pan_x: Float, pan_y: Float)
+pub type Camera {
+  Camera(zoom: Float, pan_x: Float, pan_y: Float)
 }
 
 pub fn spell_circle_widget(
   spell: spell_tree_map.SpellTreeDepthMap,
   font: option.Option(savoiardi.Font),
   circle_texture: option.Option(savoiardi.Texture),
+  transform: transform.Transform,
 ) -> scene.Node {
   spell
   |> spell_tree_map.entries
   |> list.flat_map(fn(x) { pair.second(x) |> dict.to_list })
   |> place_circles(font, circle_texture)
+  |> scene.empty("spell circle", transform, _)
 }
 
 fn place_circles(
   nodes: List(#(List(Int), spell_tree_map.Node)),
   font: option.Option(savoiardi.Font),
   circle_texture: option.Option(savoiardi.Texture),
-) {
+) -> List(scene.Node) {
   let assert Ok(sprite_geom) = geometry.plane(size: vec2.Vec2(500.0, 500.0))
   let assert Ok(sprite_mat) =
     material.basic(
@@ -108,10 +110,13 @@ fn place_circles(
       ])
     })
 
-  scene.empty("editor", transform.identity, children)
+  children
 }
 
-fn calculate_transform(address: List(Int), sibling_count_stack: List(Int)) {
+fn calculate_transform(
+  address: List(Int),
+  sibling_count_stack: List(Int),
+) -> transform.Transform {
   calculate_transform_rec(
     list.reverse(address),
     list.reverse(sibling_count_stack),
