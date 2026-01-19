@@ -92,18 +92,18 @@ fn place_circles(
       let address_string =
         list.fold(address, "", fn(acc, i) { acc <> int.to_string(i) <> ", " })
 
-      // let glyph = case fragment {
-      //   option.Some(fragment) -> [
-      //     fragment_renderer.render_fragment(
-      //       fragment,
-      //       "glyph[" <> address_string <> "]",
-      //       size,
-      //       alpha_getter,
-      //       text_size_getter,
-      //     ),
-      //   ]
-      //   option.None -> []
-      // }
+      let glyph = case fragment {
+        option.Some(fragment) -> [
+          fragment_renderer.render_fragment(
+            fragment,
+            "glyph[" <> address_string <> "]",
+            size,
+            alpha_getter,
+            text_size_getter,
+          ),
+        ]
+        option.None -> []
+      }
 
       let divider = case child_count {
         0 -> []
@@ -150,7 +150,7 @@ fn place_circles(
         transform,
         [
           circle,
-          // glyph,
+          glyph,
           divider,
         ]
           |> list.flatten,

@@ -20,7 +20,7 @@ import trickster_studio/spell_tree_map
 import vec/vec2
 import vec/vec3
 
-const test_spell = "YxEpKcpMzi4uSS2yKi5IzcmJL0gsKhFECBYklgCpPAYgYGLkBJLMICYjI3YlVJBnQiIYeahlIPUUMTEAAACpPxc0AQAA"
+const test_spell = "YxEpKcpMzi4uSS2yKi5IzcmJL0gsKhFECBYklgCpPAYGh04mRk4GBgZmIGZgZMSmBAwolWdCIhh58Gtw6CTWQOopYmIAAMfGuKo0AQAA"
 
 pub type Model {
   Model(
