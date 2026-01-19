@@ -25,6 +25,7 @@ pub type Node {
   Node(
     fragment: option.Option(fragment.Fragment),
     sibling_count_stack: List(Int),
+    child_count: Int,
   )
 }
 
@@ -63,7 +64,7 @@ fn to_spell_tree_depth_map_rec(
 
   let insert_node = fn(node: option.Option(fragment.Fragment)) {
     dict.upsert(map, depth, fn(val) {
-      let node = Node(fragment: node, sibling_count_stack:)
+      let node = Node(fragment: node, sibling_count_stack:, child_count:)
 
       case val {
         option.Some(addr_map) -> dict.insert(addr_map, address, node)
@@ -127,7 +128,7 @@ fn get_glyph(
   let potential_glyph = dict.get(addr_map, address)
 
   case potential_glyph {
-    Ok(Node(option.Some(fragment), _)) -> Ok(fragment)
+    Ok(Node(option.Some(fragment), _, _)) -> Ok(fragment)
 
     _ ->
       to_spell_part_rec(map, [0, ..address], depth + 1)

@@ -1,8 +1,8 @@
-/// 2D Game Example - Orthographic Camera
 import gleam/float
+import gleam/int
 import gleam/io
 import gleam/option
-import gleam/time/duration
+import gleam/result
 import savoiardi
 import tiramisu
 import tiramisu/background
@@ -11,7 +11,6 @@ import tiramisu/effect.{type Effect}
 import tiramisu/geometry
 import tiramisu/input
 import tiramisu/light
-import tiramisu/material
 import tiramisu/scene
 import tiramisu/texture
 import tiramisu/transform
@@ -21,7 +20,7 @@ import trickster_studio/spell_tree_map
 import vec/vec2
 import vec/vec3
 
-const test_spell = "5VfBTsJAEJ1diilGEYkHvXjwA7yYePBiDz1yIMY7qYYDsZCm1PtqYoKJF/+A+AXKF/ST/ARKQLa13dnZpgQTm0ADM53pvHlvZ9c6isLB/cM46odX46Dv+73AC6ND+WfgRclt9NXhdc4uAKCWfICxvMunDXXMfmPHlrTT8ybOx1jcD3CeMDsAB/S9O4DawRU7aF2TeI+QX/m1erApH/QH44i15O/R4/CuH15/w8+FF8Tc5xdlmpOce88fJDfP73ZyzvvSeegFhfGK8HJ26XYiD7p6HsxE/ErnJzHvgrR1VsMhSdvV+CZmkXNH6EKNKlbuKEmZy1FxquhS1L4Ytdu3kI2UDkdE3eFwxlkDLQgctNtrtOlV6/oi1HX9Ei8BRWwpMNLE6VY00fh3mqClbgFQUoM71dDDMU4t1qk1WMrQSqe2qci3vlxYf3W5wN0kX1C3dW+LUKp28SnErnwLK53/bSzuLLMPI8ZtT4TFca06NuBaVrIit4UDeeEYzbhI0VWt+QXzq253FaNpuW2/xNLotu3vb0KjWEIt2SDGQtlsG8wgbU1Ek1PHJLoWJpHOlaBwJWnLH0iy04zGQrPTZAVzh75Xkc6E8xGxuws11EpsghCw2QEqP6HrGWEgTgVoNCobX/p8bDDqiGAvnTUoguZVNj8n89nT72xQ6/LhOTgRLH3rEQAA"
+const test_spell = "YxEpKcpMzi4uSS2yKi5IzcmJL0gsKhFECBYklgCpPAYgYGLkBJLMICYjI3YlVJBnQiIYeahlIPUUMTEAAACpPxc0AQAA"
 
 pub type Model {
   Model(
@@ -141,6 +140,40 @@ fn view(model: Model, ctx: tiramisu.Context) -> scene.Node {
     ))
     |> transform.scale_uniform(model.circle_camera.zoom)
 
+  let log2 = fn(x: Float) {
+    use lhs <- result.try(float.logarithm(x))
+    use rhs <- result.map(float.logarithm(2.0))
+    lhs /. rhs
+  }
+
+  let depth =
+    model.circle_camera.zoom
+    |> log2()
+    |> result.unwrap(0.0)
+    |> float.floor()
+    |> float.round()
+    |> int.divide(3)
+    |> result.unwrap(0)
+
+  let alpha_getter = fn(size: Float) {
+    let true_size = size *. model.circle_camera.zoom *. 200.0
+
+    let alpha =
+      float.min(
+        ctx.canvas_size.y /. { true_size *. 2.0 } -. 0.1,
+        result.unwrap(float.power(true_size, 1.2), 0.0)
+          /. ctx.canvas_size.y
+          +. 0.1,
+      )
+    float.min(float.max(alpha, 0.0), 1.0)
+  }
+
+  let text_size_getter = fn(size: Float) {
+    let true_size = size *. model.circle_camera.zoom *. 200.0
+
+    true_size
+  }
+
   scene.empty(id: "Scene", transform: transform.identity, children: [
     scene.camera(
       id: "camera",
@@ -163,6 +196,9 @@ fn view(model: Model, ctx: tiramisu.Context) -> scene.Node {
       model.font,
       model.circle_texture,
       circle_transform,
+      depth,
+      alpha_getter,
+      text_size_getter,
     ),
   ])
 }
@@ -178,7 +214,6 @@ fn update_circle_camera(
   let vec2.Vec2(mouse_x, mouse_y) = input.mouse_position(input)
   let local_mouse_x = mouse_x -. viewport.x /. 2.0
   let local_mouse_y = -1.0 *. { mouse_y -. viewport.y /. 2.0 }
-  echo local_mouse_x
 
   case scroll {
     0.0 -> circle_camera

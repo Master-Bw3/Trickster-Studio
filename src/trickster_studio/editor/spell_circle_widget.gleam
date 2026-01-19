@@ -11,10 +11,12 @@ import tiramisu/geometry
 import tiramisu/material
 import tiramisu/scene
 import tiramisu/transform
-import trickster_studio/fragment
+import trickster_studio/editor/fragment_renderer
 import trickster_studio/spell_tree_map
 import vec/vec2
 import vec/vec3
+
+pub const node_render_depth = 8
 
 pub type Camera {
   Camera(zoom: Float, pan_x: Float, pan_y: Float)
@@ -25,11 +27,17 @@ pub fn spell_circle_widget(
   font: option.Option(savoiardi.Font),
   circle_texture: option.Option(savoiardi.Texture),
   transform: transform.Transform,
+  depth: Int,
+  alpha_getter: fn(Float) -> Float,
+  text_size_getter: fn(Float) -> Float,
 ) -> scene.Node {
   spell
   |> spell_tree_map.entries
+  |> list.filter(fn(entry) {
+    entry.0 >= depth && entry.0 <= depth + node_render_depth
+  })
   |> list.flat_map(fn(x) { pair.second(x) |> dict.to_list })
-  |> place_circles(font, circle_texture)
+  |> place_circles(font, circle_texture, alpha_getter, text_size_getter)
   |> scene.empty("spell circle", transform, _)
 }
 
@@ -37,86 +45,125 @@ fn place_circles(
   nodes: List(#(List(Int), spell_tree_map.Node)),
   font: option.Option(savoiardi.Font),
   circle_texture: option.Option(savoiardi.Texture),
+  alpha_getter: fn(Float) -> Float,
+  text_size_getter: fn(Float) -> Float,
 ) -> List(scene.Node) {
   let assert Ok(sprite_geom) = geometry.plane(size: vec2.Vec2(500.0, 500.0))
-  let assert Ok(sprite_mat) =
-    material.basic(
-      color: 0xffffff,
-      transparent: True,
-      opacity: 1.0,
-      map: circle_texture,
-      side: material.FrontSide,
-      alpha_test: 0.0,
-      depth_write: True,
-    )
+  let sprite_mat = fn(opacity) {
+    let assert Ok(mat) =
+      material.basic(
+        color: 0xffffff,
+        transparent: True,
+        opacity:,
+        map: circle_texture,
+        side: material.FrontSide,
+        alpha_test: 0.0,
+        depth_write: True,
+      )
 
-  let assert Ok(text_mat) =
-    material.basic(
-      color: 0xffffff,
-      transparent: False,
-      opacity: 1.0,
-      map: option.None,
-      side: material.FrontSide,
-      alpha_test: 0.0,
-      depth_write: True,
-    )
+    mat
+  }
 
-  let text_geom = fn(string) {
-    let assert Ok(txt) =
-      case font {
-        option.Some(font) ->
-          geometry.text(
-            text: string,
-            font:,
-            size: 50.0,
-            depth: 0.2,
-            curve_segments: 12,
-            bevel_enabled: True,
-            bevel_thickness: 0.05,
-            bevel_size: 0.02,
-            bevel_offset: 0.0,
-            bevel_segments: 5,
-          )
-        option.None -> Error(geometry.EmptyText)
-      }
-      |> result.or(geometry.circle(0.1, 3))
+  let assert Ok(divider_geom) = geometry.plane(size: vec2.Vec2(15.0, 80.0))
+  let divider_mat = fn(opacity) {
+    let assert Ok(mat) =
+      material.basic(
+        color: 0x7F7FFF,
+        transparent: True,
+        opacity:,
+        map: option.None,
+        side: material.FrontSide,
+        alpha_test: 0.0,
+        depth_write: True,
+      )
 
-    txt
+    mat
   }
 
   let children =
     list.map(nodes, fn(node) {
-      let #(address, spell_tree_map.Node(fragment: _, sibling_count_stack:)) =
-        node
-      let transform = calculate_transform(address, sibling_count_stack)
+      let #(
+        address,
+        spell_tree_map.Node(fragment:, sibling_count_stack:, child_count:),
+      ) = node
+      let #(transform, angle) =
+        calculate_transform(address, sibling_count_stack)
+      let size = transform.scale(transform).x
       let address_string =
         list.fold(address, "", fn(acc, i) { acc <> int.to_string(i) <> ", " })
 
-      scene.empty("circle[" <> address_string <> "] c", transform, [
+      // let glyph = case fragment {
+      //   option.Some(fragment) -> [
+      //     fragment_renderer.render_fragment(
+      //       fragment,
+      //       "glyph[" <> address_string <> "]",
+      //       size,
+      //       alpha_getter,
+      //       text_size_getter,
+      //     ),
+      //   ]
+      //   option.None -> []
+      // }
+
+      let divider = case child_count {
+        0 -> []
+
+        _ -> {
+          let new_angle =
+            { angle +. maths.pi() /. 2.0 }
+            +. { 2.0 *. maths.pi() }
+            /. int.to_float(child_count)
+            *. 0.5
+            -. { maths.pi() /. 2.0 }
+
+          let x = maths.cos(new_angle) *. 235.0
+          let y = maths.sin(new_angle) *. 235.0
+
+          let divider_transform =
+            transform.at(vec3.Vec3(x, y, 0.0))
+            |> transform.rotate_z(new_angle -. maths.pi() /. 2.0)
+
+          [
+            scene.mesh(
+              id: "divider[" <> address_string <> "]",
+              geometry: divider_geom,
+              material: divider_mat(alpha_getter(size) /. 4.0),
+              transform: divider_transform,
+              physics: option.None,
+            ),
+          ]
+        }
+      }
+
+      let circle = [
         scene.mesh(
           id: "circle[" <> address_string <> "]",
           geometry: sprite_geom,
-          material: sprite_mat,
+          material: sprite_mat(alpha_getter(size)),
           transform: transform.identity,
           physics: option.None,
         ),
-        scene.mesh(
-          id: "circle[" <> address_string <> "] f",
-          geometry: text_geom(address_string),
-          material: text_mat,
-          transform: transform.at(vec3.Vec3(0.0, 0.0, 0.1)),
-          physics: option.None,
-        ),
-      ])
+      ]
+
+      scene.empty(
+        "container[" <> address_string <> "]",
+        transform,
+        [
+          circle,
+          // glyph,
+          divider,
+        ]
+          |> list.flatten,
+      )
     })
 
   children
 }
 
-fn calculate_transform(
+pub fn calculate_transform(
   address: List(Int),
   sibling_count_stack: List(Int),
-) -> transform.Transform {
+) -> #(transform.Transform, Float) {
   calculate_transform_rec(
     list.reverse(address),
     list.reverse(sibling_count_stack),
@@ -130,7 +177,7 @@ fn calculate_transform_rec(
   sibling_count_stack: List(Int),
   angle: Float,
   transform_acc: transform.Transform,
-) -> transform.Transform {
+) -> #(transform.Transform, Float) {
   case address, sibling_count_stack {
     [index, ..rest_address], [sibling_count, ..rest_siblings] -> {
       let #(transform, new_angle) = case index {
@@ -174,6 +221,6 @@ fn calculate_transform_rec(
     }
 
     // actually [], []
-    _, _ -> transform_acc
+    _, _ -> #(transform_acc, angle)
   }
 }

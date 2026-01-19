@@ -104,20 +104,24 @@ pub fn to_spell_tree_map_test() {
       #(0, [
         #(
           [],
-          Node(option.Some(fragment.NumberFragment(ieee_float.finite(2.0))), []),
+          Node(
+            option.Some(fragment.NumberFragment(ieee_float.finite(2.0))),
+            [],
+            2,
+          ),
         ),
       ]),
       #(1, [
-        #([2], Node(option.Some(fragment.ZalgoFragment), [2])),
-        #([1], Node(fragment: option.None, sibling_count_stack: [2])),
+        #([2], Node(option.Some(fragment.ZalgoFragment), [2], 0)),
+        #([1], Node(option.None, [2], 0)),
       ]),
       #(2, [
-        #([0, 1], Node(option.Some(fragment.VoidFragment), [0, 2])),
+        #([0, 1], Node(option.Some(fragment.VoidFragment), [0, 2], 1)),
       ]),
       #(3, [
         #(
           [1, 0, 1],
-          Node(option.Some(fragment.BooleanFragment(True)), [1, 0, 2]),
+          Node(option.Some(fragment.BooleanFragment(True)), [1, 0, 2], 0),
         ),
       ]),
     ]
