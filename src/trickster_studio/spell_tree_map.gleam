@@ -19,38 +19,52 @@ pub opaque type SpellTreeDepthMap {
   SpellTreeMap(data: MapData)
 }
 
+/// Glyph and number of siblings (including itself) per parent (ordered same as address)
+pub type Node {
+  Node(fragment: fragment.Fragment, sibling_count_stack: List(Int))
+}
+
 type MapData =
-  Dict(Int, Dict(List(Int), fragment.Fragment))
+  Dict(Int, Dict(List(Int), Node))
 
 pub fn entries(
   spell_tree_depth_map map: SpellTreeDepthMap,
-) -> List(#(Int, Dict(List(Int), fragment.Fragment))) {
+) -> List(#(Int, Dict(List(Int), Node))) {
   dict.to_list(map.data)
 }
 
 pub fn to_spell_tree_depth_map(
   spell_part: fragment.SpellPart,
 ) -> SpellTreeDepthMap {
-  to_spell_tree_depth_map_rec(spell_part, [], dict.from_list([]))
+  to_spell_tree_depth_map_rec(spell_part, [], [], dict.from_list([]))
   |> SpellTreeMap
 }
 
 fn to_spell_tree_depth_map_rec(
   spell_part: fragment.SpellPart,
   address: List(Int),
-  map: Dict(Int, Dict(List(Int), fragment.Fragment)),
-) -> Dict(Int, Dict(List(Int), fragment.Fragment)) {
+  sibling_count_stack: List(Int),
+  map: Dict(Int, Dict(List(Int), Node)),
+) -> Dict(Int, Dict(List(Int), Node)) {
   let depth = list.length(address)
+  let child_count = list.length(spell_part.children)
 
   let map_with_this_node = case spell_part.glyph {
     fragment.SpellPartFragment(inner_circle) ->
-      to_spell_tree_depth_map_rec(inner_circle, [0, ..address], map)
+      to_spell_tree_depth_map_rec(
+        inner_circle,
+        [0, ..address],
+        [0, ..sibling_count_stack],
+        map,
+      )
 
     glyph ->
       dict.upsert(map, depth, fn(val) {
+        let node = Node(fragment: glyph, sibling_count_stack:)
+
         case val {
-          option.Some(addr_map) -> dict.insert(addr_map, address, glyph)
-          option.None -> dict.from_list([#(address, glyph)])
+          option.Some(addr_map) -> dict.insert(addr_map, address, node)
+          option.None -> dict.from_list([#(address, node)])
         }
       })
   }
@@ -59,7 +73,12 @@ fn to_spell_tree_depth_map_rec(
     spell_part.children,
     map_with_this_node,
     fn(entries_acc, child, i) {
-      to_spell_tree_depth_map_rec(child, [i + 1, ..address], entries_acc)
+      to_spell_tree_depth_map_rec(
+        child,
+        [i + 1, ..address],
+        [child_count, ..sibling_count_stack],
+        entries_acc,
+      )
     },
   )
 }
@@ -93,7 +112,7 @@ fn get_glyph(
   let potential_glyph = dict.get(addr_map, address)
 
   case potential_glyph {
-    Ok(_) -> potential_glyph
+    Ok(_) -> potential_glyph |> result.map(fn(x) { x.fragment })
     Error(_) ->
       to_spell_part_rec(map, [0, ..address], depth + 1)
       |> result.map(fragment.SpellPartFragment)

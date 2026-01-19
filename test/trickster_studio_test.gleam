@@ -4,7 +4,7 @@ import gleam/pair
 import gleeunit
 import ieee_float
 import trickster_studio/fragment
-import trickster_studio/spell_tree_map
+import trickster_studio/spell_tree_map.{Node}
 
 pub fn main() -> Nil {
   gleeunit.main()
@@ -78,7 +78,7 @@ pub fn hello_world_test() {
   // let str = ""
   // assert str
   //   |> fragment.from_base64
-  //   |> echo
+  //   |> 
   //   |> result.map(fn(x) { fragment.to_base64(x) })
   //   == Ok(str)
   Ok(Nil)
@@ -100,10 +100,10 @@ pub fn to_spell_tree_map_test() {
 
   let expected_map =
     [
-      #(0, [#([], fragment.NumberFragment(ieee_float.finite(2.0)))]),
-      #(1, [#([2], fragment.ZalgoFragment)]),
-      #(2, [#([0, 1], fragment.VoidFragment)]),
-      #(3, [#([1, 0, 1], fragment.BooleanFragment(True))]),
+      #(0, [#([], Node(fragment.NumberFragment(ieee_float.finite(2.0)), []))]),
+      #(1, [#([2], Node(fragment.ZalgoFragment, [2]))]),
+      #(2, [#([0, 1], Node(fragment.VoidFragment, [0, 2]))]),
+      #(3, [#([1, 0, 1], Node(fragment.BooleanFragment(True), [1, 0, 2]))]),
     ]
     |> list.map(pair.map_second(_, dict.from_list))
     |> dict.from_list
