@@ -58,3 +58,7 @@ export function get_url_search_params() {
 
     return list
 }
+
+export function set_transparent_bg(renderer) {
+    renderer.setClearColor( 0x000000, 0 );
+}

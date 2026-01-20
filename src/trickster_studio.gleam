@@ -27,6 +27,9 @@ const test_spell = "tVZBSsNAFP0zTaUNVWLpIqALEQ/g2o2DuMiyeAGp0kUxLSGJ+1FQEnDjDWK3
 @external(javascript, "./trickster_studio/js_utils_ffi.mjs", "get_url_search_params")
 pub fn get_url_search_params() -> List(#(String, String))
 
+@external(javascript, "./trickster_studio/js_utils_ffi.mjs", "set_transparent_bg")
+pub fn set_transparent_bg(renderer: savoiardi.Renderer) -> Nil
+
 pub type Model {
   Model(
     spell: spell_tree_map.SpellTreeDepthMap,
@@ -56,7 +59,7 @@ pub fn main() -> Nil {
 }
 
 fn init(ctx: tiramisu.Context) -> #(Model, Effect(Msg), option.Option(_)) {
-  let search_params = echo dict.from_list(get_url_search_params())
+  let search_params = dict.from_list(get_url_search_params())
 
   let spell = case dict.get(search_params, "spell") {
     Ok(spell_string) ->
@@ -68,13 +71,18 @@ fn init(ctx: tiramisu.Context) -> #(Model, Effect(Msg), option.Option(_)) {
     Error(_) -> fragment.empty_spell_part
   }
 
-  let bg_effect =
-    background.set(
-      ctx.scene,
-      background.Color(0x1a1a2e),
-      BackgroundSet,
-      BackgroundSet,
-    )
+  let bg_effect = case dict.get(search_params, "transparent") {
+    Ok("true") | Ok("True") -> effect.none()
+    _ ->
+      background.set(
+        ctx.scene,
+        background.Color(0x1a1a2e),
+        BackgroundSet,
+        BackgroundSet,
+      )
+  }
+
+  set_transparent_bg(ctx.renderer)
 
   let load_font =
     geometry.load_font(
