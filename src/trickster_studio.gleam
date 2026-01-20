@@ -20,7 +20,7 @@ import trickster_studio/spell_tree_map
 import vec/vec2
 import vec/vec3
 
-const test_spell = "YxEpKcpMzi4uSS2yKi5IzcmJL0gsKuFDCOZkFpewCSD4eaW5SalFDgwQgFNCECFRkFgCpPKYGBxIUb6Bo6kHp3IGAKIDKfy3AAAA"
+const test_spell = "YxEpKcpMzi4uSS2yKi5IzcmJL0gsKuFDCOZkFpcwYVUkgBDMK81NSi1yYIAAJkZmIAnCDIyMgghVBYklQCoPpoqBSGVYLceunpmRhwgjaS3PhE5QNzwYAPwiAUG0AQAA"
 
 pub type Model {
   Model(
@@ -226,6 +226,7 @@ fn view(model: Model, ctx: tiramisu.Context) -> scene.Node {
     ),
     spell_circle_widget(
       model.spell,
+      "spell editor",
       model.circle_texture,
       model.pattern_literal_texture,
       circle_transform,
