@@ -1,16 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Redirecting...</title>
   <script>
-    const path = window.location.pathname;
-    const redirectUrl = `${window.location.origin}${path.includes('/') ? path.substring(0, path.lastIndexOf('/') + 1) : '/'}?path=${path}`;
+    const { origin, pathname, search } = window.location;
+
+    // normalize pathname:
+    // - remove trailing slash
+    // - remove leading slash
+    let cleanPath = pathname;
+
+    // remove trailing slash unless it's just "/"
+    if (cleanPath.length > 1 && cleanPath.endsWith('/')) {
+      cleanPath = cleanPath.slice(0, -1);
+    }
+
+    // remove leading slash
+    if (cleanPath.startsWith('/')) {
+      cleanPath = cleanPath.slice(1);
+    }
+
+    const redirectUrl =
+      `${origin}?path=${encodeURIComponent(cleanPath)}${search}`;
+
     window.location.replace(redirectUrl);
   </script>
 </head>
+
 <body>
   <p>Redirecting...</p>
 </body>
+
 </html>

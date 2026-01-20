@@ -35,13 +35,19 @@ runtime = "bun"
 scripts = [
   { type = "importmap", content = "{ \"imports\": { \"three\": \"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js\", \"three/addons/\": \"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/\", \"@dimforge/rapier3d-compat\": \"https://cdn.jsdelivr.net/npm/@dimforge/rapier3d-compat@0.11.2/+esm\" } }" },
   { content = """
-      (function() {
-        const params = new URLSearchParams(window.location.search);
-        const path = params.get('path');
-        if (path) {
-          window.history.replaceState(null, null, path);
-        }
-      })();
+    (function () {
+      const params = new URLSearchParams(window.location.search);
+      const path = params.get('path');
+
+      if (!path) return;
+
+      params.delete('path');
+
+      const query = params.toString();
+      const newUrl = `/${path}${query ? `?${query}` : ''}`;
+
+      window.history.replaceState(null, '', newUrl);
+    })();
   """ },
 ]
 stylesheets = [{ content = """
