@@ -1,3 +1,4 @@
+import gleam/bool
 import gleam/dict
 import gleam/float
 import gleam/int
@@ -24,27 +25,37 @@ pub type Camera {
 
 pub fn spell_circle_widget(
   spell: spell_tree_map.SpellTreeDepthMap,
-  font: option.Option(savoiardi.Font),
   circle_texture: option.Option(savoiardi.Texture),
+  pattern_literal_texture: option.Option(savoiardi.Texture),
   transform: transform.Transform,
   depth: Int,
   alpha_getter: fn(Float) -> Float,
   text_size_getter: fn(Float) -> Float,
 ) -> scene.Node {
+  use <- bool.guard(
+    option.is_none(circle_texture),
+    scene.empty("spell circle", transform.identity, []),
+  )
+
   spell
   |> spell_tree_map.entries
   |> list.filter(fn(entry) {
     entry.0 >= depth && entry.0 <= depth + node_render_depth
   })
   |> list.flat_map(fn(x) { pair.second(x) |> dict.to_list })
-  |> place_circles(font, circle_texture, alpha_getter, text_size_getter)
+  |> place_circles(
+    circle_texture,
+    pattern_literal_texture,
+    alpha_getter,
+    text_size_getter,
+  )
   |> scene.empty("spell circle", transform, _)
 }
 
 fn place_circles(
   nodes: List(#(List(Int), spell_tree_map.Node)),
-  font: option.Option(savoiardi.Font),
   circle_texture: option.Option(savoiardi.Texture),
+  pattern_literal_texture: option.Option(savoiardi.Texture),
   alpha_getter: fn(Float) -> Float,
   text_size_getter: fn(Float) -> Float,
 ) -> List(scene.Node) {
@@ -100,6 +111,7 @@ fn place_circles(
             size,
             alpha_getter,
             text_size_getter,
+            pattern_literal_texture,
           ),
         ]
         option.None -> []

@@ -20,13 +20,14 @@ import trickster_studio/spell_tree_map
 import vec/vec2
 import vec/vec3
 
-const test_spell = "YxEpKcpMzi4uSS2yKi5IzcmJL0gsKhFECBYklgCpPAYGh04mRk4GBgZmIGZgZMSmBAwolWdCIhh58Gtw6CTWQOopYmIAAMfGuKo0AQAA"
+const test_spell = "YxEpKcpMzi4uSS2yKi5IzcmJL0gsKuFDCOZkFpewCSD4eaW5SalFDgwQgFNCECFRkFgCpPKYGBxIUb6Bo6kHp3IGAKIDKfy3AAAA"
 
 pub type Model {
   Model(
     spell: spell_tree_map.SpellTreeDepthMap,
     font: option.Option(savoiardi.Font),
     circle_texture: option.Option(savoiardi.Texture),
+    pattern_literal_texture: option.Option(savoiardi.Texture),
     circle_camera: spell_circle_widget.Camera,
   )
 }
@@ -38,6 +39,8 @@ pub type Msg {
   FontDidNotLoad
   CircleTextureLoaded(savoiardi.Texture)
   CircleTextureDidNotLoad
+  PatternLiteralTextureLoaded(savoiardi.Texture)
+  PatternLiteralTextureDidNotLoad
 }
 
 pub fn main() -> Nil {
@@ -66,18 +69,32 @@ fn init(ctx: tiramisu.Context) -> #(Model, Effect(Msg), option.Option(_)) {
       FontDidNotLoad,
     )
 
-  let load_texture =
+  let load_circle_texture =
     texture.load("/circle_48.png", CircleTextureLoaded, CircleTextureDidNotLoad)
+
+  let load_pattern_literal_texture =
+    texture.load(
+      "/pattern_literal.png",
+      PatternLiteralTextureLoaded,
+      PatternLiteralTextureDidNotLoad,
+    )
 
   #(
     Model(
       spell: spell_tree_map.to_spell_tree_depth_map(spell),
       font: option.None,
       circle_texture: option.None,
+      pattern_literal_texture: option.None,
       circle_camera: spell_circle_widget.Camera(1.0, 0.0, 0.0),
     ),
     // effect.batch([bg_effect, effect.dispatch(Tick)]),
-    effect.batch([bg_effect, load_texture, load_font, effect.dispatch(Tick)]),
+    effect.batch([
+      bg_effect,
+      load_circle_texture,
+      load_pattern_literal_texture,
+      load_font,
+      effect.dispatch(Tick),
+    ]),
     option.None,
   )
 }
@@ -120,6 +137,22 @@ fn update(
     )
     CircleTextureDidNotLoad -> {
       io.println("circle texture failed to load")
+      #(model, effect.dispatch(Tick), option.None)
+    }
+    PatternLiteralTextureLoaded(pattern_literal_texture) -> #(
+      Model(
+        ..model,
+        pattern_literal_texture: option.Some(texture.set_filter_mode(
+          pattern_literal_texture,
+          texture.NearestFilter,
+          texture.NearestFilter,
+        )),
+      ),
+      effect.none(),
+      option.None,
+    )
+    PatternLiteralTextureDidNotLoad -> {
+      io.println("pattern literal texture failed to load")
       #(model, effect.dispatch(Tick), option.None)
     }
   }
@@ -193,8 +226,8 @@ fn view(model: Model, ctx: tiramisu.Context) -> scene.Node {
     ),
     spell_circle_widget(
       model.spell,
-      model.font,
       model.circle_texture,
+      model.pattern_literal_texture,
       circle_transform,
       depth,
       alpha_getter,
