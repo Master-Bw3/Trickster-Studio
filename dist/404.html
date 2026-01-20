@@ -8,12 +8,9 @@
   <script>
     const { origin, pathname, search } = window.location;
 
-    // normalize pathname:
-    // - remove trailing slash
-    // - remove leading slash
     let cleanPath = pathname;
 
-    // remove trailing slash unless it's just "/"
+    // normalize trailing slash
     if (cleanPath.length > 1 && cleanPath.endsWith('/')) {
       cleanPath = cleanPath.slice(0, -1);
     }
@@ -23,8 +20,10 @@
       cleanPath = cleanPath.slice(1);
     }
 
+    const extraQuery = search ? search.replace(/^\?/, '&') : '';
+
     const redirectUrl =
-      `${origin}?path=${encodeURIComponent(cleanPath)}${search}`;
+      `${origin}?path=${encodeURIComponent(cleanPath)}${extraQuery}`;
 
     window.location.replace(redirectUrl);
   </script>

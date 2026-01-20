@@ -44,7 +44,9 @@ scripts = [
       params.delete('path');
 
       const query = params.toString();
-      const newUrl = `/${path}${query ? `?${query}` : ''}`;
+      const newUrl = query
+        ? `/${path}?${query}`
+        : `/${path}`;
 
       window.history.replaceState(null, '', newUrl);
     })();
