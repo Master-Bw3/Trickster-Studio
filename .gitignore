@@ -9,3 +9,5 @@ node_modules/
 dist/
 *_desktop_bundle/
 .direnv/
+
+!dist/404.html
