@@ -19,6 +19,6 @@ Further documentation can be found at <https://hexdocs.pm/trickster_studio>.
 ## Development
 
 ```sh
-gleam run   # Run the project
+gleam run -m lustre/dev start  # Run the project
 gleam test  # Run the tests
 ```

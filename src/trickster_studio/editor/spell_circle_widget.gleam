@@ -865,7 +865,7 @@ fn render_pattern_glyph(
           { pos_1.y +. pos_2.y } /. 2.0,
           0.0,
         )
-      let length = distance(pos_1.x, pos_1.y, pos_2.x, pos_2.y) *. 0.6
+      let length = distance(pos_1.x, pos_1.y, pos_2.x, pos_2.y) -. 30.0
       let assert Ok(line_geom) = geometry.plane(size: vec2.Vec2(length, 5.0))
 
       let transform =
