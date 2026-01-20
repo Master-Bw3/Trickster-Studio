@@ -1,3 +1,4 @@
+import gleam/dict
 import gleam/float
 import gleam/int
 import gleam/io
@@ -16,11 +17,15 @@ import tiramisu/texture
 import tiramisu/transform
 import trickster_studio/editor/spell_circle_widget.{spell_circle_widget}
 import trickster_studio/fragment
+import trickster_studio/pattern
 import trickster_studio/spell_tree_map
 import vec/vec2
 import vec/vec3
 
-const test_spell = "YxEpKcpMzi4uSS2yKi5IzcmJL0gsKuFDEszJL2FgYGBiZGT+//9/EJBp////vykMAPlPmCU5AAAA"
+const test_spell = "tVZBSsNAFP0zTaUNVWLpIqALEQ/g2o2DuMiyeAGp0kUxLSGJ+1FQEnDjDWK3buoNepaewCM4rYtJmD+/ScWQTCD/zZ/333+TxBmk8eT+IUnH8UUSjcPwNhrF6aF+GI1SdZstAt5mrA8ALXUBYyYEroWr42jemosBcHWy1pZs5sTVs/hcT+DAehTVr+CqTcVvsiU5f0OwPDSjOQxEztg5tcKiI1+oeCHFE83Qb87rt8l05dub7OmHs8fp3TiG0rGDWnPJlRn2aFaSjlf6xboUloHIddwo5vIbrQVbU1Q90hBuRXrZ8rWxiKIm5/p0caShlzir6kWnfX+TlPgWIyHldoA0RD+TJZv/r4Y7WH7tQc6OqGXmADlNw6dpCqOWP/YuypYOFS9kmfGBjoeTJK2jq0CJ7GvkdBS5mJjcvo2RLqs3q6kE2OCg0pvwYxu84PBhtTXaZdfMPrDBFZeuCT+1wp0WmHDPSkaK3ISf2LljQnbs2RFlhI84UL3BS78GdXegdWj47e5tPg9bzDoEyetS3PUXRw8/rvky+sUJAAA="
+
+@external(javascript, "./trickster_studio/js_utils_ffi.mjs", "get_url_search_params")
+pub fn get_url_search_params() -> List(#(String, String))
 
 pub type Model {
   Model(
@@ -51,8 +56,17 @@ pub fn main() -> Nil {
 }
 
 fn init(ctx: tiramisu.Context) -> #(Model, Effect(Msg), option.Option(_)) {
-  let assert Ok(fragment.SpellPartFragment(spell)) =
-    fragment.from_base64(test_spell)
+  let search_params = echo dict.from_list(get_url_search_params())
+
+  let spell = case dict.get(search_params, "spell") {
+    Ok(spell_string) ->
+      case fragment.from_base64(spell_string) {
+        Ok(fragment.SpellPartFragment(spell_part)) -> spell_part
+        Ok(fragment) -> fragment.SpellPart(fragment, [])
+        _ -> fragment.empty_spell_part
+      }
+    Error(_) -> fragment.empty_spell_part
+  }
 
   let bg_effect =
     background.set(

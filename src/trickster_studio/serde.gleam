@@ -20,13 +20,13 @@ fn ushr(value: Int, by: Int) -> Int
 pub fn to_base64(bit_array: BitArray) -> String
 
 @external(javascript, "./js_utils_ffi.mjs", "from_base64")
-pub fn from_base64(base64: String) -> BitArray
+pub fn from_base64(base64: String) -> Result(BitArray, String)
 
 @external(javascript, "./js_utils_ffi.mjs", "gzip")
-pub fn gzip(bit_array: BitArray) -> bit_array
+pub fn gzip(bit_array: BitArray) -> BitArray
 
 @external(javascript, "./js_utils_ffi.mjs", "ungzip")
-pub fn ungzip(bit_array: BitArray) -> bit_array
+pub fn ungzip(bit_array: BitArray) -> Result(BitArray, String)
 
 pub fn encode_string(value: String) -> BitArray {
   encode_var_int(string.length(value))

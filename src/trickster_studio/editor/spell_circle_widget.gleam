@@ -210,10 +210,7 @@ fn calculate_transform_rec(
   case address, sibling_count_stack {
     [index, ..rest_address], [sibling_count, ..rest_siblings] -> {
       let #(transform, new_angle) = case index {
-        0 -> #(
-          transform.with_scale(transform.identity, vec3.Vec3(0.5, 0.5, 0.5)),
-          angle,
-        )
+        0 -> #(transform.scale_uniform(transform.identity, 0.4), angle)
 
         _ -> {
           let new_angle =
@@ -227,12 +224,12 @@ fn calculate_transform_rec(
           let size =
             float.min(0.5, 1.0 /. { int.to_float(sibling_count + 1) /. 2.0 })
 
-          let current_size = transform.scale(transform_acc).x *. size
+          let placement_scale = transform.scale(transform_acc).x *. 0.5
 
           let transform =
             transform.at(vec3.Vec3(
-              1000.0 *. current_size *. x,
-              1000.0 *. current_size *. y,
+              1000.0 *. placement_scale *. x,
+              1000.0 *. placement_scale *. y,
               0.0,
             ))
             |> transform.scale_uniform(size)

@@ -1,4 +1,4 @@
-import { BitArray$BitArray } from '../../prelude.mjs';
+import { BitArray$BitArray, List$Empty, List$NonEmpty, Result$Ok, Result$Error } from '../../prelude.mjs';
 import * as pako from "pako";
 
 function isBunEnvironment() {
@@ -15,8 +15,12 @@ export function gzip(bitArray) {
 }
 
 export function ungzip(bitArray) {
-    let gzipped = pako.ungzip(bitArray.rawBuffer)
-    return BitArray$BitArray(gzipped)
+    try {
+        let gzipped = pako.ungzip(bitArray.rawBuffer)
+        return Result$Ok(BitArray$BitArray(gzipped))
+    } catch (error) {
+        Result$Error(`${error}`)
+    }
 }
 
 export function to_base64(bitArray) {
@@ -29,12 +33,28 @@ export function to_base64(bitArray) {
 }
 
 export function from_base64(string) {
-    if (isBunEnvironment()) {
-        const buf = Buffer.fromBase64(string);
-        return BitArray$BitArray(buf)
-    } else {
-        const arr = Uint8Array.fromBase64(string);
-        return BitArray$BitArray(arr)
+    try {
+        if (isBunEnvironment()) {
+            const buf = Buffer.fromBase64(string);
+            return Result$Ok(BitArray$BitArray(buf))
+        } else {
+            const arr = Uint8Array.fromBase64(string);
+            return Result$Ok(BitArray$BitArray(arr))
+        }
+    } catch (error) {
+        Result$Error(`${error}`)
     }
 
+}
+
+export function get_url_search_params() {
+    let list = List$Empty();
+
+    let searchParams = new URLSearchParams(window.location.search);
+
+    for (const [key, value] of searchParams.entries()) {
+        list = List$NonEmpty([key, value], list)
+    }
+
+    return list
 }

@@ -136,9 +136,12 @@ const spell_part_id: identifier.Identifier = identifier.Identifier(
   "spell_part",
 )
 
-// -----------
-
 const gzip_header: BitArray = <<31, -117, 8, 0, 0, 0, 0, 0, 0, -1>>
+
+pub const empty_spell_part = SpellPart(
+  PatternGlyphFragment(pattern.Pattern([])),
+  [],
+)
 
 pub fn to_base64(fragment: Fragment) -> String {
   to_bytes(fragment)
@@ -317,13 +320,14 @@ fn encode_spell_instruction(spell_instruction: SpellInstruction) -> BitArray {
 
 pub fn from_base64(base64: String) -> Result(Fragment, TricksterStudioError) {
   serde.from_base64(base64)
-  |> from_bytes
+  |> result.replace_error(Todo)
+  |> result.try(from_bytes)
 }
 
 pub fn from_bytes(bit_array: BitArray) -> Result(Fragment, TricksterStudioError) {
   let bytes = serde.ungzip(bit_array.append(gzip_header, bit_array))
   case bytes {
-    <<4:size(8), rest:bytes>> ->
+    Ok(<<4:size(8), rest:bytes>>) ->
       decode_bytes(rest)
       |> result.map(pair.first)
 
