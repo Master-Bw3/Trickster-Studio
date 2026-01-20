@@ -37,6 +37,7 @@ pub type Model {
     circle_texture: option.Option(savoiardi.Texture),
     pattern_literal_texture: option.Option(savoiardi.Texture),
     circle_camera: spell_circle_widget.Camera,
+    mouse_pos: vec2.Vec2(Float),
   )
 }
 
@@ -108,6 +109,7 @@ fn init(ctx: tiramisu.Context) -> #(Model, Effect(Msg), option.Option(_)) {
       circle_texture: option.None,
       pattern_literal_texture: option.None,
       circle_camera: spell_circle_widget.Camera(1.0, 0.0, 0.0),
+      mouse_pos: vec2.Vec2(0.0, 0.0),
     ),
     // effect.batch([bg_effect, effect.dispatch(Tick)]),
     effect.batch([
@@ -128,10 +130,17 @@ fn update(
 ) -> #(Model, Effect(Msg), option.Option(_)) {
   case msg {
     Tick -> {
-      let circle_camera =
-        update_circle_camera(ctx.input, ctx.canvas_size, model.circle_camera)
+      let mouse_pos = input.mouse_position(ctx.input)
 
-      let model = Model(..model, circle_camera:)
+      let circle_camera =
+        update_circle_camera(
+          ctx.input,
+          ctx.canvas_size,
+          model.circle_camera,
+          model.mouse_pos,
+        )
+
+      let model = Model(..model, mouse_pos:, circle_camera:)
 
       #(model, effect.dispatch(Tick), option.None)
     }
@@ -263,6 +272,7 @@ fn update_circle_camera(
   input: input.InputState,
   viewport: vec2.Vec2(Float),
   circle_camera: spell_circle_widget.Camera,
+  prev_mouse_pos: vec2.Vec2(Float),
 ) -> spell_circle_widget.Camera {
   let spell_circle_widget.Camera(zoom:, pan_x:, pan_y:) = circle_camera
 
@@ -271,7 +281,7 @@ fn update_circle_camera(
   let local_mouse_x = mouse_x -. viewport.x /. 2.0
   let local_mouse_y = -1.0 *. { mouse_y -. viewport.y /. 2.0 }
 
-  case scroll {
+  let scroll_transform = case scroll {
     0.0 -> circle_camera
 
     _ -> {
@@ -286,4 +296,26 @@ fn update_circle_camera(
       )
     }
   }
+
+  let mouse_x_delta = mouse_x -. prev_mouse_pos.x
+  let mouse_y_delta = prev_mouse_pos.y -. mouse_y
+
+  let mouse_down = input.is_left_button_pressed(input)
+
+  let pan_transform = case mouse_down {
+    True -> {
+      spell_circle_widget.Camera(
+        zoom: 0.0,
+        pan_x: mouse_x_delta,
+        pan_y: mouse_y_delta,
+      )
+    }
+    False -> spell_circle_widget.Camera(zoom: 0.0, pan_x: 0.0, pan_y: 0.0)
+  }
+
+  spell_circle_widget.Camera(
+    zoom: scroll_transform.zoom +. pan_transform.zoom,
+    pan_x: scroll_transform.pan_x +. pan_transform.pan_x,
+    pan_y: scroll_transform.pan_y +. pan_transform.pan_y,
+  )
 }
