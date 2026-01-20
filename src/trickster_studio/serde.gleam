@@ -186,7 +186,7 @@ pub fn decode_int(
   bit_array: BitArray,
 ) -> Result(#(Int, BitArray), TricksterStudioError) {
   case bit_array {
-    <<first:32, rest:bytes>> -> Ok(#(first, rest))
+    <<first:32-signed, rest:bytes>> -> Ok(#(first, rest))
     _ -> {
       Error(Todo)
     }
