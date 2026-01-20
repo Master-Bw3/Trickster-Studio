@@ -20,7 +20,7 @@ import trickster_studio/spell_tree_map
 import vec/vec2
 import vec/vec3
 
-const test_spell = "YxEpKcpMzi4uSS2yKi5IzcmJL0gsKuFDCOZkFpcwYVUkgBDMK81NSi1yYIAAJkZmIAnCDIyMgghVBYklQCoPpoqBSGVYLceunpmRhwgjaS3PhE5QNzwYAPwiAUG0AQAA"
+const test_spell = "YxEpKcpMzi4uSS2yKi5IzcmJL0gsKuFDEszJL2FgYGBiZGT+//9/EJBp////vykMAPlPmCU5AAAA"
 
 pub type Model {
   Model(
@@ -193,7 +193,7 @@ fn view(model: Model, ctx: tiramisu.Context) -> scene.Node {
 
     let alpha =
       float.min(
-        ctx.canvas_size.y /. { true_size *. 2.0 } -. 0.1,
+        ctx.canvas_size.y /. { true_size *. 6.0 } -. 0.1,
         result.unwrap(float.power(true_size, 1.2), 0.0)
           /. ctx.canvas_size.y
           +. 0.1,

@@ -318,37 +318,33 @@ pub fn render_fragment(
   }
 
   case fragment {
-    fragment.SpellPartFragment(spell_part) ->
-      spell_circle_widget(
-        spell_tree_map.to_spell_tree_depth_map(spell_part),
-        id,
-        circle_texture,
-        pattern_literal_texture,
-        transform.identity |> transform.scale_uniform(0.2),
-        int.min(0, view_depth - fragment_depth),
-        alpha_getter,
-        fn(size) { text_size_getter(size) *. 0.2 },
-      )
     fragment.PatternGlyphFragment(pattern) ->
-      pattern_glyph(pattern, alpha_getter(size), id)
+      render_pattern_glyph(pattern, alpha_getter(size), id)
     fragment.PatternLiteralFragment(pattern) ->
-      pattern_literal(pattern, alpha_getter(size), id, pattern_literal_texture)
-    fragment.NumberFragment(num) -> number(num, text_renderer)
-    fragment.BlockTypeFragment(id) -> block_type(id, text_renderer)
-    fragment.BooleanFragment(bool) -> boolean(bool, text_renderer)
-    fragment.DimensionFragment(id) -> dimension(id, text_renderer)
-    fragment.EntityFragment(uuid: _, name:) -> entity(name, text_renderer)
-    fragment.EntityTypeFragment(id) -> entity_type(id, text_renderer)
-    fragment.ItemTypeFragment(id) -> item_type(id, text_renderer)
-    fragment.MapFragment(_) -> todo
-    fragment.SlotFragment(slot:, source:) -> todo
-    fragment.StringFragment(string) -> string_fragment(string, text_renderer)
-    fragment.TypeFragment(id) -> type_fragment(id, text_renderer)
-    fragment.VectorFragment(x:, y:, z:) -> vector(x, y, z, text_renderer)
-    fragment.VoidFragment -> void(text_renderer)
-    fragment.ZalgoFragment -> zalgo(text_renderer)
+      render_pattern_literal(
+        pattern,
+        alpha_getter(size),
+        id,
+        pattern_literal_texture,
+      )
+    fragment.NumberFragment(num) -> render_number(num, text_renderer)
+    fragment.BlockTypeFragment(id) -> render_block_type(id, text_renderer)
+    fragment.BooleanFragment(bool) -> render_boolean(bool, text_renderer)
+    fragment.DimensionFragment(id) -> render_dimension(id, text_renderer)
+    fragment.EntityFragment(uuid: _, name:) ->
+      render_entity(name, text_renderer)
+    fragment.EntityTypeFragment(id) -> render_entity_type(id, text_renderer)
+    fragment.ItemTypeFragment(id) -> render_item_type(id, text_renderer)
+    fragment.SlotFragment(slot:, source:) ->
+      render_slot(slot, source, text_renderer)
+    fragment.StringFragment(string) ->
+      render_string_fragment(string, text_renderer)
+    fragment.TypeFragment(id) -> render_type_fragment(id, text_renderer)
+    fragment.VectorFragment(x:, y:, z:) -> render_vector(x, y, z, text_renderer)
+    fragment.VoidFragment -> render_void(text_renderer)
+    fragment.ZalgoFragment -> render_zalgo(text_renderer)
     fragment.ListFragment(list) ->
-      list_fragment(
+      render_list(
         list,
         id,
         size,
@@ -359,10 +355,36 @@ pub fn render_fragment(
         view_depth,
         fragment_depth,
       )
+    fragment.MapFragment(map) ->
+      render_map(
+        map,
+        id,
+        size,
+        alpha_getter,
+        text_size_getter,
+        circle_texture,
+        pattern_literal_texture,
+        view_depth,
+        fragment_depth,
+      )
+    fragment.SpellPartFragment(spell_part) ->
+      spell_circle_widget(
+        spell_tree_map.to_spell_tree_depth_map(spell_part),
+        id,
+        circle_texture,
+        pattern_literal_texture,
+        transform.identity |> transform.scale_uniform(0.2),
+        int.min(0, view_depth - fragment_depth),
+        fn(inner_size) {
+          // todo: make circles get darker with depth
+          float.min(alpha_getter(inner_size), alpha_getter(size))
+        },
+        fn(size) { text_size_getter(size) *. 0.2 },
+      )
   }
 }
 
-fn number(
+fn render_number(
   number: ieee_float.IEEEFloat,
   text_renderer: TextRenderer,
 ) -> scene.Node {
@@ -381,7 +403,7 @@ fn number(
   }
 }
 
-fn block_type(
+fn render_block_type(
   id: identifier.Identifier,
   text_renderer: TextRenderer,
 ) -> scene.Node {
@@ -393,7 +415,7 @@ fn block_type(
   |> text_renderer()
 }
 
-fn boolean(bool: Bool, text_renderer: TextRenderer) -> scene.Node {
+fn render_boolean(bool: Bool, text_renderer: TextRenderer) -> scene.Node {
   let color = "#aa3355"
 
   bool.to_string(bool)
@@ -402,7 +424,7 @@ fn boolean(bool: Bool, text_renderer: TextRenderer) -> scene.Node {
   |> text_renderer()
 }
 
-fn dimension(
+fn render_dimension(
   id: identifier.Identifier,
   text_renderer: TextRenderer,
 ) -> scene.Node {
@@ -414,13 +436,13 @@ fn dimension(
   |> text_renderer()
 }
 
-fn entity(name: String, text_renderer: TextRenderer) -> scene.Node {
+fn render_entity(name: String, text_renderer: TextRenderer) -> scene.Node {
   let color = "#8877bb"
 
   text_renderer([#(name, color)])
 }
 
-fn entity_type(
+fn render_entity_type(
   id: identifier.Identifier,
   text_renderer: TextRenderer,
 ) -> scene.Node {
@@ -432,7 +454,7 @@ fn entity_type(
   |> text_renderer()
 }
 
-fn item_type(
+fn render_item_type(
   id: identifier.Identifier,
   text_renderer: TextRenderer,
 ) -> scene.Node {
@@ -444,13 +466,16 @@ fn item_type(
   |> text_renderer()
 }
 
-fn string_fragment(string: String, text_renderer: TextRenderer) -> scene.Node {
+fn render_string_fragment(
+  string: String,
+  text_renderer: TextRenderer,
+) -> scene.Node {
   let color = "#aabb77"
 
   text_renderer([#("\"" <> string <> "\"", color)])
 }
 
-fn type_fragment(
+fn render_type_fragment(
   id: identifier.Identifier,
   text_renderer: TextRenderer,
 ) -> scene.Node {
@@ -462,19 +487,19 @@ fn type_fragment(
   |> text_renderer()
 }
 
-fn void(text_renderer: TextRenderer) -> scene.Node {
+fn render_void(text_renderer: TextRenderer) -> scene.Node {
   let color = "#4400aa"
 
   text_renderer([#("void", color)])
 }
 
-fn zalgo(text_renderer: TextRenderer) -> scene.Node {
+fn render_zalgo(text_renderer: TextRenderer) -> scene.Node {
   let color = "#444444"
 
   text_renderer([#("zalgo", color)])
 }
 
-fn vector(
+fn render_vector(
   x: ieee_float.IEEEFloat,
   y: ieee_float.IEEEFloat,
   z: ieee_float.IEEEFloat,
@@ -493,13 +518,39 @@ fn vector(
     }
   }
 
-  let str =
-    "(" <> "," <> to_str(x) <> "," <> to_str(y) <> "," <> to_str(z) <> ")"
+  let str = "(" <> to_str(x) <> ", " <> to_str(y) <> ", " <> to_str(z) <> ")"
 
   text_renderer([#(str, color)])
 }
 
-fn list_fragment(
+fn render_slot(
+  slot: Int,
+  source: fragment.Source,
+  text_renderer: fn(List(#(String, String))) -> scene.Node,
+) -> scene.Node {
+  let color = "#77aaee"
+
+  let source_string = case source {
+    fragment.Caster -> "caster"
+    fragment.BlockPos(x:, y:, z:) -> {
+      int.to_string(x)
+      <> ", "
+      <> int.to_string(y)
+      <> ", "
+      <> int.to_string(z)
+      <> ")"
+    }
+
+    fragment.UUID(uuid) -> uuid
+  }
+
+  { "slot " <> int.to_string(slot) <> " at " <> source_string }
+  |> pair.new(color)
+  |> list.wrap
+  |> text_renderer()
+}
+
+fn render_list(
   fragments: List(fragment.Fragment),
   id: String,
   size: Float,
@@ -626,7 +677,110 @@ fn tall_bracket(
   ])
 }
 
-fn pattern_literal(
+fn render_map(
+  fragment_map: dict.Dict(fragment.Fragment, fragment.Fragment),
+  id: String,
+  size: Float,
+  alpha_getter: fn(Float) -> Float,
+  text_size_getter: fn(Float) -> Float,
+  circle_texture: option.Option(savoiardi.Texture),
+  pattern_literal_texture: option.Option(savoiardi.Texture),
+  view_depth: Int,
+  fragment_depth: Int,
+) -> scene.Node {
+  let fragments = dict.to_list(fragment_map)
+
+  let spacing = 200.0
+  let scale = float.min(1.0, 0.8 /. int.to_float(list.length(fragments)))
+
+  let arrow_renderer = fn(id) {
+    text([#("->", "#ffffff")], id, size, alpha_getter, fn(size) {
+      text_size_getter(size /. 5.0)
+    })
+  }
+
+  let rendered_fragments =
+    list.index_map(fragments, fn(entry, i) {
+      let rendered_key =
+        render_fragment(
+          entry.0,
+          id <> " key index " <> int.to_string(i),
+          size,
+          alpha_getter,
+          fn(size) { text_size_getter(size) *. scale },
+          circle_texture,
+          pattern_literal_texture,
+          view_depth,
+          fragment_depth,
+        )
+
+      let rendered_value =
+        render_fragment(
+          entry.1,
+          id <> " value index " <> int.to_string(i),
+          size,
+          alpha_getter,
+          fn(size) { text_size_getter(size) *. scale },
+          circle_texture,
+          pattern_literal_texture,
+          view_depth,
+          fragment_depth,
+        )
+
+      scene.empty(
+        id <> "LP" <> int.to_string(i),
+        transform.at(vec3.Vec3(0.0, int.to_float(i) *. spacing, 0.0)),
+        [
+          scene.empty(
+            id <> "KP" <> int.to_string(i),
+            transform.at(vec3.Vec3(-1.0 *. spacing, 0.0, 0.0)),
+            [rendered_key],
+          ),
+          arrow_renderer(id <> "arrow" <> int.to_string(i)),
+          scene.empty(
+            id <> "VP" <> int.to_string(i),
+            transform.at(vec3.Vec3(1.0 *. spacing, 0.0, 0.0)),
+            [rendered_value],
+          ),
+        ],
+      )
+    })
+
+  let height = int.to_float(list.length(fragments)) *. spacing
+  let centered = {
+    0.5 *. { spacing -. height } *. scale
+  }
+
+  let transform =
+    transform.at(vec3.Vec3(0.0, centered, 0.0))
+    |> transform.scale_uniform(scale)
+
+  let left_bracket =
+    tall_bracket(
+      height,
+      id <> "left_b",
+      alpha_getter(size),
+      transform.at(vec3.Vec3(-350.0 *. scale, 0.0, 0.0))
+        |> transform.scale_uniform(scale),
+    )
+  let right_bracket =
+    tall_bracket(
+      height,
+      id <> "right_b",
+      alpha_getter(size),
+      transform.at(vec3.Vec3(350.0 *. scale, 0.0, 0.0))
+        |> transform.scale_uniform(scale)
+        |> transform.rotate_z(maths.pi()),
+    )
+
+  scene.empty(id, transform.identity, [
+    left_bracket,
+    scene.empty(id <> "inner", transform, rendered_fragments),
+    right_bracket,
+  ])
+}
+
+fn render_pattern_literal(
   pattern: pattern.Pattern,
   alpha: Float,
   id: String,
@@ -654,12 +808,12 @@ fn pattern_literal(
     )
 
   scene.empty(id, transform.identity, [
-    pattern_glyph(pattern, alpha, id <> "pattern"),
+    render_pattern_glyph(pattern, alpha, id <> "pattern"),
     sprite,
   ])
 }
 
-fn pattern_glyph(
+fn render_pattern_glyph(
   pattern: pattern.Pattern,
   alpha: Float,
   id: String,
