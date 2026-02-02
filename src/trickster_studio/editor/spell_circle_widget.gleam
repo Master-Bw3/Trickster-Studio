@@ -559,7 +559,11 @@ fn render_list(
   fragment_depth: Int,
 ) -> scene.Node {
   let spacing = 200.0
-  let scale = float.min(1.0, 1.5 /. int.to_float(list.length(fragments)))
+  let scale =
+    float.divide(1.5, int.to_float(list.length(fragments)))
+    |> result.unwrap(1.0)
+    |> float.min(1.0)
+
   let rendered_fragments =
     list.index_map(fragments, fn(fragment, i) {
       let rendered_fragment =
@@ -624,7 +628,7 @@ fn tall_bracket(
 ) {
   let leg_length = 40.0
   let line_width = 20.0
-  let height = height -. 60.0
+  let height = echo float.max(60.0, height -. 60.0)
 
   let assert Ok(sprite_mat) =
     material.basic(
