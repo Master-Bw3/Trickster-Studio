@@ -373,8 +373,7 @@ pub fn render_fragment(
         transform.identity |> transform.scale_uniform(0.2),
         int.min(0, view_depth - fragment_depth),
         fn(inner_size) {
-          // todo: make circles get darker with depth
-          float.min(alpha_getter(inner_size), alpha_getter(size))
+          float.clamp(alpha_getter(size) *. { inner_size /. size }, 0.0, 1.0)
         },
         fn(size) { text_size_getter(size) *. 0.2 },
       )
@@ -558,11 +557,12 @@ fn render_list(
   view_depth: Int,
   fragment_depth: Int,
 ) -> scene.Node {
+  use <- bool.lazy_guard(list.is_empty(fragments), fn() {
+    render_empty_list(id, size, alpha_getter)
+  })
+
   let spacing = 200.0
-  let scale =
-    float.divide(1.5, int.to_float(list.length(fragments)))
-    |> result.unwrap(1.0)
-    |> float.min(1.0)
+  let scale = float.min(1.0, 1.5 /. int.to_float(list.length(fragments)))
 
   let rendered_fragments =
     list.index_map(fragments, fn(fragment, i) {
@@ -620,6 +620,30 @@ fn render_list(
   ])
 }
 
+fn render_empty_list(id: String, size: Float, alpha_getter: fn(Float) -> Float) {
+  let height = 120.0
+  let left_bracket =
+    tall_bracket(
+      height,
+      id <> "left_b",
+      alpha_getter(size),
+      transform.at(vec3.Vec3(-80.0, 0.0, 0.0)),
+    )
+  let right_bracket =
+    tall_bracket(
+      height,
+      id <> "right_b",
+      alpha_getter(size),
+      transform.at(vec3.Vec3(80.0, 0.0, 0.0))
+        |> transform.rotate_z(maths.pi()),
+    )
+
+  scene.empty(id, transform.identity, [
+    left_bracket,
+    right_bracket,
+  ])
+}
+
 fn tall_bracket(
   height: Float,
   id: String,
@@ -628,7 +652,7 @@ fn tall_bracket(
 ) {
   let leg_length = 40.0
   let line_width = 20.0
-  let height = echo float.max(60.0, height -. 60.0)
+  let height = float.max(1.0, height -. 60.0)
 
   let assert Ok(sprite_mat) =
     material.basic(
