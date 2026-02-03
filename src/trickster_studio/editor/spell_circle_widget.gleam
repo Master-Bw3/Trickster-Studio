@@ -562,8 +562,9 @@ fn render_list(
   })
 
   let spacing = 200.0
-  let scale = float.min(1.0, 1.5 /. int.to_float(list.length(fragments)))
-
+  // let scale = float.min(1.0, 1.5 /. int.to_float(list.length(fragments)))
+  let scale =
+    float.min(0.5, 300.0 /. { int.to_float(list.length(fragments)) *. spacing })
   let rendered_fragments =
     list.index_map(fragments, fn(fragment, i) {
       let rendered_fragment =
