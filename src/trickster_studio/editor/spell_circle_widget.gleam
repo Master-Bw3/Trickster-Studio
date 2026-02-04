@@ -34,6 +34,7 @@ pub type Camera {
 
 pub fn spell_circle_widget(
   spell: spell_tree_map.SpellTreeDepthMap,
+  viewport: vec2.Vec2(Float),
   editor_id: String,
   circle_texture: option.Option(savoiardi.Texture),
   pattern_literal_texture: option.Option(savoiardi.Texture),
@@ -46,6 +47,12 @@ pub fn spell_circle_widget(
     option.is_none(circle_texture),
     scene.empty("spell circle", transform.identity, []),
   )
+
+  let viewport_scale =
+    float.min(viewport.x, viewport.y)
+    |> transform.scale_uniform(transform.identity, _)
+
+  let final_transform = transform.compose(transform, viewport_scale)
 
   spell
   |> spell_tree_map.entries
@@ -61,7 +68,7 @@ pub fn spell_circle_widget(
     text_size_getter,
     depth,
   )
-  |> scene.empty(editor_id, transform, _)
+  |> scene.empty(editor_id, final_transform, _)
 }
 
 fn place_circles(
@@ -73,7 +80,7 @@ fn place_circles(
   text_size_getter: fn(Float) -> Float,
   view_depth: Int,
 ) -> List(scene.Node) {
-  let assert Ok(sprite_geom) = geometry.plane(size: vec2.Vec2(500.0, 500.0))
+  let assert Ok(sprite_geom) = geometry.plane(size: vec2.Vec2(1.0, 1.0))
   let sprite_mat = fn(opacity) {
     let assert Ok(mat) =
       material.basic(
@@ -81,22 +88,6 @@ fn place_circles(
         transparent: True,
         opacity:,
         map: circle_texture,
-        side: material.FrontSide,
-        alpha_test: 0.0,
-        depth_write: True,
-      )
-
-    mat
-  }
-
-  let assert Ok(divider_geom) = geometry.plane(size: vec2.Vec2(15.0, 80.0))
-  let divider_mat = fn(opacity) {
-    let assert Ok(mat) =
-      material.basic(
-        color: 0x7F7FFF,
-        transparent: True,
-        opacity:,
-        map: option.None,
         side: material.FrontSide,
         alpha_test: 0.0,
         depth_write: True,
@@ -118,7 +109,7 @@ fn place_circles(
         list.fold(address, "", fn(acc, i) { acc <> int.to_string(i) <> ", " })
 
       let glyph = case fragment {
-        option.Some(fragment) -> [
+        option.Some(fragment) ->
           render_fragment(
             fragment,
             editor_id <> "glyph[" <> address_string <> "]",
@@ -129,64 +120,96 @@ fn place_circles(
             pattern_literal_texture,
             view_depth,
             list.length(address),
-          ),
-        ]
+          )
+          |> list.wrap
+
         option.None -> []
       }
 
-      let divider = case child_count {
-        0 -> []
+      let divider =
+        divider(
+          child_count,
+          angle,
+          editor_id,
+          address_string,
+          alpha_getter,
+          size,
+        )
 
-        _ -> {
-          let new_angle =
-            { angle +. maths.pi() /. 2.0 }
-            +. { 2.0 *. maths.pi() }
-            /. int.to_float(child_count)
-            *. 0.5
-            -. { maths.pi() /. 2.0 }
-
-          let x = maths.cos(new_angle) *. 235.0
-          let y = maths.sin(new_angle) *. 235.0
-
-          let divider_transform =
-            transform.at(vec3.Vec3(x, y, 0.0))
-            |> transform.rotate_z(new_angle -. maths.pi() /. 2.0)
-
-          [
-            scene.mesh(
-              id: editor_id <> "divider[" <> address_string <> "]",
-              geometry: divider_geom,
-              material: divider_mat(alpha_getter(size) /. 4.0),
-              transform: divider_transform,
-              physics: option.None,
-            ),
-          ]
-        }
-      }
-
-      let circle = [
+      let circle =
         scene.mesh(
           id: editor_id <> "circle[" <> address_string <> "]",
           geometry: sprite_geom,
           material: sprite_mat(alpha_getter(size)),
           transform: transform.identity,
           physics: option.None,
-        ),
-      ]
+        )
+        |> list.wrap
 
       scene.empty(
-        editor_id <> "container[" <> address_string <> "]",
-        transform,
-        [
+        id: editor_id <> "container[" <> address_string <> "]",
+        transform:,
+        children: list.flatten([
           circle,
           glyph,
           divider,
-        ]
-          |> list.flatten,
+        ]),
       )
     })
 
   children
+}
+
+fn divider(
+  child_count: Int,
+  angle: Float,
+  editor_id: String,
+  address_string: String,
+  alpha_getter: fn(Float) -> Float,
+  size: Float,
+) -> List(scene.Node) {
+  let opacity = alpha_getter(size) /. 2.0
+  let assert Ok(divider_geom) = geometry.plane(size: vec2.Vec2(0.03, 0.14))
+  let assert Ok(divider_mat) =
+    material.basic(
+      color: 0x7F7FFF,
+      transparent: True,
+      opacity:,
+      map: option.None,
+      side: material.FrontSide,
+      alpha_test: 0.0,
+      depth_write: True,
+    )
+
+  case child_count {
+    0 -> []
+
+    _ -> {
+      let new_angle =
+        { angle +. maths.pi() /. 2.0 }
+        +. { 2.0 *. maths.pi() }
+        /. int.to_float(child_count)
+        *. 0.5
+        -. { maths.pi() /. 2.0 }
+
+      let x = maths.cos(new_angle) *. 0.469
+      let y = maths.sin(new_angle) *. 0.469
+
+      let divider_transform =
+        transform.at(vec3.Vec3(x, y, 0.0))
+        |> transform.rotate_z(new_angle -. maths.pi() /. 2.0)
+
+      [
+        scene.mesh(
+          id: editor_id <> "divider[" <> address_string <> "]",
+          geometry: divider_geom,
+          material: divider_mat,
+          transform: divider_transform,
+          physics: option.None,
+        ),
+      ]
+    }
+  }
 }
 
 pub fn calculate_transform(
@@ -228,8 +251,8 @@ fn calculate_transform_rec(
 
           let transform =
             transform.at(vec3.Vec3(
-              1000.0 *. placement_scale *. x,
-              1000.0 *. placement_scale *. y,
+              2.0 *. placement_scale *. x,
+              2.0 *. placement_scale *. y,
               0.0,
             ))
             |> transform.scale_uniform(size)
@@ -367,6 +390,7 @@ pub fn render_fragment(
     fragment.SpellPartFragment(spell_part) ->
       spell_circle_widget(
         spell_tree_map.to_spell_tree_depth_map(spell_part),
+        vec2.Vec2(1.5, 1.5),
         id,
         circle_texture,
         pattern_literal_texture,
@@ -560,11 +584,15 @@ fn render_list(
   use <- bool.lazy_guard(list.is_empty(fragments), fn() {
     render_empty_list(id, size, alpha_getter)
   })
+  let inner_circle_height_with_padding = 0.8
 
-  let spacing = 200.0
-  // let scale = float.min(1.0, 1.5 /. int.to_float(list.length(fragments)))
-  let scale =
-    float.min(0.5, 300.0 /. { int.to_float(list.length(fragments)) *. spacing })
+  let spacing = 0.5
+  let max_scale =
+    inner_circle_height_with_padding
+    /. { int.to_float(list.length(fragments)) *. spacing }
+
+  let scale = float.min(0.5, max_scale)
+
   let rendered_fragments =
     list.index_map(fragments, fn(fragment, i) {
       let rendered_fragment =
@@ -592,24 +620,26 @@ fn render_list(
     0.5 *. { spacing -. height } *. scale
   }
 
+  let bracket_height = height -. 0.3
+
   let transform =
     transform.at(vec3.Vec3(0.0, centered, 0.0))
     |> transform.scale_uniform(scale)
 
   let left_bracket =
     tall_bracket(
-      height,
+      bracket_height,
       id <> "left_b",
       alpha_getter(size),
-      transform.at(vec3.Vec3(-150.0 *. scale, 0.0, 0.0))
+      transform.at(vec3.Vec3(-0.4 *. scale, 0.0, 0.0))
         |> transform.scale_uniform(scale),
     )
   let right_bracket =
     tall_bracket(
-      height,
+      bracket_height,
       id <> "right_b",
       alpha_getter(size),
-      transform.at(vec3.Vec3(150.0 *. scale, 0.0, 0.0))
+      transform.at(vec3.Vec3(0.4 *. scale, 0.0, 0.0))
         |> transform.scale_uniform(scale)
         |> transform.rotate_z(maths.pi()),
     )
@@ -622,20 +652,20 @@ fn render_list(
 }
 
 fn render_empty_list(id: String, size: Float, alpha_getter: fn(Float) -> Float) {
-  let height = 120.0
+  let height = 0.15
   let left_bracket =
     tall_bracket(
       height,
       id <> "left_b",
       alpha_getter(size),
-      transform.at(vec3.Vec3(-80.0, 0.0, 0.0)),
+      transform.at(vec3.Vec3(-0.2, 0.0, 0.0)),
     )
   let right_bracket =
     tall_bracket(
       height,
       id <> "right_b",
       alpha_getter(size),
-      transform.at(vec3.Vec3(80.0, 0.0, 0.0))
+      transform.at(vec3.Vec3(0.2, 0.0, 0.0))
         |> transform.rotate_z(maths.pi()),
     )
 
@@ -651,9 +681,8 @@ fn tall_bracket(
   alpha: Float,
   transform: transform.Transform,
 ) {
-  let leg_length = 40.0
-  let line_width = 20.0
-  let height = float.max(1.0, height -. 60.0)
+  let leg_length = 0.08
+  let line_width = 0.03
 
   let assert Ok(sprite_mat) =
     material.basic(
@@ -844,7 +873,7 @@ fn render_pattern_glyph(
   alpha: Float,
   id: String,
 ) -> scene.Node {
-  let assert Ok(sprite_geom) = geometry.plane(size: vec2.Vec2(10.0, 10.0))
+  let assert Ok(sprite_geom) = geometry.plane(size: vec2.Vec2(0.05, 0.05))
   let assert Ok(sprite_mat) =
     material.basic(
       color: 0xffffff,
@@ -894,8 +923,8 @@ fn render_pattern_glyph(
           { pos_1.y +. pos_2.y } /. 2.0,
           0.0,
         )
-      let length = distance(pos_1.x, pos_1.y, pos_2.x, pos_2.y) -. 30.0
-      let assert Ok(line_geom) = geometry.plane(size: vec2.Vec2(length, 5.0))
+      let length = distance(pos_1.x, pos_1.y, pos_2.x, pos_2.y) -. 0.15
+      let assert Ok(line_geom) = geometry.plane(size: vec2.Vec2(length, 0.02))
 
       let transform =
         transform.at(position)
@@ -910,7 +939,9 @@ fn render_pattern_glyph(
       )
     })
 
-  scene.empty(id, transform.identity, list.append(dots, lines))
+  let transform_fit = transform.identity |> transform.scale_uniform(0.5)
+
+  scene.empty(id, transform_fit, list.append(dots, lines))
 }
 
 fn distance(x1: Float, y1: Float, x2: Float, y2: Float) -> Float {
@@ -929,5 +960,5 @@ fn get_pattern_dot_position(i: Int) -> vec3.Vec3(Float) {
     False -> #(x_sign, y_sign)
   }
 
-  vec3.Vec3(x_sign *. 100.0, y_sign *. -100.0, 0.0)
+  vec3.Vec3(0.5 *. x_sign, -0.5 *. y_sign, 0.0)
 }

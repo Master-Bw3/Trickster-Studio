@@ -105,7 +105,7 @@ fn init(ctx: tiramisu.Context) -> #(Model, Effect(Msg), option.Option(_)) {
       font: option.None,
       circle_texture: option.None,
       pattern_literal_texture: option.None,
-      circle_camera: spell_circle_widget.Camera(1.0, 0.0, 0.0),
+      circle_camera: spell_circle_widget.Camera(0.6, 0.0, 0.0),
       mouse_pos: vec2.Vec2(0.0, 0.0),
     ),
     // effect.batch([bg_effect, effect.dispatch(Tick)]),
@@ -217,22 +217,18 @@ fn view(model: Model, ctx: tiramisu.Context) -> scene.Node {
     |> result.unwrap(0)
 
   let alpha_getter = fn(size: Float) {
-    let true_size = size *. model.circle_camera.zoom *. 200.0
+    let viewed_size = size *. model.circle_camera.zoom *. ctx.canvas_size.y
 
-    let alpha =
-      float.min(
-        ctx.canvas_size.y /. { true_size *. 6.0 } -. 0.1,
-        result.unwrap(float.power(true_size, 1.2), 0.0)
-          /. ctx.canvas_size.y
-          +. 0.1,
-      )
-    float.min(float.max(alpha, 0.0), 1.0)
+    float.min(
+      ctx.canvas_size.y /. { viewed_size } -. 0.2,
+      result.unwrap(float.power(viewed_size, 1.2), 0.0) /. ctx.canvas_size.y,
+    )
+    |> float.clamp(0.0, 0.8)
   }
 
   let text_size_getter = fn(size: Float) {
-    let true_size = size *. model.circle_camera.zoom *. 200.0
-
-    true_size
+    let true_size = size *. model.circle_camera.zoom *. ctx.canvas_size.y
+    true_size *. 0.5
   }
 
   scene.empty(id: "Scene", transform: transform.identity, children: [
@@ -254,6 +250,7 @@ fn view(model: Model, ctx: tiramisu.Context) -> scene.Node {
     ),
     spell_circle_widget(
       model.spell,
+      ctx.canvas_size,
       "spell editor",
       model.circle_texture,
       model.pattern_literal_texture,
