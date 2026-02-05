@@ -4,6 +4,7 @@ import gleam/int
 import gleam/io
 import gleam/option
 import gleam/result
+import gleam_community/maths
 import savoiardi
 import tiramisu
 import tiramisu/background
@@ -71,61 +72,30 @@ fn init(ctx: tiramisu.Context) -> #(Model, Effect(Msg), option.Option(_)) {
   }
 
   let spell =
-    fragment.SpellPart(
-      fragment.ListFragment([
-        fragment.BooleanFragment(True),
-        fragment.BooleanFragment(False),
-        fragment.SpellPartFragment(
-          fragment.SpellPart(
-            fragment.ListFragment([
-              fragment.BooleanFragment(True),
-              fragment.BooleanFragment(True),
+    fragment.SpellPart(fragment.BooleanFragment(True), [
+      // fragment.empty_spell_part,
+      fragment.SpellPart(fragment.BooleanFragment(True), [
+        // fragment.empty_spell_part, 
+        fragment.SpellPart(fragment.BooleanFragment(True), [
+          // fragment.empty_spell_part,
+          fragment.SpellPart(fragment.BooleanFragment(True), [
+            // fragment.empty_spell_part,
+            fragment.SpellPart(fragment.BooleanFragment(True), [
+              // fragment.empty_spell_part,
+              fragment.SpellPart(fragment.BooleanFragment(True), [
+                // fragment.empty_spell_part, 
+                fragment.SpellPart(fragment.BooleanFragment(True), [
+                  // fragment.empty_spell_part,
+                  fragment.SpellPart(fragment.BooleanFragment(True), [
+                    // fragment.empty_spell_part,
+                  ]),
+                ]),
+              ]),
             ]),
-            [
-              fragment.empty_spell_part,
-            ],
-          ),
-        ),
-        fragment.BooleanFragment(False),
-        fragment.ListFragment([
-          fragment.BooleanFragment(True),
-          fragment.BooleanFragment(True),
-          fragment.BooleanFragment(True),
-          fragment.BooleanFragment(True),
-          fragment.BooleanFragment(True),
-          fragment.BooleanFragment(True),
-          fragment.BooleanFragment(True),
+          ]),
         ]),
       ]),
-      [
-        fragment.empty_spell_part,
-      ],
-    )
-
-  let spell =
-    fragment.SpellPart(
-      fragment.MapFragment(
-        dict.from_list([
-          #(
-            fragment.BooleanFragment(True),
-            fragment.SpellPartFragment(fragment.empty_spell_part),
-          ),
-          #(
-            fragment.BooleanFragment(False),
-            fragment.SpellPartFragment(fragment.empty_spell_part),
-          ),
-          #(
-            fragment.VoidFragment,
-            fragment.SpellPartFragment(fragment.empty_spell_part),
-          ),
-          #(
-            fragment.ZalgoFragment,
-            fragment.SpellPartFragment(fragment.empty_spell_part),
-          ),
-        ]),
-      ),
-      [],
-    )
+    ])
 
   let bg_effect = case dict.get(search_params, "transparent") {
     Ok("true") | Ok("True") -> effect.none()
@@ -275,11 +245,11 @@ fn view(model: Model, ctx: tiramisu.Context) -> scene.Node {
     |> result.unwrap(0)
 
   let alpha_getter = fn(size: Float) {
-    let viewed_size = size *. model.circle_camera.zoom *. ctx.canvas_size.y
+    let viewed_size = size *. model.circle_camera.zoom
 
     float.min(
-      ctx.canvas_size.y /. { viewed_size } -. 0.2,
-      result.unwrap(float.power(viewed_size, 1.2), 0.0) /. ctx.canvas_size.y,
+      result.unwrap(float.power(viewed_size +. 0.7, 4.0), 0.0),
+      result.unwrap(float.power(maths.e(), -6.0 *. { viewed_size -. 0.3 }), 0.0),
     )
     |> float.clamp(0.0, 0.8)
   }

@@ -322,6 +322,17 @@ fn text(
   )
 }
 
+/// Get an estimate of the proportion of the the height of the circle the fragment takes up
+/// from 0 to 1
+fn fragment_proportional_max_height(fragment: fragment.Fragment) {
+  case fragment {
+    fragment.SpellPartFragment(_) -> 0.3
+    fragment.ListFragment(_) -> 0.7
+    fragment.MapFragment(_) -> 0.5
+    _ -> 0.1
+  }
+}
+
 pub fn render_fragment(
   fragment: fragment.Fragment,
   id: String,
@@ -584,17 +595,23 @@ fn render_list(
   use <- bool.lazy_guard(list.is_empty(fragments), fn() {
     render_empty_list(id, size, alpha_getter)
   })
-  let inner_circle_height_with_padding = 1.6
+  let inner_circle_height_with_padding = 1.4
 
-  let spacing = 1.0
-  let max_scale =
-    inner_circle_height_with_padding
-    /. { int.to_float(list.length(fragments)) *. spacing }
+  let spacing = 0.2
+
+  let height =
+    list.fold(fragments, 0.0, fn(acc, fragment) {
+      2.0 *. fragment_proportional_max_height(fragment) +. spacing +. acc
+    })
+
+  let max_scale = inner_circle_height_with_padding /. { height }
 
   let scale = float.min(1.0, max_scale)
 
-  let rendered_fragments =
-    list.index_map(fragments, fn(fragment, i) {
+  let #(rendered_fragments, height) =
+    list.index_fold(fragments, #([], 0.0), fn(acc, fragment, i) {
+      let fragment_height = 2.0 *. fragment_proportional_max_height(fragment)
+      let #(sprites, total_height) = acc
       let rendered_fragment =
         render_fragment(
           fragment,
@@ -607,20 +624,28 @@ fn render_list(
           view_depth,
           fragment_depth,
         )
+      let sprite =
+        scene.empty(
+          id <> "LP" <> int.to_string(i),
+          transform.at(vec3.Vec3(
+            0.0,
+            -1.0 *. { total_height +. 0.5 *. { fragment_height +. spacing } },
+            0.0,
+          )),
+          [rendered_fragment],
+        )
 
-      scene.empty(
-        id <> "LP" <> int.to_string(i),
-        transform.at(vec3.Vec3(0.0, int.to_float(i) *. spacing, 0.0)),
-        [rendered_fragment],
-      )
+      let new_height = total_height +. fragment_height +. spacing
+      let new_sprites = [sprite, ..sprites]
+
+      #(new_sprites, new_height)
     })
 
-  let height = int.to_float(list.length(fragments)) *. spacing
   let centered = {
-    0.5 *. { spacing -. height } *. scale
+    0.5 *. { height } *. scale
   }
 
-  let bracket_height = height -. 0.3
+  let bracket_height = height
 
   let transform =
     transform.at(vec3.Vec3(0.0, centered, 0.0))
@@ -743,16 +768,26 @@ fn render_map(
   view_depth: Int,
   fragment_depth: Int,
 ) -> scene.Node {
-  let inner_circle_height_with_padding = 1.2
+  let inner_circle_height_with_padding = 1.0
 
   let fragments = dict.to_list(fragment_map)
 
-  let spacing = 1.0
-  let max_scale =
-    inner_circle_height_with_padding
-    /. { int.to_float(list.length(fragments)) *. spacing }
+  let spacing = 0.2
 
-  let scale = float.min(0.5, max_scale)
+  let height =
+    list.fold(fragments, 0.0, fn(acc, entry) {
+      2.0
+      *. float.max(
+        fragment_proportional_max_height(entry.0),
+        fragment_proportional_max_height(entry.1),
+      )
+      +. spacing
+      +. acc
+    })
+
+  let max_scale = inner_circle_height_with_padding /. { height }
+
+  let scale = float.min(0.4, max_scale)
 
   let arrow_renderer = fn(id) {
     text([#("->", "#ffffff")], id, size, alpha_getter, fn(size) {
@@ -760,8 +795,17 @@ fn render_map(
     })
   }
 
-  let rendered_fragments =
-    list.index_map(fragments, fn(entry, i) {
+  let #(rendered_fragments, height) =
+    list.index_fold(fragments, #([], 0.0), fn(acc, entry, i) {
+      let fragment_height =
+        2.0
+        *. float.max(
+          fragment_proportional_max_height(entry.0),
+          fragment_proportional_max_height(entry.1),
+        )
+
+      let #(sprites, total_height) = acc
+
       let rendered_key =
         render_fragment(
           entry.0,
@@ -775,6 +819,9 @@ fn render_map(
           fragment_depth,
         )
 
+      let vertical_shift =
+        -1.0 *. { total_height +. 0.5 *. { fragment_height +. spacing } }
+
       let rendered_value =
         render_fragment(
           entry.1,
@@ -787,29 +834,33 @@ fn render_map(
           view_depth,
           fragment_depth,
         )
+      let sprite =
+        scene.empty(
+          id <> "LP" <> int.to_string(i),
+          transform.at(vec3.Vec3(0.0, vertical_shift, 0.0)),
+          [
+            scene.empty(
+              id <> "KP" <> int.to_string(i),
+              transform.at(vec3.Vec3(-0.8, 0.0, 0.0)),
+              [rendered_key],
+            ),
+            arrow_renderer(id <> "arrow" <> int.to_string(i)),
+            scene.empty(
+              id <> "VP" <> int.to_string(i),
+              transform.at(vec3.Vec3(0.8, 0.0, 0.0)),
+              [rendered_value],
+            ),
+          ],
+        )
 
-      scene.empty(
-        id <> "LP" <> int.to_string(i),
-        transform.at(vec3.Vec3(0.0, int.to_float(i) *. spacing, 0.0)),
-        [
-          scene.empty(
-            id <> "KP" <> int.to_string(i),
-            transform.at(vec3.Vec3(-0.6 *. spacing, 0.0, 0.0)),
-            [rendered_key],
-          ),
-          arrow_renderer(id <> "arrow" <> int.to_string(i)),
-          scene.empty(
-            id <> "VP" <> int.to_string(i),
-            transform.at(vec3.Vec3(0.6 *. spacing, 0.0, 0.0)),
-            [rendered_value],
-          ),
-        ],
-      )
+      let new_height = total_height +. fragment_height +. spacing
+      let new_sprites = [sprite, ..sprites]
+
+      #(new_sprites, new_height)
     })
 
-  let height = int.to_float(list.length(fragments)) *. spacing
   let centered = {
-    0.5 *. { spacing -. height } *. scale
+    0.5 *. { height } *. scale
   }
 
   let transform =
@@ -821,7 +872,7 @@ fn render_map(
       height,
       id <> "left_b",
       alpha_getter(size),
-      transform.at(vec3.Vec3(-1.1 *. scale, 0.0, 0.0))
+      transform.at(vec3.Vec3(-1.4 *. scale, 0.0, 0.0))
         |> transform.scale_uniform(scale),
     )
   let right_bracket =
@@ -829,7 +880,7 @@ fn render_map(
       height,
       id <> "right_b",
       alpha_getter(size),
-      transform.at(vec3.Vec3(1.1 *. scale, 0.0, 0.0))
+      transform.at(vec3.Vec3(1.4 *. scale, 0.0, 0.0))
         |> transform.scale_uniform(scale)
         |> transform.rotate_z(maths.pi()),
     )
