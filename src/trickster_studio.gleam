@@ -71,32 +71,6 @@ fn init(ctx: tiramisu.Context) -> #(Model, Effect(Msg), option.Option(_)) {
     Error(_) -> fragment.empty_spell_part
   }
 
-  let spell =
-    fragment.SpellPart(fragment.BooleanFragment(True), [
-      // fragment.empty_spell_part,
-      fragment.SpellPart(fragment.BooleanFragment(True), [
-        // fragment.empty_spell_part, 
-        fragment.SpellPart(fragment.BooleanFragment(True), [
-          // fragment.empty_spell_part,
-          fragment.SpellPart(fragment.BooleanFragment(True), [
-            // fragment.empty_spell_part,
-            fragment.SpellPart(fragment.BooleanFragment(True), [
-              // fragment.empty_spell_part,
-              fragment.SpellPart(fragment.BooleanFragment(True), [
-                // fragment.empty_spell_part, 
-                fragment.SpellPart(fragment.BooleanFragment(True), [
-                  // fragment.empty_spell_part,
-                  fragment.SpellPart(fragment.BooleanFragment(True), [
-                    // fragment.empty_spell_part,
-                  ]),
-                ]),
-              ]),
-            ]),
-          ]),
-        ]),
-      ]),
-    ])
-
   let bg_effect = case dict.get(search_params, "transparent") {
     Ok("true") | Ok("True") -> effect.none()
     _ ->
