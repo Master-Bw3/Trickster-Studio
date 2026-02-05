@@ -80,7 +80,7 @@ fn place_circles(
   text_size_getter: fn(Float) -> Float,
   view_depth: Int,
 ) -> List(scene.Node) {
-  let assert Ok(sprite_geom) = geometry.plane(size: vec2.Vec2(1.0, 1.0))
+  let assert Ok(sprite_geom) = geometry.plane(size: vec2.Vec2(2.0, 2.0))
   let sprite_mat = fn(opacity) {
     let assert Ok(mat) =
       material.basic(
@@ -169,7 +169,7 @@ fn divider(
   size: Float,
 ) -> List(scene.Node) {
   let opacity = alpha_getter(size) /. 2.0
-  let assert Ok(divider_geom) = geometry.plane(size: vec2.Vec2(0.03, 0.14))
+  let assert Ok(divider_geom) = geometry.plane(size: vec2.Vec2(0.06, 0.3))
   let assert Ok(divider_mat) =
     material.basic(
       color: 0x7F7FFF,
@@ -192,8 +192,8 @@ fn divider(
         *. 0.5
         -. { maths.pi() /. 2.0 }
 
-      let x = maths.cos(new_angle) *. 0.469
-      let y = maths.sin(new_angle) *. 0.469
+      let x = maths.cos(new_angle) *. 0.945
+      let y = maths.sin(new_angle) *. 0.945
 
       let divider_transform =
         transform.at(vec3.Vec3(x, y, 0.0))
@@ -247,7 +247,7 @@ fn calculate_transform_rec(
           let size =
             float.min(0.5, 1.0 /. { int.to_float(sibling_count + 1) /. 2.0 })
 
-          let placement_scale = transform.scale(transform_acc).x *. 0.5
+          let placement_scale = transform.scale(transform_acc).x
 
           let transform =
             transform.at(vec3.Vec3(
@@ -394,7 +394,7 @@ pub fn render_fragment(
         id,
         circle_texture,
         pattern_literal_texture,
-        transform.identity |> transform.scale_uniform(0.2),
+        transform.identity |> transform.scale_uniform(0.15),
         int.min(0, view_depth - fragment_depth),
         fn(inner_size) {
           float.clamp(alpha_getter(size) *. { inner_size /. size }, 0.0, 1.0)
@@ -584,14 +584,14 @@ fn render_list(
   use <- bool.lazy_guard(list.is_empty(fragments), fn() {
     render_empty_list(id, size, alpha_getter)
   })
-  let inner_circle_height_with_padding = 0.8
+  let inner_circle_height_with_padding = 1.6
 
-  let spacing = 0.5
+  let spacing = 1.0
   let max_scale =
     inner_circle_height_with_padding
     /. { int.to_float(list.length(fragments)) *. spacing }
 
-  let scale = float.min(0.5, max_scale)
+  let scale = float.min(1.0, max_scale)
 
   let rendered_fragments =
     list.index_map(fragments, fn(fragment, i) {
@@ -631,7 +631,7 @@ fn render_list(
       bracket_height,
       id <> "left_b",
       alpha_getter(size),
-      transform.at(vec3.Vec3(-0.4 *. scale, 0.0, 0.0))
+      transform.at(vec3.Vec3(-0.6 *. scale, 0.0, 0.0))
         |> transform.scale_uniform(scale),
     )
   let right_bracket =
@@ -639,7 +639,7 @@ fn render_list(
       bracket_height,
       id <> "right_b",
       alpha_getter(size),
-      transform.at(vec3.Vec3(0.4 *. scale, 0.0, 0.0))
+      transform.at(vec3.Vec3(0.6 *. scale, 0.0, 0.0))
         |> transform.scale_uniform(scale)
         |> transform.rotate_z(maths.pi()),
     )
@@ -743,10 +743,16 @@ fn render_map(
   view_depth: Int,
   fragment_depth: Int,
 ) -> scene.Node {
+  let inner_circle_height_with_padding = 1.2
+
   let fragments = dict.to_list(fragment_map)
 
-  let spacing = 200.0
-  let scale = float.min(1.0, 0.8 /. int.to_float(list.length(fragments)))
+  let spacing = 1.0
+  let max_scale =
+    inner_circle_height_with_padding
+    /. { int.to_float(list.length(fragments)) *. spacing }
+
+  let scale = float.min(0.5, max_scale)
 
   let arrow_renderer = fn(id) {
     text([#("->", "#ffffff")], id, size, alpha_getter, fn(size) {
@@ -788,13 +794,13 @@ fn render_map(
         [
           scene.empty(
             id <> "KP" <> int.to_string(i),
-            transform.at(vec3.Vec3(-1.0 *. spacing, 0.0, 0.0)),
+            transform.at(vec3.Vec3(-0.6 *. spacing, 0.0, 0.0)),
             [rendered_key],
           ),
           arrow_renderer(id <> "arrow" <> int.to_string(i)),
           scene.empty(
             id <> "VP" <> int.to_string(i),
-            transform.at(vec3.Vec3(1.0 *. spacing, 0.0, 0.0)),
+            transform.at(vec3.Vec3(0.6 *. spacing, 0.0, 0.0)),
             [rendered_value],
           ),
         ],
@@ -815,7 +821,7 @@ fn render_map(
       height,
       id <> "left_b",
       alpha_getter(size),
-      transform.at(vec3.Vec3(-350.0 *. scale, 0.0, 0.0))
+      transform.at(vec3.Vec3(-1.1 *. scale, 0.0, 0.0))
         |> transform.scale_uniform(scale),
     )
   let right_bracket =
@@ -823,7 +829,7 @@ fn render_map(
       height,
       id <> "right_b",
       alpha_getter(size),
-      transform.at(vec3.Vec3(350.0 *. scale, 0.0, 0.0))
+      transform.at(vec3.Vec3(1.1 *. scale, 0.0, 0.0))
         |> transform.scale_uniform(scale)
         |> transform.rotate_z(maths.pi()),
     )
@@ -873,7 +879,7 @@ fn render_pattern_glyph(
   alpha: Float,
   id: String,
 ) -> scene.Node {
-  let assert Ok(sprite_geom) = geometry.plane(size: vec2.Vec2(0.05, 0.05))
+  let assert Ok(sprite_geom) = geometry.plane(size: vec2.Vec2(0.1, 0.1))
   let assert Ok(sprite_mat) =
     material.basic(
       color: 0xffffff,
@@ -923,8 +929,8 @@ fn render_pattern_glyph(
           { pos_1.y +. pos_2.y } /. 2.0,
           0.0,
         )
-      let length = distance(pos_1.x, pos_1.y, pos_2.x, pos_2.y) -. 0.15
-      let assert Ok(line_geom) = geometry.plane(size: vec2.Vec2(length, 0.02))
+      let length = distance(pos_1.x, pos_1.y, pos_2.x, pos_2.y) -. 0.3
+      let assert Ok(line_geom) = geometry.plane(size: vec2.Vec2(length, 0.04))
 
       let transform =
         transform.at(position)
@@ -960,5 +966,5 @@ fn get_pattern_dot_position(i: Int) -> vec3.Vec3(Float) {
     False -> #(x_sign, y_sign)
   }
 
-  vec3.Vec3(0.5 *. x_sign, -0.5 *. y_sign, 0.0)
+  vec3.Vec3(x_sign, -1.0 *. y_sign, 0.0)
 }

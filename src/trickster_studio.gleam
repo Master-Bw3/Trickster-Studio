@@ -17,6 +17,7 @@ import tiramisu/texture
 import tiramisu/transform
 import trickster_studio/editor/spell_circle_widget.{spell_circle_widget}
 import trickster_studio/fragment
+import trickster_studio/pattern
 import trickster_studio/spell_tree_map
 import vec/vec2
 import vec/vec3
@@ -69,6 +70,63 @@ fn init(ctx: tiramisu.Context) -> #(Model, Effect(Msg), option.Option(_)) {
     Error(_) -> fragment.empty_spell_part
   }
 
+  let spell =
+    fragment.SpellPart(
+      fragment.ListFragment([
+        fragment.BooleanFragment(True),
+        fragment.BooleanFragment(False),
+        fragment.SpellPartFragment(
+          fragment.SpellPart(
+            fragment.ListFragment([
+              fragment.BooleanFragment(True),
+              fragment.BooleanFragment(True),
+            ]),
+            [
+              fragment.empty_spell_part,
+            ],
+          ),
+        ),
+        fragment.BooleanFragment(False),
+        fragment.ListFragment([
+          fragment.BooleanFragment(True),
+          fragment.BooleanFragment(True),
+          fragment.BooleanFragment(True),
+          fragment.BooleanFragment(True),
+          fragment.BooleanFragment(True),
+          fragment.BooleanFragment(True),
+          fragment.BooleanFragment(True),
+        ]),
+      ]),
+      [
+        fragment.empty_spell_part,
+      ],
+    )
+
+  let spell =
+    fragment.SpellPart(
+      fragment.MapFragment(
+        dict.from_list([
+          #(
+            fragment.BooleanFragment(True),
+            fragment.SpellPartFragment(fragment.empty_spell_part),
+          ),
+          #(
+            fragment.BooleanFragment(False),
+            fragment.SpellPartFragment(fragment.empty_spell_part),
+          ),
+          #(
+            fragment.VoidFragment,
+            fragment.SpellPartFragment(fragment.empty_spell_part),
+          ),
+          #(
+            fragment.ZalgoFragment,
+            fragment.SpellPartFragment(fragment.empty_spell_part),
+          ),
+        ]),
+      ),
+      [],
+    )
+
   let bg_effect = case dict.get(search_params, "transparent") {
     Ok("true") | Ok("True") -> effect.none()
     _ ->
@@ -105,7 +163,7 @@ fn init(ctx: tiramisu.Context) -> #(Model, Effect(Msg), option.Option(_)) {
       font: option.None,
       circle_texture: option.None,
       pattern_literal_texture: option.None,
-      circle_camera: spell_circle_widget.Camera(0.6, 0.0, 0.0),
+      circle_camera: spell_circle_widget.Camera(0.3, 0.0, 0.0),
       mouse_pos: vec2.Vec2(0.0, 0.0),
     ),
     // effect.batch([bg_effect, effect.dispatch(Tick)]),
