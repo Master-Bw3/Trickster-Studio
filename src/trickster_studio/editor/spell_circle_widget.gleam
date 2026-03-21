@@ -768,9 +768,13 @@ fn render_map(
   view_depth: Int,
   fragment_depth: Int,
 ) -> scene.Node {
-  let inner_circle_height_with_padding = 1.0
-
   let fragments = dict.to_list(fragment_map)
+
+  use <- bool.lazy_guard(list.is_empty(fragments), fn() {
+    render_empty_list(id, size, alpha_getter)
+  })
+
+  let inner_circle_height_with_padding = 1.0
 
   let spacing = 0.2
 
