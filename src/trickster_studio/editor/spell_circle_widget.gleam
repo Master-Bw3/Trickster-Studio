@@ -19,6 +19,7 @@ import tiramisu/material
 import tiramisu/scene
 import tiramisu/transform
 import trickster_studio/spell_tree_map
+import trickster_studio/storage
 import vec/vec2
 import vec/vec3
 
@@ -366,12 +367,15 @@ pub fn render_fragment(
       render_entity(name, text_renderer)
     fragment.EntityTypeFragment(id) -> render_entity_type(id, text_renderer)
     fragment.ItemTypeFragment(id) -> render_item_type(id, text_renderer)
-    fragment.SlotFragment(slot:, source:) ->
-      render_slot(slot, source, text_renderer)
+    fragment.SlotFragment(slot:, variant:) ->
+      render_slot(slot, variant, text_renderer)
+    fragment.ContainerFragment(source:, variant:) ->
+      render_container(source, variant, text_renderer)
     fragment.StringFragment(string) ->
       render_string_fragment(string, text_renderer)
     fragment.TypeFragment(id) -> render_type_fragment(id, text_renderer)
     fragment.VectorFragment(x:, y:, z:) -> render_vector(x, y, z, text_renderer)
+    fragment.ColorFragment(color:) -> render_color(color, text_renderer)
     fragment.VoidFragment -> render_void(text_renderer)
     fragment.ZalgoFragment -> render_zalgo(text_renderer)
     fragment.ListFragment(list) ->
@@ -554,28 +558,40 @@ fn render_vector(
   text_renderer([#(str, color)])
 }
 
+fn render_color(color: Int, text_renderer: TextRenderer) -> scene.Node {
+  let assert <<a:int-8, r:int-8, g:int-8, b:int-8>> = <<color:int-32>>
+
+  let hex_code =
+    "#"
+    <> int.to_base16(r) |> string.pad_start(2, "0")
+    <> int.to_base16(g) |> string.pad_start(2, "0")
+    <> int.to_base16(b) |> string.pad_start(2, "0")
+    <> int.to_base16(a) |> string.pad_start(2, "0")
+
+  text_renderer([#(hex_code, hex_code)])
+}
+
 fn render_slot(
-  slot: Int,
-  source: fragment.Source,
+  slot: storage.Slot,
+  variant: identifier.Identifier,
   text_renderer: fn(List(#(String, String))) -> scene.Node,
 ) -> scene.Node {
   let color = "#77aaee"
 
-  let source_string = case source {
-    fragment.Caster -> "caster"
-    fragment.BlockPos(x:, y:, z:) -> {
-      int.to_string(x)
-      <> ", "
-      <> int.to_string(y)
-      <> ", "
-      <> int.to_string(z)
-      <> ")"
-    }
+  storage.slot_to_string(slot)
+  |> pair.new(color)
+  |> list.wrap
+  |> text_renderer()
+}
 
-    fragment.UUID(uuid) -> uuid
-  }
+fn render_container(
+  source: storage.Source,
+  variant: identifier.Identifier,
+  text_renderer: fn(List(#(String, String))) -> scene.Node,
+) -> scene.Node {
+  let color = "#bbbbff"
 
-  { "slot " <> int.to_string(slot) <> " at " <> source_string }
+  storage.source_to_string(source)
   |> pair.new(color)
   |> list.wrap
   |> text_renderer()

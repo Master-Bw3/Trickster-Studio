@@ -3,13 +3,14 @@ import gleam/dict.{type Dict}
 import gleam/list
 import gleam/option
 import gleam/pair
-import gleam/result.{map}
+import gleam/result
 import ieee_float.{type IEEEFloat}
+import trickster_studio/blockpos.{type BlockPos}
 import trickster_studio/error.{type TricksterStudioError, Todo}
 import trickster_studio/identifier.{type Identifier}
 import trickster_studio/pattern.{type Pattern}
 import trickster_studio/serde
-import vec/vec3.{type Vec3}
+import trickster_studio/storage
 
 pub type Fragment {
   SpellPartFragment(SpellPart)
@@ -24,18 +25,14 @@ pub type Fragment {
   ItemTypeFragment(Identifier)
   ListFragment(List(Fragment))
   MapFragment(Dict(Fragment, Fragment))
-  SlotFragment(slot: Int, source: Source)
+  SlotFragment(slot: storage.Slot, variant: Identifier)
+  ContainerFragment(source: storage.Source, variant: Identifier)
   StringFragment(String)
   TypeFragment(Identifier)
   VectorFragment(x: IEEEFloat, y: IEEEFloat, z: IEEEFloat)
+  ColorFragment(color: Int)
   VoidFragment
   ZalgoFragment
-}
-
-pub type Source {
-  Caster
-  BlockPos(x: Int, y: Int, z: Int)
-  UUID(String)
 }
 
 pub type SpellPart {
@@ -62,6 +59,11 @@ const entity_type_id: identifier.Identifier = identifier.Identifier(
 const slot_id: identifier.Identifier = identifier.Identifier(
   "trickster",
   "slot",
+)
+
+const container_id: identifier.Identifier = identifier.Identifier(
+  "trickster",
+  "container",
 )
 
 const string_id: identifier.Identifier = identifier.Identifier(
@@ -92,6 +94,11 @@ const zalgo_id: identifier.Identifier = identifier.Identifier(
 const vector_id: identifier.Identifier = identifier.Identifier(
   "trickster",
   "vector",
+)
+
+const color_id: identifier.Identifier = identifier.Identifier(
+  "trickster",
+  "color",
 )
 
 const block_type_id: identifier.Identifier = identifier.Identifier(
@@ -205,30 +212,15 @@ fn encode_bytes(fragment: Fragment) -> BitArray {
       encode_fragment_struct(map_id, serde.encode_list(encoded_entries))
     }
 
-    SlotFragment(slot:, source:) ->
-      case source {
-        Caster -> serde.encode_boolean(False)
-
-        BlockPos(x:, y:, z:) ->
-          serde.encode_option(option.Some([x, y, z]), fn(blockpos) {
-            bit_array.append(
-              //is left
-              serde.encode_boolean(True),
-              serde.encode_list(list.map(blockpos, serde.encode_int)),
-            )
-          })
-
-        UUID(uuid) ->
-          serde.encode_option(option.Some(uuid), fn(uuid) {
-            bit_array.append(
-              //is not left
-              serde.encode_boolean(False),
-              serde.encode_string(uuid),
-            )
-          })
-      }
-      |> bit_array.append(serde.encode_int(slot), _)
+    SlotFragment(slot:, variant:) ->
+      storage.encode_slot(slot)
+      |> bit_array.append(serde.encode_identifier(variant))
       |> encode_fragment_struct(slot_id, _)
+
+    ContainerFragment(source:, variant:) ->
+      storage.encode_source(source)
+      |> bit_array.append(serde.encode_identifier(variant))
+      |> encode_fragment_struct(container_id, _)
 
     StringFragment(string) ->
       encode_fragment_struct(string_id, serde.encode_string(string))
@@ -241,6 +233,9 @@ fn encode_bytes(fragment: Fragment) -> BitArray {
         vector_id,
         serde.encode_list(list.map([x, y, z], serde.encode_float)),
       )
+
+    ColorFragment(color) ->
+      encode_fragment_struct(color_id, serde.encode_int(color))
 
     VoidFragment -> serde.encode_identifier(void_id)
 
@@ -400,40 +395,17 @@ fn decode_bytes(
     }
 
     id if id == slot_id -> {
-      use #(slot, bit_array) <- result.try(serde.decode_int(bit_array))
-      use #(present, bit_array) <- result.try(serde.decode_boolean(bit_array))
+      use #(slot, bit_array) <- result.try(storage.decode_slot(bit_array))
+      use #(variant, bit_array) <- result.map(serde.decode_identifier(bit_array))
 
-      let uuid_source_decoder = fn(bit_array) {
-        use #(uuid, bit_array) <- result.map(serde.decode_string(bit_array))
+      #(SlotFragment(slot:, variant:), bit_array)
+    }
 
-        #(SlotFragment(slot, UUID(uuid)), bit_array)
-      }
+    id if id == container_id -> {
+      use #(source, bit_array) <- result.try(storage.decode_source(bit_array))
+      use #(variant, bit_array) <- result.map(serde.decode_identifier(bit_array))
 
-      let blockpos_source_decoder = fn(bit_array) {
-        use #(coordinates, bit_array) <- result.try(serde.list_of(
-          serde.decode_int,
-        )(bit_array))
-
-        case coordinates {
-          [x, y, z] -> Ok(#(SlotFragment(slot, BlockPos(x, y, z)), bit_array))
-          _ -> {
-            Error(Todo)
-          }
-        }
-      }
-
-      case present {
-        False -> Ok(#(SlotFragment(slot: slot, source: Caster), bit_array))
-        True -> {
-          use #(is_left, bit_array) <- result.try(serde.decode_boolean(
-            bit_array,
-          ))
-          case is_left {
-            True -> blockpos_source_decoder(bit_array)
-            False -> uuid_source_decoder(bit_array)
-          }
-        }
-      }
+      #(ContainerFragment(source:, variant:), bit_array)
     }
 
     id if id == string_id ->
@@ -456,6 +428,11 @@ fn decode_bytes(
           }
         }
       })
+      |> serde.apply_decoder(bit_array)
+
+    id if id == color_id ->
+      serde.decode_int
+      |> serde.map_decoder(ColorFragment)
       |> serde.apply_decoder(bit_array)
 
     id if id == void_id -> Ok(#(VoidFragment, bit_array))
