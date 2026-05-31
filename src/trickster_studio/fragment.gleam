@@ -6,11 +6,14 @@ import gleam/pair
 import gleam/result
 import ieee_float.{type IEEEFloat}
 import trickster_studio/blockpos.{type BlockPos}
-import trickster_studio/error.{type TricksterStudioError, Todo}
+import trickster_studio/error.{
+  type TricksterStudioError, IncorrectProtocolVersion, Todo,
+}
 import trickster_studio/identifier.{type Identifier}
 import trickster_studio/pattern.{type Pattern}
 import trickster_studio/serde
 import trickster_studio/storage
+import trickster_studio/uuid.{type UUID}
 
 pub type Fragment {
   SpellPartFragment(SpellPart)
@@ -23,16 +26,32 @@ pub type Fragment {
   EntityFragment(uuid: String, name: String)
   EntityTypeFragment(Identifier)
   ItemTypeFragment(Identifier)
+  FluidTypeFragment(Identifier)
   ListFragment(List(Fragment))
   MapFragment(Dict(Fragment, Fragment))
   SlotFragment(slot: storage.Slot, variant: Identifier)
-  ContainerFragment(source: storage.Source, variant: Identifier)
+  ContainerFragment(
+    source: storage.Source,
+    variant: Identifier,
+    filter: List(ResourceVariant),
+  )
   StringFragment(String)
   TypeFragment(Identifier)
   VectorFragment(x: IEEEFloat, y: IEEEFloat, z: IEEEFloat)
   ColorFragment(color: Int)
+  DisplaceFragment(
+    reference_id: UUID,
+    entity_id: UUID,
+    source_world: Identifier,
+  )
   VoidFragment
   ZalgoFragment
+}
+
+pub type ResourceVariant {
+  ItemResourceVariant(Identifier)
+  FluidResourceVariant(Identifier)
+  BlockResourceVariant(Identifier)
 }
 
 pub type SpellPart {
@@ -76,6 +95,11 @@ const item_type_id: identifier.Identifier = identifier.Identifier(
   "item_type",
 )
 
+const fluid_type_id: identifier.Identifier = identifier.Identifier(
+  "trickster",
+  "fluid_type",
+)
+
 const entity_id: identifier.Identifier = identifier.Identifier(
   "trickster",
   "entity",
@@ -99,6 +123,11 @@ const vector_id: identifier.Identifier = identifier.Identifier(
 const color_id: identifier.Identifier = identifier.Identifier(
   "trickster",
   "color",
+)
+
+const displace_id: identifier.Identifier = identifier.Identifier(
+  "trickster",
+  "displace",
 )
 
 const block_type_id: identifier.Identifier = identifier.Identifier(
@@ -196,6 +225,9 @@ fn encode_bytes(fragment: Fragment) -> BitArray {
     ItemTypeFragment(item_type) ->
       encode_fragment_struct(item_type_id, serde.encode_identifier(item_type))
 
+    FluidTypeFragment(fluid_type) ->
+      encode_fragment_struct(fluid_type_id, serde.encode_identifier(fluid_type))
+
     ListFragment(list) ->
       encode_fragment_struct(
         list_id,
@@ -217,9 +249,12 @@ fn encode_bytes(fragment: Fragment) -> BitArray {
       |> bit_array.append(serde.encode_identifier(variant))
       |> encode_fragment_struct(slot_id, _)
 
-    ContainerFragment(source:, variant:) ->
+    ContainerFragment(source:, variant:, filter:) ->
       storage.encode_source(source)
       |> bit_array.append(serde.encode_identifier(variant))
+      |> bit_array.append(
+        serde.encode_list(list.map(filter, encode_resource_variant)),
+      )
       |> encode_fragment_struct(container_id, _)
 
     StringFragment(string) ->
@@ -236,6 +271,16 @@ fn encode_bytes(fragment: Fragment) -> BitArray {
 
     ColorFragment(color) ->
       encode_fragment_struct(color_id, serde.encode_int(color))
+
+    DisplaceFragment(reference_id:, entity_id:, source_world:) ->
+      encode_fragment_struct(
+        displace_id,
+        bit_array.concat([
+          serde.encode_uuid(reference_id),
+          serde.encode_uuid(entity_id),
+          serde.encode_identifier(source_world),
+        ]),
+      )
 
     VoidFragment -> serde.encode_identifier(void_id)
 
@@ -261,6 +306,17 @@ fn encode_bytes(fragment: Fragment) -> BitArray {
           serde.encode_list(list.map(children, encode_spell_part)),
         ]),
       )
+  }
+}
+
+fn encode_resource_variant(variant: ResourceVariant) -> BitArray {
+  case variant {
+    ItemResourceVariant(item_type) ->
+      encode_fragment_struct(item_type_id, serde.encode_identifier(item_type))
+    FluidResourceVariant(fluid_type) ->
+      encode_fragment_struct(fluid_type_id, serde.encode_identifier(fluid_type))
+    BlockResourceVariant(block_type) ->
+      encode_fragment_struct(block_type_id, serde.encode_identifier(block_type))
   }
 }
 
@@ -322,12 +378,12 @@ pub fn from_base64(base64: String) -> Result(Fragment, TricksterStudioError) {
 pub fn from_bytes(bit_array: BitArray) -> Result(Fragment, TricksterStudioError) {
   let bytes = serde.ungzip(bit_array.append(gzip_header, bit_array))
   case bytes {
-    Ok(<<4:size(8), rest:bytes>>) ->
+    Ok(<<6:size(8), rest:bytes>>) ->
       decode_bytes(rest)
       |> result.map(pair.first)
 
     _ -> {
-      Error(Todo)
+      Error(IncorrectProtocolVersion)
     }
   }
 }
@@ -375,6 +431,11 @@ fn decode_bytes(
       |> serde.map_decoder(ItemTypeFragment)
       |> serde.apply_decoder(bit_array)
 
+    id if id == fluid_type_id ->
+      serde.decode_identifier
+      |> serde.map_decoder(FluidTypeFragment)
+      |> serde.apply_decoder(bit_array)
+
     id if id == list_id ->
       serde.list_of(decode_bytes)
       |> serde.map_decoder(ListFragment)
@@ -403,9 +464,12 @@ fn decode_bytes(
 
     id if id == container_id -> {
       use #(source, bit_array) <- result.try(storage.decode_source(bit_array))
-      use #(variant, bit_array) <- result.map(serde.decode_identifier(bit_array))
+      use #(variant, bit_array) <- result.try(serde.decode_identifier(bit_array))
+      use #(filter, bit_array) <- result.map(serde.list_of(
+        decode_resource_variant,
+      )(bit_array))
 
-      #(ContainerFragment(source:, variant:), bit_array)
+      #(ContainerFragment(source:, variant:, filter:), bit_array)
     }
 
     id if id == string_id ->
@@ -434,6 +498,16 @@ fn decode_bytes(
       serde.decode_int
       |> serde.map_decoder(ColorFragment)
       |> serde.apply_decoder(bit_array)
+
+    id if id == displace_id -> {
+      use #(reference_id, bit_array) <- result.try(serde.decode_uuid(bit_array))
+      use #(entity_id, bit_array) <- result.try(serde.decode_uuid(bit_array))
+      use #(source_world, bit_array) <- result.map(serde.decode_identifier(
+        bit_array,
+      ))
+
+      #(DisplaceFragment(reference_id:, entity_id:, source_world:), bit_array)
+    }
 
     id if id == void_id -> Ok(#(VoidFragment, bit_array))
 
@@ -466,6 +540,33 @@ fn decode_bytes(
 
       #(SpellPartFragment(SpellPart(glyph, children)), bit_array)
     }
+
+    _ -> {
+      Error(Todo)
+    }
+  }
+}
+
+fn decode_resource_variant(
+  bit_array: BitArray,
+) -> Result(#(ResourceVariant, BitArray), TricksterStudioError) {
+  use #(id, bit_array) <- result.try(serde.decode_identifier(bit_array))
+
+  case id {
+    id if id == item_type_id ->
+      serde.decode_identifier
+      |> serde.map_decoder(ItemResourceVariant)
+      |> serde.apply_decoder(bit_array)
+
+    id if id == fluid_type_id ->
+      serde.decode_identifier
+      |> serde.map_decoder(FluidResourceVariant)
+      |> serde.apply_decoder(bit_array)
+
+    id if id == block_type_id ->
+      serde.decode_identifier
+      |> serde.map_decoder(BlockResourceVariant)
+      |> serde.apply_decoder(bit_array)
 
     _ -> {
       Error(Todo)

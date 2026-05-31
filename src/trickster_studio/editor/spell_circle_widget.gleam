@@ -20,6 +20,7 @@ import tiramisu/scene
 import tiramisu/transform
 import trickster_studio/spell_tree_map
 import trickster_studio/storage
+import trickster_studio/uuid
 import vec/vec2
 import vec/vec3
 
@@ -299,7 +300,7 @@ fn text(
           "font-size",
           float.to_string(
             text_size_getter(size)
-            /. { int.to_float(string.length(text)) /. 2.0 },
+            /. { int.to_float(string.length(text)) /. 4.0 },
           )
             <> "px",
         ),
@@ -330,7 +331,7 @@ fn fragment_proportional_max_height(fragment: fragment.Fragment) {
     fragment.SpellPartFragment(_) -> 0.3
     fragment.ListFragment(_) -> 0.7
     fragment.MapFragment(_) -> 0.5
-    _ -> 0.1
+    _ -> 0.2
   }
 }
 
@@ -367,15 +368,18 @@ pub fn render_fragment(
       render_entity(name, text_renderer)
     fragment.EntityTypeFragment(id) -> render_entity_type(id, text_renderer)
     fragment.ItemTypeFragment(id) -> render_item_type(id, text_renderer)
+    fragment.FluidTypeFragment(id) -> render_fluid_type(id, text_renderer)
     fragment.SlotFragment(slot:, variant:) ->
       render_slot(slot, variant, text_renderer)
-    fragment.ContainerFragment(source:, variant:) ->
-      render_container(source, variant, text_renderer)
+    fragment.ContainerFragment(source:, variant:, filter:) ->
+      render_container(source, variant, filter, text_renderer)
     fragment.StringFragment(string) ->
       render_string_fragment(string, text_renderer)
     fragment.TypeFragment(id) -> render_type_fragment(id, text_renderer)
     fragment.VectorFragment(x:, y:, z:) -> render_vector(x, y, z, text_renderer)
     fragment.ColorFragment(color:) -> render_color(color, text_renderer)
+    fragment.DisplaceFragment(reference_id:, entity_id:, source_world:) ->
+      render_displace(reference_id, entity_id, source_world, text_renderer)
     fragment.VoidFragment -> render_void(text_renderer)
     fragment.ZalgoFragment -> render_zalgo(text_renderer)
     fragment.ListFragment(list) ->
@@ -501,6 +505,18 @@ fn render_item_type(
   |> text_renderer()
 }
 
+fn render_fluid_type(
+  id: identifier.Identifier,
+  text_renderer: TextRenderer,
+) -> scene.Node {
+  let color = "#aa6622"
+
+  identifier.to_string(id)
+  |> pair.new(color)
+  |> list.wrap
+  |> text_renderer()
+}
+
 fn render_string_fragment(
   string: String,
   text_renderer: TextRenderer,
@@ -571,6 +587,20 @@ fn render_color(color: Int, text_renderer: TextRenderer) -> scene.Node {
   text_renderer([#(hex_code, hex_code)])
 }
 
+fn render_displace(
+  reference_id: uuid.UUID,
+  entity_id: uuid.UUID,
+  source_world: identifier.Identifier,
+  text_renderer: fn(List(#(String, String))) -> scene.Node,
+) -> scene.Node {
+  let color = "#44cc88"
+
+  { "Displacement " <> uuid.to_string(reference_id) }
+  |> pair.new(color)
+  |> list.wrap
+  |> text_renderer()
+}
+
 fn render_slot(
   slot: storage.Slot,
   variant: identifier.Identifier,
@@ -587,6 +617,7 @@ fn render_slot(
 fn render_container(
   source: storage.Source,
   variant: identifier.Identifier,
+  filter: List(fragment.ResourceVariant),
   text_renderer: fn(List(#(String, String))) -> scene.Node,
 ) -> scene.Node {
   let color = "#bbbbff"
@@ -810,8 +841,8 @@ fn render_map(
   let scale = float.min(0.4, max_scale)
 
   let arrow_renderer = fn(id) {
-    text([#("->", "#ffffff")], id, size, alpha_getter, fn(size) {
-      text_size_getter(size /. 5.0)
+    text([#("-> ", "#ffffff")], id, size, alpha_getter, fn(size) {
+      text_size_getter(size /. 10.0)
     })
   }
 
@@ -861,13 +892,13 @@ fn render_map(
           [
             scene.empty(
               id <> "KP" <> int.to_string(i),
-              transform.at(vec3.Vec3(-0.8, 0.0, 0.0)),
+              transform.at(vec3.Vec3(-1.0, 0.0, 0.0)),
               [rendered_key],
             ),
             arrow_renderer(id <> "arrow" <> int.to_string(i)),
             scene.empty(
               id <> "VP" <> int.to_string(i),
-              transform.at(vec3.Vec3(0.8, 0.0, 0.0)),
+              transform.at(vec3.Vec3(1.0, 0.0, 0.0)),
               [rendered_value],
             ),
           ],
@@ -892,7 +923,7 @@ fn render_map(
       height,
       id <> "left_b",
       alpha_getter(size),
-      transform.at(vec3.Vec3(-1.4 *. scale, 0.0, 0.0))
+      transform.at(vec3.Vec3(-1.8 *. scale, 0.0, 0.0))
         |> transform.scale_uniform(scale),
     )
   let right_bracket =
@@ -900,7 +931,7 @@ fn render_map(
       height,
       id <> "right_b",
       alpha_getter(size),
-      transform.at(vec3.Vec3(1.4 *. scale, 0.0, 0.0))
+      transform.at(vec3.Vec3(1.8 *. scale, 0.0, 0.0))
         |> transform.scale_uniform(scale)
         |> transform.rotate_z(maths.pi()),
     )
