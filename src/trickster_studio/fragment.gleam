@@ -30,7 +30,11 @@ pub type Fragment {
   ListFragment(List(Fragment))
   MapFragment(Dict(Fragment, Fragment))
   SlotFragment(slot: storage.Slot, variant: Identifier)
-  ContainerFragment(source: storage.Source, variant: Identifier)
+  ContainerFragment(
+    source: storage.Source,
+    variant: Identifier,
+    filter: List(ResourceVariant),
+  )
   StringFragment(String)
   TypeFragment(Identifier)
   VectorFragment(x: IEEEFloat, y: IEEEFloat, z: IEEEFloat)
@@ -42,6 +46,12 @@ pub type Fragment {
   )
   VoidFragment
   ZalgoFragment
+}
+
+pub type ResourceVariant {
+  ItemResourceVariant(Identifier)
+  FluidResourceVariant(Identifier)
+  BlockResourceVariant(Identifier)
 }
 
 pub type SpellPart {
@@ -239,9 +249,12 @@ fn encode_bytes(fragment: Fragment) -> BitArray {
       |> bit_array.append(serde.encode_identifier(variant))
       |> encode_fragment_struct(slot_id, _)
 
-    ContainerFragment(source:, variant:) ->
+    ContainerFragment(source:, variant:, filter:) ->
       storage.encode_source(source)
       |> bit_array.append(serde.encode_identifier(variant))
+      |> bit_array.append(
+        serde.encode_list(list.map(filter, encode_resource_variant)),
+      )
       |> encode_fragment_struct(container_id, _)
 
     StringFragment(string) ->
@@ -293,6 +306,17 @@ fn encode_bytes(fragment: Fragment) -> BitArray {
           serde.encode_list(list.map(children, encode_spell_part)),
         ]),
       )
+  }
+}
+
+fn encode_resource_variant(variant: ResourceVariant) -> BitArray {
+  case variant {
+    ItemResourceVariant(item_type) ->
+      encode_fragment_struct(item_type_id, serde.encode_identifier(item_type))
+    FluidResourceVariant(fluid_type) ->
+      encode_fragment_struct(fluid_type_id, serde.encode_identifier(fluid_type))
+    BlockResourceVariant(block_type) ->
+      encode_fragment_struct(block_type_id, serde.encode_identifier(block_type))
   }
 }
 
@@ -440,9 +464,12 @@ fn decode_bytes(
 
     id if id == container_id -> {
       use #(source, bit_array) <- result.try(storage.decode_source(bit_array))
-      use #(variant, bit_array) <- result.map(serde.decode_identifier(bit_array))
+      use #(variant, bit_array) <- result.try(serde.decode_identifier(bit_array))
+      use #(filter, bit_array) <- result.map(serde.list_of(
+        decode_resource_variant,
+      )(bit_array))
 
-      #(ContainerFragment(source:, variant:), bit_array)
+      #(ContainerFragment(source:, variant:, filter:), bit_array)
     }
 
     id if id == string_id ->
@@ -473,9 +500,7 @@ fn decode_bytes(
       |> serde.apply_decoder(bit_array)
 
     id if id == displace_id -> {
-      echo "1"
       use #(reference_id, bit_array) <- result.try(serde.decode_uuid(bit_array))
-      echo "2"
       use #(entity_id, bit_array) <- result.try(serde.decode_uuid(bit_array))
       use #(source_world, bit_array) <- result.map(serde.decode_identifier(
         bit_array,
@@ -515,6 +540,33 @@ fn decode_bytes(
 
       #(SpellPartFragment(SpellPart(glyph, children)), bit_array)
     }
+
+    _ -> {
+      Error(Todo)
+    }
+  }
+}
+
+fn decode_resource_variant(
+  bit_array: BitArray,
+) -> Result(#(ResourceVariant, BitArray), TricksterStudioError) {
+  use #(id, bit_array) <- result.try(serde.decode_identifier(bit_array))
+
+  case id {
+    id if id == item_type_id ->
+      serde.decode_identifier
+      |> serde.map_decoder(ItemResourceVariant)
+      |> serde.apply_decoder(bit_array)
+
+    id if id == fluid_type_id ->
+      serde.decode_identifier
+      |> serde.map_decoder(FluidResourceVariant)
+      |> serde.apply_decoder(bit_array)
+
+    id if id == block_type_id ->
+      serde.decode_identifier
+      |> serde.map_decoder(BlockResourceVariant)
+      |> serde.apply_decoder(bit_array)
 
     _ -> {
       Error(Todo)

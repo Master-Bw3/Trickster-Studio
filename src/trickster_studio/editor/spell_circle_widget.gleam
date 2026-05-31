@@ -300,7 +300,7 @@ fn text(
           "font-size",
           float.to_string(
             text_size_getter(size)
-            /. { int.to_float(string.length(text)) /. 2.0 },
+            /. { int.to_float(string.length(text)) /. 4.0 },
           )
             <> "px",
         ),
@@ -331,7 +331,7 @@ fn fragment_proportional_max_height(fragment: fragment.Fragment) {
     fragment.SpellPartFragment(_) -> 0.3
     fragment.ListFragment(_) -> 0.7
     fragment.MapFragment(_) -> 0.5
-    _ -> 0.1
+    _ -> 0.2
   }
 }
 
@@ -371,8 +371,8 @@ pub fn render_fragment(
     fragment.FluidTypeFragment(id) -> render_fluid_type(id, text_renderer)
     fragment.SlotFragment(slot:, variant:) ->
       render_slot(slot, variant, text_renderer)
-    fragment.ContainerFragment(source:, variant:) ->
-      render_container(source, variant, text_renderer)
+    fragment.ContainerFragment(source:, variant:, filter:) ->
+      render_container(source, variant, filter, text_renderer)
     fragment.StringFragment(string) ->
       render_string_fragment(string, text_renderer)
     fragment.TypeFragment(id) -> render_type_fragment(id, text_renderer)
@@ -617,6 +617,7 @@ fn render_slot(
 fn render_container(
   source: storage.Source,
   variant: identifier.Identifier,
+  filter: List(fragment.ResourceVariant),
   text_renderer: fn(List(#(String, String))) -> scene.Node,
 ) -> scene.Node {
   let color = "#bbbbff"
@@ -840,8 +841,8 @@ fn render_map(
   let scale = float.min(0.4, max_scale)
 
   let arrow_renderer = fn(id) {
-    text([#("->", "#ffffff")], id, size, alpha_getter, fn(size) {
-      text_size_getter(size /. 5.0)
+    text([#("-> ", "#ffffff")], id, size, alpha_getter, fn(size) {
+      text_size_getter(size /. 10.0)
     })
   }
 
@@ -891,13 +892,13 @@ fn render_map(
           [
             scene.empty(
               id <> "KP" <> int.to_string(i),
-              transform.at(vec3.Vec3(-0.8, 0.0, 0.0)),
+              transform.at(vec3.Vec3(-1.0, 0.0, 0.0)),
               [rendered_key],
             ),
             arrow_renderer(id <> "arrow" <> int.to_string(i)),
             scene.empty(
               id <> "VP" <> int.to_string(i),
-              transform.at(vec3.Vec3(0.8, 0.0, 0.0)),
+              transform.at(vec3.Vec3(1.0, 0.0, 0.0)),
               [rendered_value],
             ),
           ],
@@ -922,7 +923,7 @@ fn render_map(
       height,
       id <> "left_b",
       alpha_getter(size),
-      transform.at(vec3.Vec3(-1.4 *. scale, 0.0, 0.0))
+      transform.at(vec3.Vec3(-1.8 *. scale, 0.0, 0.0))
         |> transform.scale_uniform(scale),
     )
   let right_bracket =
@@ -930,7 +931,7 @@ fn render_map(
       height,
       id <> "right_b",
       alpha_getter(size),
-      transform.at(vec3.Vec3(1.4 *. scale, 0.0, 0.0))
+      transform.at(vec3.Vec3(1.8 *. scale, 0.0, 0.0))
         |> transform.scale_uniform(scale)
         |> transform.rotate_z(maths.pi()),
     )
