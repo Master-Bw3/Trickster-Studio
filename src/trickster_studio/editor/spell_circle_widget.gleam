@@ -20,6 +20,7 @@ import tiramisu/scene
 import tiramisu/transform
 import trickster_studio/spell_tree_map
 import trickster_studio/storage
+import trickster_studio/uuid
 import vec/vec2
 import vec/vec3
 
@@ -367,6 +368,7 @@ pub fn render_fragment(
       render_entity(name, text_renderer)
     fragment.EntityTypeFragment(id) -> render_entity_type(id, text_renderer)
     fragment.ItemTypeFragment(id) -> render_item_type(id, text_renderer)
+    fragment.FluidTypeFragment(id) -> render_fluid_type(id, text_renderer)
     fragment.SlotFragment(slot:, variant:) ->
       render_slot(slot, variant, text_renderer)
     fragment.ContainerFragment(source:, variant:) ->
@@ -376,6 +378,8 @@ pub fn render_fragment(
     fragment.TypeFragment(id) -> render_type_fragment(id, text_renderer)
     fragment.VectorFragment(x:, y:, z:) -> render_vector(x, y, z, text_renderer)
     fragment.ColorFragment(color:) -> render_color(color, text_renderer)
+    fragment.DisplaceFragment(reference_id:, entity_id:, source_world:) ->
+      render_displace(reference_id, entity_id, source_world, text_renderer)
     fragment.VoidFragment -> render_void(text_renderer)
     fragment.ZalgoFragment -> render_zalgo(text_renderer)
     fragment.ListFragment(list) ->
@@ -501,6 +505,18 @@ fn render_item_type(
   |> text_renderer()
 }
 
+fn render_fluid_type(
+  id: identifier.Identifier,
+  text_renderer: TextRenderer,
+) -> scene.Node {
+  let color = "#aa6622"
+
+  identifier.to_string(id)
+  |> pair.new(color)
+  |> list.wrap
+  |> text_renderer()
+}
+
 fn render_string_fragment(
   string: String,
   text_renderer: TextRenderer,
@@ -569,6 +585,20 @@ fn render_color(color: Int, text_renderer: TextRenderer) -> scene.Node {
     <> int.to_base16(a) |> string.pad_start(2, "0")
 
   text_renderer([#(hex_code, hex_code)])
+}
+
+fn render_displace(
+  reference_id: uuid.UUID,
+  entity_id: uuid.UUID,
+  source_world: identifier.Identifier,
+  text_renderer: fn(List(#(String, String))) -> scene.Node,
+) -> scene.Node {
+  let color = "#44cc88"
+
+  { "Displacement " <> uuid.to_string(reference_id) }
+  |> pair.new(color)
+  |> list.wrap
+  |> text_renderer()
 }
 
 fn render_slot(

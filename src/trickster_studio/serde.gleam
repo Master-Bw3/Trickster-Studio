@@ -8,6 +8,7 @@ import gleam/string
 import ieee_float.{type IEEEFloat}
 import trickster_studio/error.{type TricksterStudioError, Todo}
 import trickster_studio/identifier.{type Identifier}
+import trickster_studio/uuid.{type UUID}
 
 const segment_bits: Int = 127
 
@@ -57,6 +58,12 @@ pub fn encode_list(list: List(BitArray)) -> BitArray {
 pub fn encode_identifier(value: Identifier) -> BitArray {
   identifier.to_string(value)
   |> encode_string
+}
+
+pub fn encode_uuid(value: UUID) -> BitArray {
+  [value.uuid_most_1, value.uuid_most_2, value.uuid_least_1, value.uuid_least_2]
+  |> list.map(encode_int)
+  |> encode_list
 }
 
 pub fn encode_option(
@@ -180,6 +187,21 @@ pub fn decode_identifier(
   identifier.from_string(string)
   |> result.map(pair.new(_, rest))
   |> result.replace_error(Todo)
+}
+
+pub fn decode_uuid(
+  bit_array: BitArray,
+) -> Result(#(UUID, BitArray), TricksterStudioError) {
+  use #(list, rest) <- result.try(list_of(decode_int)(bit_array))
+
+  case list {
+    [uuid_most_1, uuid_most_2, uuid_least_1, uuid_least_2] ->
+      Ok(#(
+        uuid.UUID(uuid_most_1, uuid_most_2, uuid_least_1, uuid_least_2),
+        rest,
+      ))
+    _ -> Error(Todo)
+  }
 }
 
 pub fn decode_int(
